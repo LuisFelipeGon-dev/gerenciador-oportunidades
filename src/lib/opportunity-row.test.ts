@@ -28,6 +28,11 @@ describe("opportunity rows", () => {
     expect(fromRow(toRow(opportunity))).toEqual(opportunity);
   });
 
+  it("collapses repeated whitespace in titles", () => {
+    const row = { ...toRow(opportunity), title: "  Flutter +  MCP \n [Pré-evento] " };
+    expect(fromRow(row).title).toBe("Flutter + MCP [Pré-evento]");
+  });
+
   it("accepts timestamps as Postgres returns them", () => {
     const row = { ...toRow(opportunity), verified_at: "2026-10-27T12:00:00.123456+00:00" };
     expect(fromRow(row).verifiedAt).toBe("2026-10-27T12:00:00.123456+00:00");

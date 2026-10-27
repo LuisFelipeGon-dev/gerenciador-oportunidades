@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
-import type { Opportunity, OpportunityType } from "./opportunity";
+import type { Opportunity } from "./opportunity";
 import { fromRow, type OpportunityRow } from "./opportunity-row";
 import { createPublicClient } from "./supabase/public";
 
@@ -7,8 +7,8 @@ export type OpenOpportunities =
   | { configured: false }
   | { configured: true; items: Opportunity[] };
 
-/** Open opportunities of one type, closing soonest first. */
-export async function getOpenOpportunities(type: OpportunityType): Promise<OpenOpportunities> {
+/** Every open opportunity, ordered by deadline (or start date when there is no deadline). */
+export async function getOpenOpportunities(): Promise<OpenOpportunities> {
   "use cache";
   cacheLife("hours");
   cacheTag("opportunities");
@@ -19,8 +19,7 @@ export async function getOpenOpportunities(type: OpportunityType): Promise<OpenO
   const { data, error } = await supabase
     .from("open_opportunities")
     .select("*")
-    .eq("type", type)
-    .order("registration_deadline", { ascending: true, nullsFirst: false })
+    .order("sort_date", { ascending: true, nullsFirst: false })
     .order("title");
   if (error) throw new Error(`Failed to load opportunities: ${error.message}`);
 

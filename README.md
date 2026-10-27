@@ -2,7 +2,15 @@
 
 Site público que reúne oportunidades abertas para estudantes (hackathons, programas de embaixador, eventos e bolsas), com prazo, elegibilidade e link oficial. O plano completo está em [PLANO.md](PLANO.md).
 
-Estado atual (Fase 0): lista os hackathons abertos do Devpost, ordenados pelo prazo.
+Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e eventos dos GDGs brasileiros, ordenados pelo prazo ou, sem prazo, pela data de início.
+
+## Fontes
+
+| Fonte | Como é coletada |
+| --- | --- |
+| Devpost | JSON público `devpost.com/api/hackathons` (não oficial) |
+| MLH | JSON embutido na página da temporada (`mlh.com/seasons/<ano>/events`) |
+| GDG | Sitemaps mensais de eventos e JSON-LD de cada página de evento. O robots.txt proíbe `/api/` e pede 2 s entre requisições. Só capítulos brasileiros, listados em `src/collectors/gdg-chapters-br.ts` |
 
 ## Stack
 
@@ -29,7 +37,7 @@ Sem as variáveis do Supabase, o site abre e mostra um aviso no lugar da lista.
 
 ## Banco de dados
 
-O esquema está em `supabase/migrations/`. Para aplicar em um projeto novo, cole o conteúdo de `0001_init.sql` no SQL Editor do Supabase e execute.
+O esquema está em `supabase/migrations/`. Para aplicar em um projeto novo, cole cada arquivo no SQL Editor do Supabase, em ordem numérica, e execute.
 
 - `opportunities`: leitura pública; escrita só com a service role (usada pelo coletor).
 - `open_opportunities`: view com o que não fechou e ainda está no prazo.

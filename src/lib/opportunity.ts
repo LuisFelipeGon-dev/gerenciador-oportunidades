@@ -36,7 +36,10 @@ export const eligibilitySchema = z.object({
 export const opportunitySchema = z
   .object({
     type: z.enum(OPPORTUNITY_TYPES),
-    title: z.string().trim().min(1),
+    title: z
+      .string()
+      .transform((s) => s.replace(/\s+/g, " ").trim())
+      .pipe(z.string().min(1)),
     organizer: z.string().trim().min(1).nullable(),
     officialUrl: z.url({ protocol: /^https?$/ }),
     modality: z.enum(MODALITIES),
