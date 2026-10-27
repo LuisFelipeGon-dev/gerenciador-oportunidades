@@ -183,4 +183,4 @@ Decisões em aberto:
 - [ ] Escolher o nome definitivo do projeto.
 - [ ] Testar quais rotas da API do Bevy (GDG) respondem sem chave.
 - [ ] Montar o YAML inicial de programas de embaixador (Gemini, Microsoft, GitHub, AWS, Claude, Notion).
-- [ ] Configurar o GitHub Actions para rodar a coleta uma vez por dia.
+- [x] Configurar o GitHub Actions para rodar a coleta uma vez por dia (09:17 UTC).
