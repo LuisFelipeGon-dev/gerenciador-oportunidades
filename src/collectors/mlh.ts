@@ -90,7 +90,8 @@ export function mapMlhEvent(e: MlhEvent, verifiedAt: string): Opportunity {
       lat: null,
       lng: null,
     },
-    // Dates in UTC; MLH does not publish the event's time zone in this payload.
+    // Calendar dates, not instants: the "Z" times are often placeholders (01:11:11Z, 23:59:59Z),
+    // and the date part matches the dateRange MLH itself displays. Do not convert time zones.
     startsOn: e.startsAt.slice(0, 10),
     endsOn: e.endsAt.slice(0, 10),
     // MLH does not publish a registration deadline; the site falls back to the start date.

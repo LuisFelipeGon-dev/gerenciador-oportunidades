@@ -45,6 +45,14 @@ describe("mapMlhEvent", () => {
     });
   });
 
+  it("keeps the calendar dates MLH displays, even with placeholder times", () => {
+    const o = mapMlhEvent(
+      { ...bySlug("hackcbs"), startsAt: "2027-01-15T01:11:11Z", endsAt: "2027-01-17T23:59:59Z" },
+      VERIFIED_AT,
+    );
+    expect([o.startsOn, o.endsOn]).toEqual(["2027-01-15", "2027-01-17"]);
+  });
+
   it("maps hybrid events", () => {
     expect(mapMlhEvent(bySlug("makeuc"), VERIFIED_AT).modality).toBe("hybrid");
   });
