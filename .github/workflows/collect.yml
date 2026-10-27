@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+  # Para abrir ou comentar a issue do monitor de páginas.
+  issues: write
 
 concurrency:
   group: collect
@@ -36,3 +38,26 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           COLLECTOR_CONTACT: https://github.com/${{ github.repository }}
+
+      # Roda mesmo se uma fonte da coleta falhar: são tarefas independentes.
+      - name: Monitor das páginas de programas
+        if: ${{ !cancelled() }}
+        run: npm run monitor -- --report=monitor-report.md
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COLLECTOR_CONTACT: https://github.com/${{ github.repository }}
+
+      # Uma issue aberta por vez: se já existe, as mudanças novas entram como comentário.
+      - name: Avisar mudanças em issue
+        if: ${{ !cancelled() && hashFiles('monitor-report.md') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create monitor --color FBCA04 --description "Mudança em página oficial de programa" --force
+          issue=$(gh issue list --label monitor --state open --json number --jq '.[0].number // empty')
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body-file monitor-report.md
+          else
+            gh issue create --title "Páginas de programas mudaram: revisar o YAML" --label monitor --body-file monitor-report.md
+          fi

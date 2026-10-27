@@ -11,6 +11,13 @@ Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e even
 | Devpost | JSON público `devpost.com/api/hackathons` (não oficial) |
 | MLH | JSON embutido na página da temporada (`mlh.com/seasons/<ano>/events`) |
 | GDG | Sitemaps mensais de eventos e JSON-LD de cada página de evento. O robots.txt proíbe `/api/` e pede 2 s entre requisições. Só capítulos brasileiros, listados em `src/collectors/gdg-chapters-br.ts` |
+| Programas de embaixador | Lista curada em `data/ambassador-programs.yaml`, conferida à mão na página oficial |
+
+## Programas de embaixador e monitor
+
+Os programas ficam em `data/ambassador-programs.yaml`, com um comentário no topo explicando cada campo. Cada item registra a data em que a página oficial foi conferida (`checked_on`). O site mostra também os programas fechados, com o mês em que costumam abrir.
+
+O monitor (`npm run monitor`) baixa a página oficial de cada programa todo dia, compara o texto visível com o da véspera e, se mudou, a coleta diária abre uma issue com a etiqueta `monitor` (ou comenta na que já estiver aberta). Nada é publicado automaticamente: confira a página, atualize o YAML e feche a issue.
 
 ## Stack
 

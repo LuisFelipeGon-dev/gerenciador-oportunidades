@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { collectCurated } from "../src/collectors/curated";
 import { collectDevpost } from "../src/collectors/devpost";
 import { collectGdg } from "../src/collectors/gdg";
 import { collectMlh } from "../src/collectors/mlh";
@@ -17,6 +18,8 @@ const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] =
   { name: "mlh", collect: collectMlh, requireResults: false },
   // Few Brazilian GDG events may be scheduled in a given quarter.
   { name: "gdg", collect: collectGdg, requireResults: false },
+  // Programs curated in data/ambassador-programs.yaml.
+  { name: "curated", collect: collectCurated, requireResults: true },
 ];
 
 function requireEnv(name: string): string {

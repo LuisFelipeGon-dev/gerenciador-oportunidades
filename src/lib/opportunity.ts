@@ -52,6 +52,10 @@ export const opportunitySchema = z
     benefits: z.array(z.string()),
     tags: z.array(z.string()),
     scale: z.enum(SCALES).nullable(),
+    // Months (1-12) when a recurring program usually opens, for "costuma abrir em julho".
+    typicalOpenMonths: z.array(z.number().int().min(1).max(12)).default([]),
+    // Warning shown on the card, e.g. when a detail is not confirmed by the official page.
+    note: z.string().min(1).nullable().default(null),
     source: z.string().min(1),
     sourceId: z.string().min(1),
     verifiedAt: z.iso.datetime({ offset: true }),
