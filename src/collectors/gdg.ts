@@ -15,6 +15,7 @@ const placeSchema = z.object({
     .object({
       addressLocality: z.string().optional(),
       addressRegion: z.string().optional(),
+      postalCode: z.string().optional(),
       addressCountry: z.union([z.string(), z.object({ name: z.string() })]).optional(),
     })
     .optional(),
@@ -76,8 +77,23 @@ function modalityOf(mode: string | undefined): Opportunity["modality"] {
   return "in_person";
 }
 
-function stateCode(region: string | undefined, fallback: string): string {
-  return region && /^[A-Z]{2}$/.test(region.trim()) ? region.trim() : fallback;
+const BR_STATES: Record<string, string> = {
+  acre: "AC", alagoas: "AL", amapa: "AP", amazonas: "AM", bahia: "BA", ceara: "CE",
+  "distrito federal": "DF", "federal district": "DF", "espirito santo": "ES", goias: "GO",
+  maranhao: "MA", "mato grosso": "MT", "mato grosso do sul": "MS", "minas gerais": "MG",
+  para: "PA", paraiba: "PB", parana: "PR", pernambuco: "PE", piaui: "PI", "rio de janeiro": "RJ",
+  "rio grande do norte": "RN", "rio grande do sul": "RS", rondonia: "RO", roraima: "RR",
+  "santa catarina": "SC", "sao paulo": "SP", sergipe: "SE", tocantins: "TO",
+};
+const BR_UFS = new Set(Object.values(BR_STATES));
+
+/** "SP", "São Paulo" or "Sao Paulo" -> "SP"; null when it is not a Brazilian state. */
+export function brazilianState(region: string | undefined): string | null {
+  const value = region?.trim();
+  if (!value) return null;
+  if (BR_UFS.has(value.toUpperCase()) && value.length === 2) return value.toUpperCase();
+  const key = value.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+  return BR_STATES[key] ?? null;
 }
 
 export function mapGdgEvent(
@@ -89,8 +105,17 @@ export function mapGdgEvent(
   const modality = modalityOf(ld.eventAttendanceMode);
   const place = [ld.location ?? []].flat().find((p) => p.address || p.name);
   const address = place?.address;
-  const country =
+  const declaredCountry =
     typeof address?.addressCountry === "string" ? address.addressCountry : address?.addressCountry?.name;
+  const state = brazilianState(address?.addressRegion);
+  // Some Brazilian events declare "US" next to a Brazilian state and CEP (a platform default).
+  // A Brazilian state or CEP wins; otherwise trust the page, and default to BR for these chapters.
+  const looksBrazilian = state !== null || /^\d{5}-?\d{3}$/.test(address?.postalCode?.trim() ?? "");
+  const country = looksBrazilian
+    ? "BR"
+    : declaredCountry?.trim().length === 2
+      ? declaredCountry.trim().toUpperCase()
+      : "BR";
   const city = address?.addressLocality?.trim() || chapter.city;
   const isOnline = modality === "online";
 
@@ -103,8 +128,8 @@ export function mapGdgEvent(
     location: {
       raw: isOnline ? null : [place?.name?.trim(), city].filter(Boolean).join(", ") || null,
       city: isOnline ? null : city,
-      state: isOnline ? null : stateCode(address?.addressRegion, chapter.state),
-      country: isOnline ? null : country?.length === 2 ? country.toUpperCase() : "BR",
+      state: isOnline ? null : country === "BR" ? (state ?? chapter.state) : (address?.addressRegion?.trim() || null),
+      country: isOnline ? null : country,
       lat: null,
       lng: null,
     },

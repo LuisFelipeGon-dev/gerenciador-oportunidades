@@ -70,6 +70,30 @@ describe("mapGdgEvent", () => {
     });
   });
 
+  it("fixes Brazilian addresses that declare another country", () => {
+    const ld = parseGdgEventPage(eventPage);
+    const withAddress = (address: object) => ({
+      ...ld,
+      location: { "@type": "Place", name: "PUC Campinas", address },
+    });
+    // Real case: GDG Campinas page with region "São Paulo", a CEP and addressCountry "US".
+    const campinas = mapGdgEvent(
+      withAddress({ addressLocality: "Campinas", addressRegion: "São Paulo", postalCode: "13087-460", addressCountry: "US" }),
+      EVENT_URL,
+      goiania,
+      VERIFIED_AT,
+    );
+    expect(campinas.location).toMatchObject({ city: "Campinas", state: "SP", country: "BR" });
+
+    const abroad = mapGdgEvent(
+      withAddress({ addressLocality: "Lisboa", addressRegion: "Lisboa", postalCode: "1000-001", addressCountry: "PT" }),
+      EVENT_URL,
+      goiania,
+      VERIFIED_AT,
+    );
+    expect(abroad.location).toMatchObject({ city: "Lisboa", state: "Lisboa", country: "PT" });
+  });
+
   it("maps online and cancelled events", () => {
     const ld = {
       ...parseGdgEventPage(eventPage),
