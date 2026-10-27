@@ -176,10 +176,11 @@ Decisões em aberto:
 
 ## Próximos passos
 
-- [ ] Escolher o nome do projeto e criar o repositório no GitHub (LuisFelipeGon-dev).
-- [ ] Criar o projeto Next.js e fazer o primeiro deploy na Vercel; criar o projeto no Supabase e ativar o login por e-mail.
-- [ ] Escrever o esquema da oportunidade em TypeScript + Zod.
-- [ ] Testar o JSON do Devpost e escrever o primeiro coletor.
+- [x] Criar o repositório no GitHub: [LuisFelipeGon-dev/gerenciador-oportunidades](https://github.com/LuisFelipeGon-dev/gerenciador-oportunidades). O nome ainda é provisório.
+- [x] Criar o projeto Next.js e fazer o primeiro deploy na Vercel ([gerenciador-oportunidades.vercel.app](https://gerenciador-oportunidades.vercel.app)); criar o projeto no Supabase e ativar o login por e-mail.
+- [x] Escrever o esquema da oportunidade em TypeScript + Zod.
+- [x] Testar o JSON do Devpost e escrever o primeiro coletor.
+- [ ] Escolher o nome definitivo do projeto.
 - [ ] Testar quais rotas da API do Bevy (GDG) respondem sem chave.
 - [ ] Montar o YAML inicial de programas de embaixador (Gemini, Microsoft, GitHub, AWS, Claude, Notion).
 - [ ] Configurar o GitHub Actions para rodar a coleta uma vez por dia.
