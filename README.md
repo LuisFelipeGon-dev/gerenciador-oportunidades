@@ -45,6 +45,17 @@ scripts/collect.ts  roda os coletores e grava no Supabase
 supabase/           migrações SQL
 ```
 
+## Coleta diária
+
+O workflow `.github/workflows/collect.yml` roda todo dia às 09:17 UTC (05:17 em Cuiabá), e também pode ser disparado à mão na aba Actions. Ele roda os testes e depois a coleta. Se algo falhar, o GitHub avisa por e-mail e o banco fica como estava. O site atualiza a lista em até uma hora.
+
+Segredos necessários no repositório (Settings > Secrets and variables > Actions):
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+O GitHub desativa workflows agendados de repositórios públicos depois de 60 dias sem commits. Se isso acontecer, reative na aba Actions.
+
 ## Regras dos coletores
 
 - No máximo uma requisição por segundo por site, com User-Agent que identifica o robô.
