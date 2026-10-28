@@ -59,6 +59,10 @@ export const opportunitySchema = z
     note: z.string().min(1).nullable().default(null),
     source: z.string().min(1),
     sourceId: z.string().min(1),
+    // Other sources of the same opportunity, filled by dedupe() on the site; not stored.
+    alsoOn: z
+      .array(z.object({ source: z.string().min(1), sourceId: z.string().min(1), officialUrl: z.url() }))
+      .default([]),
     verifiedAt: z.iso.datetime({ offset: true }),
     status: z.enum(STATUSES),
   })

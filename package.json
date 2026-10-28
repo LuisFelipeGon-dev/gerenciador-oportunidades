@@ -10,6 +10,7 @@
     "test": "vitest run",
     "collect": "tsx --env-file-if-exists=.env.local scripts/collect.ts",
     "monitor": "tsx --env-file-if-exists=.env.local scripts/monitor.ts",
+    "reports": "tsx --env-file-if-exists=.env.local scripts/reports.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

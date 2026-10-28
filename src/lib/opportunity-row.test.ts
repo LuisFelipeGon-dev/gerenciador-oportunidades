@@ -21,6 +21,7 @@ const opportunity: Opportunity = {
   note: null,
   source: "test",
   sourceId: "1",
+  alsoOn: [],
   verifiedAt: "2026-10-27T12:00:00.000Z",
   status: "open",
 };

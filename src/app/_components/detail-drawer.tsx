@@ -7,8 +7,7 @@ import { checksFor, itemKey, type Profile } from "@/lib/personalize";
 import { Avatar, CheckList, ModeTag, TypeTag, type CardActions } from "./cards";
 import { SOURCE_LABEL, dateStub, instantDate, longDate, placeLine, shortDate, topicTags } from "./format";
 import { ArrowIcon, BookmarkIcon, CalendarIcon, ShareIcon, XIcon } from "./icons";
-
-const REPORT_URL = "https://github.com/LuisFelipeGon-dev/gerenciador-oportunidades/issues/new";
+import { ReportForm } from "./report-form";
 
 /** A plain description of what this kind of opportunity is, built only from known facts. */
 function whatItIs(o: Opportunity): string {
@@ -276,21 +275,24 @@ export function DetailDrawer({
             {shared ? "Aberto no WhatsApp" : "Compartilhar"}
           </button>
         </div>
-        <p className="mt-3 text-[12px] text-muted">
-          Verificado em {instantDate(o.verifiedAt)} · fonte: {SOURCE_LABEL[o.source] ?? o.source} ·{" "}
-          <a
-            className="underline underline-offset-2 hover:text-ink"
-            href={`${REPORT_URL}?${new URLSearchParams({
-              title: `Erro em: ${o.title}`,
-              labels: "erro-de-dado",
-              body: `Item: ${itemKey(o)}\nPágina oficial: ${o.officialUrl}\n\nO que está errado:\n`,
-            })}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            reportar erro
-          </a>
-        </p>
+        <div className="mt-3 text-[12px] text-muted">
+          Verificado em {instantDate(o.verifiedAt)} · fonte: {SOURCE_LABEL[o.source] ?? o.source}
+          {o.alsoOn.length > 0 && (
+            <>
+              {" "}
+              · também em:{" "}
+              {o.alsoOn.map((a, i) => (
+                <span key={`${a.source}:${a.sourceId}`}>
+                  {i > 0 && ", "}
+                  <a className="underline underline-offset-2 hover:text-ink" href={a.officialUrl} target="_blank" rel="noopener noreferrer">
+                    {SOURCE_LABEL[a.source] ?? a.source}
+                  </a>
+                </span>
+              ))}
+            </>
+          )}{" "}
+          · <ReportForm key={itemKey(o)} itemKey={itemKey(o)} />
+        </div>
       </footer>
     </dialog>
   );

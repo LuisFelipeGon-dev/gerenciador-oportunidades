@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { deleteAccount, signOut, toggleSaved, useSession } from "@/lib/account";
 import { buildAgenda, type AgendaFilter } from "@/lib/agenda";
+import { aliasKeys } from "@/lib/dedupe";
 import { areaById } from "@/lib/areas";
 import { regionOf, stateName } from "@/lib/brazil";
 import { useProfile, useSaved } from "@/lib/local-store";
@@ -156,7 +157,8 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
 
   const today = hydrated ? localToday() : null;
   const all = useMemo(() => [...items, ...programs], [items, programs]);
-  const byKey = useMemo(() => new Map(all.map((o) => [itemKey(o), o])), [all]);
+  // Keys of items merged by dedupe() still open (and keep saved) the item that was kept.
+  const byKey = useMemo(() => new Map([...aliasKeys(all), ...all.map((o) => [itemKey(o), o] as const)]), [all]);
   const openKey = hash.startsWith("#o=") ? decodeURIComponent(hash.slice(3)) : null;
   const opened = openKey ? (byKey.get(openKey) ?? null) : null;
 

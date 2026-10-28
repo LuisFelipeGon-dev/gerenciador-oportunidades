@@ -17,6 +17,12 @@ Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e even
 
 O Sympla não é coletado: os termos de uso proíbem robôs e mineração de dados (item 13.3, "Segurança da Plataforma Sympla").
 
+## Duplicatas e reportes de erro
+
+O mesmo evento pode vir de duas fontes. O site junta os itens com a mesma data de início, a mesma cidade (ou os dois online) e títulos iguais depois de tirar acentos, pontuação e o ano, ou um título contido no outro (`src/lib/dedupe.ts`). Fica um só, e o painel de detalhe mostra "também em" com o link da outra fonte.
+
+O botão "reportar erro" do painel grava na tabela `reports` (migração 0006) sem identificar quem enviou. Qualquer pessoa pode enviar e ninguém lê pelo site. A coleta diária (`npm run reports`) junta os reportes novos numa issue com a etiqueta `reporte`.
+
 ## Programas recorrentes e monitor
 
 Os programas ficam em `data/programs.yaml`, com um comentário no topo explicando cada campo; `type` diz se é embaixador, competição, estágio ou bolsa. Cada item registra a data em que a página oficial foi conferida (`checked_on`). O site mostra também os programas fechados, com o mês em que costumam abrir.

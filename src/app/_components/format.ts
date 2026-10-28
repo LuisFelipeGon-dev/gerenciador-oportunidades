@@ -51,6 +51,8 @@ export const SOURCE_LABEL: Record<string, string> = {
   devpost: "Devpost",
   mlh: "MLH",
   gdg: "GDG",
+  devevents: "dev.events",
+  luma: "Luma",
   curated: "página oficial, conferida à mão",
 };
 

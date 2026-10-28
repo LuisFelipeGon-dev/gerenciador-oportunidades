@@ -1,4 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
+import { dedupe } from "./dedupe";
 import type { Opportunity } from "./opportunity";
 import { fromRow, type OpportunityRow } from "./opportunity-row";
 import { createPublicClient } from "./supabase/public";
@@ -24,7 +25,7 @@ export async function getOpenOpportunities(): Promise<OpenOpportunities> {
     .order("title");
   if (error) throw new Error(`Failed to load opportunities: ${error.message}`);
 
-  return { configured: true, items: (data as OpportunityRow[]).map(fromRow) };
+  return { configured: true, items: dedupe((data as OpportunityRow[]).map(fromRow)) };
 }
 
 /** Curated recurring programs, closed ones included: they show when the program usually reopens. */

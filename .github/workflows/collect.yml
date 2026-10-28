@@ -8,7 +8,7 @@ on:
 
 permissions:
   contents: read
-  # Para abrir ou comentar a issue do monitor de páginas.
+  # Para abrir ou comentar as issues do monitor de páginas e dos reportes de erro.
   issues: write
 
 concurrency:
@@ -60,4 +60,25 @@ jobs:
             gh issue comment "$issue" --body-file monitor-report.md
           else
             gh issue create --title "Páginas de programas mudaram: revisar o YAML" --label monitor --body-file monitor-report.md
+          fi
+
+      # Reportes enviados pelo botão "Reportar erro" do site desde a última coleta.
+      - name: Reportes de erro
+        if: ${{ !cancelled() }}
+        run: npm run reports -- --report=reports-report.md
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Avisar reportes em issue
+        if: ${{ !cancelled() && hashFiles('reports-report.md') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create reporte --color D93F0B --description "Erro reportado por quem usa o site" --force
+          issue=$(gh issue list --label reporte --state open --json number --jq '.[0].number // empty')
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body-file reports-report.md
+          else
+            gh issue create --title "Reportes de erro do site" --label reporte --body-file reports-report.md
           fi
