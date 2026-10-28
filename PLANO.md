@@ -181,6 +181,10 @@ Decisões em aberto:
 - [x] Escrever o esquema da oportunidade em TypeScript + Zod.
 - [x] Testar o JSON do Devpost e escrever o primeiro coletor.
 - [ ] Escolher o nome definitivo do projeto.
-- [ ] Testar quais rotas da API do Bevy (GDG) respondem sem chave.
-- [ ] Montar o YAML inicial de programas de embaixador (Gemini, Microsoft, GitHub, AWS, Claude, Notion).
+- [x] Testar quais rotas da API do Bevy (GDG) respondem sem chave: o robots.txt proíbe `/api/`; a coleta usa os sitemaps e o JSON-LD das páginas.
+- [x] Montar o YAML inicial de programas de embaixador (Gemini, Microsoft, GitHub, AWS, Claude, Notion).
+- [x] Fase 2: coordenadas por cidade (lista do IBGE, sem Nominatim por enquanto) e "Perto de você" pelo raio do perfil.
+- [ ] Fase 2: coletores de Sympla e dev.events.
+- [ ] Fase 2: deduplicação entre fontes e botão "reportar erro".
+- [ ] Fase 2: alertas por e-mail.
 - [x] Configurar o GitHub Actions para rodar a coleta uma vez por dia (09:17 UTC).

@@ -6,6 +6,7 @@ import { deleteAccount, signOut, toggleSaved, useSession } from "@/lib/account";
 import { areaById } from "@/lib/areas";
 import { regionOf, stateName } from "@/lib/brazil";
 import { useProfile, useSaved } from "@/lib/local-store";
+import { useProfilePlace } from "@/lib/municipalities";
 import type { Opportunity, OpportunityType } from "@/lib/opportunity";
 import { ageOn, buildSections, effectiveInterests, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
 import { CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
@@ -126,10 +127,15 @@ function AccountBox({ email }: { email: string | null }) {
   );
 }
 
+function distanceWhy(km: number, city: string): string {
+  return km < 1 ? `Em ${city}, a sua cidade.` : `A ${Math.round(km)} km de ${city}.`;
+}
+
 export function Home({ items, programs }: { items: Opportunity[]; programs: Opportunity[] }) {
   const profile = useProfile();
   const hydrated = profile !== undefined;
   const p: Profile | null = profile ?? null;
+  const place = useProfilePlace(p);
   const savedKeys = useSaved();
   const session = useSession();
   const hash = useSyncExternalStore(subscribeHash, readHash, () => "");
@@ -145,8 +151,8 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   const opened = openKey ? (byKey.get(openKey) ?? null) : null;
 
   const sections = useMemo(
-    () => buildSections(items, programs, p, today ?? "1970-01-01"),
-    [items, programs, p, today],
+    () => buildSections(items, programs, p, today ?? "1970-01-01", place),
+    [items, programs, p, today, place],
   );
   const saved = savedKeys.map((k) => byKey.get(k)).filter((o): o is Opportunity => !!o);
   const area = p ? areaById(p.area) : null;
@@ -162,15 +168,18 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   const more = (id: string, base: number) => setLimits((l) => ({ ...l, [id]: (l[id] ?? base) + 10 }));
 
   const openPrograms = sections.programs.filter((o) => o.status === "open").length;
-  const matching = new Set([...sections.nearby, ...sections.online].map(itemKey)).size + openPrograms;
+  const near = sections.nearby.slice(0, sections.nearbyWithin);
+  const matching = new Set([...near, ...sections.online].map(itemKey)).size + openPrograms;
   const nearbyWhere =
-    p && sections.nearbyScope === "state"
+    p && sections.nearbyScope === "radius"
+      ? `até ${p.radiusKm} km`
+      : p && sections.nearbyScope === "state"
       ? `em ${p.state}`
       : p && sections.nearbyScope === "region"
         ? `no ${regionOf(p.state)}`
         : "no Brasil";
 
-  const timeline = (saved.length > 0 ? saved : [...sections.closingSoon, ...sections.nearby])
+  const timeline = (saved.length > 0 ? saved : [...sections.closingSoon, ...near])
     .filter((o) => keyDate(o) && (!today || keyDate(o)! >= today))
     .sort((a, b) => keyDate(a)!.localeCompare(keyDate(b)!))
     .slice(0, 6);
@@ -257,7 +266,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {[
                   { n: sections.closingSoon.length, l: "fecham nesta semana", c: "text-[#ff9b8f]" },
-                  { n: sections.nearby.length, l: `presenciais ${nearbyWhere}`, c: "text-sky" },
+                  { n: sections.nearbyWithin, l: `presenciais ${nearbyWhere}`, c: "text-sky" },
                   { n: sections.online.length, l: "online pra você", c: "" },
                   { n: openPrograms, l: "programas abertos", c: "" },
                 ].map((s) => (
@@ -343,15 +352,21 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               <section className="mb-9">
                 <SectionHeader
                   title={
-                    p && sections.nearbyScope === "state"
+                    p && place && sections.nearbyScope === "radius"
+                      ? `Perto de você · até ${p.radiusKm} km de ${place.name}`
+                      : p && sections.nearbyScope === "state"
                       ? `Perto de você · ${stateName(p.state)}`
                       : p && sections.nearbyScope === "region"
                         ? `Na sua região · ${regionOf(p.state)}`
                         : "Presenciais no Brasil"
                   }
-                  count={sections.nearby.length}
+                  count={sections.nearbyWithin}
                   hint={
-                    p && sections.nearbyScope === "state"
+                    p && sections.nearbyScope === "radius"
+                      ? sections.nearbyWithin > 0
+                        ? "do mais perto ao mais longe; depois, o resto do Brasil"
+                        : `nada presencial até ${p.radiusKm} km agora; estes são os mais perto`
+                      : p && sections.nearbyScope === "state"
                       ? "primeiro no seu estado, depois na sua região"
                       : p && sections.nearbyScope === "region"
                         ? `nada presencial em ${p.state} agora; estes são os mais perto`
@@ -372,7 +387,9 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                         profile={p}
                         actions={actions}
                         why={
-                          p && o.location.state === p.state
+                          place && sections.distances.has(itemKey(o))
+                            ? distanceWhy(sections.distances.get(itemKey(o))!, place.name)
+                            : p && o.location.state === p.state
                             ? `Aparece pra você porque é em ${p.state}, o seu estado.`
                             : undefined
                         }

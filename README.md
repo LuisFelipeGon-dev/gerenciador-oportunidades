@@ -19,6 +19,14 @@ Os programas ficam em `data/ambassador-programs.yaml`, com um comentário no top
 
 O monitor (`npm run monitor`) baixa a página oficial de cada programa todo dia, compara o texto visível com o da véspera e, se mudou, a coleta diária abre uma issue com a etiqueta `monitor` (ou comenta na que já estiver aberta). Nada é publicado automaticamente: confira a página, atualize o YAML e feche a issue.
 
+## Distância e "Perto de você"
+
+A coleta dá a cada evento presencial no Brasil as coordenadas da sua cidade, procurando cidade e UF na lista de municípios do IBGE (`data/municipios.json`). Cidades que não batem aparecem no log da coleta como aviso; o evento continua no site, ordenado por estado em vez de distância.
+
+No site, a cidade do perfil é procurada no arquivo do estado (`public/municipios/<UF>.json`), no próprio navegador, e "Perto de você" mostra o que está dentro do raio escolhido no perfil (50 a 500 km, padrão 100). A cidade não é enviada a nenhum serviço de mapas.
+
+A lista vem de [kelvins/municipios-brasileiros](https://github.com/kelvins/municipios-brasileiros) (MIT, dados do IBGE). Para atualizar: `npx tsx scripts/build-municipalities.ts`.
+
 ## Stack
 
 - Next.js (App Router, TypeScript, Tailwind)
@@ -68,7 +76,8 @@ A conta pode ser apagada pela própria pessoa (função `delete_my_account`, mig
 src/app/            páginas
 src/lib/            esquema da oportunidade, conversão para o banco, leitura do Supabase
 src/collectors/     um arquivo por fonte, com teste e resposta salva em __fixtures__
-scripts/collect.ts  roda os coletores e grava no Supabase
+scripts/collect.ts  roda os coletores, completa as coordenadas e grava no Supabase
+data/               programas curados e municípios com coordenadas
 supabase/           migrações SQL
 ```
 

@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { collectCurated } from "../src/collectors/curated";
 import { collectDevpost } from "../src/collectors/devpost";
 import { collectGdg } from "../src/collectors/gdg";
+import { addCoordinates, loadMunicipalities } from "../src/collectors/geocode";
 import { collectMlh } from "../src/collectors/mlh";
 import type { Opportunity } from "../src/lib/opportunity";
 import { toRow } from "../src/lib/opportunity-row";
@@ -72,13 +73,18 @@ async function main() {
         auth: { persistSession: false },
       });
 
+  const municipalities = await loadMunicipalities();
+
   const failures: string[] = [];
   for (const source of SOURCES.filter((s) => !only || only.includes(s.name))) {
     try {
       // Each source is collected in full before touching the database: a failed or
       // suspiciously empty run keeps that source's previous data.
-      const { opportunities, skipped } = await source.collect({ verifiedAt });
-      console.log(`${source.name}: ${opportunities.length} collected, ${skipped} skipped`);
+      const collected = await source.collect({ verifiedAt });
+      const { opportunities, unmatched } = addCoordinates(collected.opportunities, municipalities);
+      console.log(`${source.name}: ${opportunities.length} collected, ${collected.skipped} skipped`);
+      // Not an error: these items still show up, ordered by state instead of distance.
+      if (unmatched.length > 0) console.warn(`${source.name}: no coordinates for ${unmatched.join("; ")}`);
       if (source.requireResults && opportunities.length === 0) {
         throw new Error("returned no opportunities");
       }

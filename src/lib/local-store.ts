@@ -5,7 +5,7 @@ import { z } from "zod";
 import { AREA_IDS } from "./areas";
 import { STATES } from "./brazil";
 import { OPPORTUNITY_TYPES } from "./opportunity";
-import { LEVELS, type Profile } from "./personalize";
+import { DEFAULT_RADIUS_KM, LEVELS, type Profile } from "./personalize";
 
 // Per-visitor data kept in this browser. With an account it mirrors the database (see account.ts).
 // Every read is defensive: storage can be blocked (private mode) or hold an older version.
@@ -22,6 +22,8 @@ export const profileSchema = z.object({
   level: z.enum(LEVELS),
   birthDate: z.iso.date(),
   interests: z.array(z.enum(OPPORTUNITY_TYPES)),
+  // Profiles saved before the radius existed get the default.
+  radiusKm: z.number().int().min(1).max(5000).default(DEFAULT_RADIUS_KM),
 });
 
 const listeners = new Set<() => void>();

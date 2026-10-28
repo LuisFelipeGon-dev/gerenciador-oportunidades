@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { saveProfile } from "@/lib/account";
 import { AREAS, areaById, areaForCourse, type AreaId } from "@/lib/areas";
 import { STATES, isUF } from "@/lib/brazil";
+import { findMunicipality } from "@/lib/geo";
+import { useMunicipalities } from "@/lib/municipalities";
 import type { OpportunityType } from "@/lib/opportunity";
-import { ageOn, localToday, type Level, type Profile } from "@/lib/personalize";
+import { ageOn, DEFAULT_RADIUS_KM, localToday, RADIUS_OPTIONS, type Level, type Profile } from "@/lib/personalize";
 import { TYPE_PLURAL } from "./format";
 import { XIcon } from "./icons";
 
@@ -40,6 +42,10 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
   const [error, setError] = useState<string | null>(null);
   const [area, setArea] = useState<AreaId>(initial?.area ?? "other");
   const [areaTouched, setAreaTouched] = useState(!!initial);
+  const [state, setState] = useState<string>(initial?.state ?? "");
+  const [city, setCity] = useState(initial?.city ?? "");
+  const municipalities = useMunicipalities(state);
+  const cityUnknown = municipalities !== null && city.trim() !== "" && !findMunicipality(municipalities, city);
   const today = localToday();
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -50,6 +56,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
     const city = String(data.get("city") ?? "").trim();
     const level = String(data.get("level") ?? "") as Level;
     const birthDate = String(data.get("birthDate") ?? "");
+    const radiusKm = Number(data.get("radiusKm")) || DEFAULT_RADIUS_KM;
     if (!course || !city || !isUF(state) || !LEVEL_OPTIONS.some((l) => l.value === level)) {
       setError("Preencha curso, cidade, estado e nível de estudo.");
       return;
@@ -67,6 +74,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
       level,
       birthDate,
       interests: data.getAll("interests").map(String) as OpportunityType[],
+      radiusKm,
     });
     setError(null);
     onClose();
@@ -135,11 +143,25 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
         <div className="grid grid-cols-[minmax(0,1fr)_6.5rem] gap-3">
           <label className="block min-w-0 text-[13.5px] font-semibold">
             Cidade
-            <input name="city" required defaultValue={initial?.city} maxLength={80} autoComplete="address-level2" className={field} />
+            <input
+              name="city"
+              list="cities"
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              maxLength={80}
+              autoComplete="address-level2"
+              className={field}
+            />
+            <datalist id="cities">
+              {municipalities?.map(([name]) => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
           </label>
           <label className="block min-w-0 text-[13.5px] font-semibold">
             Estado
-            <select name="state" required defaultValue={initial?.state ?? ""} className={field}>
+            <select name="state" required value={state} onChange={(e) => setState(e.target.value)} className={field}>
               <option value="" disabled>
                 UF
               </option>
@@ -151,6 +173,21 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
             </select>
           </label>
         </div>
+        {cityUnknown && (
+          <p className="-mt-2 text-[12.5px] text-muted">
+            Não achamos essa cidade em {state}. A página vai mostrar o que é perto pelo estado, sem distância.
+          </p>
+        )}
+        <label className="block min-w-0 text-[13.5px] font-semibold">
+          Perto de você é até
+          <select name="radiusKm" defaultValue={initial?.radiusKm ?? DEFAULT_RADIUS_KM} className={field}>
+            {RADIUS_OPTIONS.map((km) => (
+              <option key={km} value={km}>
+                {km} km da sua cidade
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="block min-w-0 text-[13.5px] font-semibold">
           Data de nascimento
           <input name="birthDate" type="date" required min="1920-01-01" max={today} defaultValue={initial?.birthDate} autoComplete="bday" className={field} />

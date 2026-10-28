@@ -60,6 +60,7 @@ type ProfileRow = {
   study_level: string | null;
   birth_date: string | null;
   interests: string[] | null;
+  radius_km: number | null;
   consented_at: string | null;
   privacy_version: string | null;
 };
@@ -75,6 +76,7 @@ function toRow(userId: string, p: Profile) {
     study_level: p.level,
     birth_date: p.birthDate,
     interests: p.interests,
+    radius_km: p.radiusKm,
   };
 }
 
@@ -88,6 +90,7 @@ function fromRow(row: ProfileRow): Profile | null {
     level: row.study_level,
     birthDate: row.birth_date,
     interests: row.interests ?? [],
+    radiusKm: row.radius_km ?? undefined,
   });
   return parsed.success ? (parsed.data as Profile) : null;
 }

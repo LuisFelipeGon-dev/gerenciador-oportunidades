@@ -36,6 +36,15 @@ const inPerson = (id: string, city: string, state: string, startsOn: string) =>
     location: { raw: null, city, state, country: "BR", lat: null, lng: null },
   });
 
+const placed = (id: string, city: string, state: string, lat: number, lng: number) =>
+  item({
+    id,
+    type: "event",
+    modality: "in_person",
+    startsOn: "2026-11-20",
+    location: { raw: null, city, state, country: "BR", lat, lng },
+  });
+
 const profile: Profile = {
   name: "",
   course: "Ciência da Computação",
@@ -45,6 +54,7 @@ const profile: Profile = {
   level: "undergraduate",
   birthDate: "2004-03-10",
   interests: [],
+  radiusKm: 100,
 };
 
 const TODAY = "2026-10-27";
@@ -143,5 +153,42 @@ describe("buildSections", () => {
     const s = buildSections(items, [], { ...profile, interests: ["event"] }, TODAY);
     expect(s.online).toHaveLength(0);
     expect(s.nearby).toHaveLength(2);
+  });
+});
+
+describe("buildSections with a radius", () => {
+  const varzeaGrande = { lat: -15.6458, lng: -56.1322 };
+  const items = [
+    placed("recife", "Recife", "PE", -8.0476, -34.877),
+    placed("goiania", "Goiânia", "GO", -16.6864, -49.2643),
+    inPerson("chapada", "Chapada dos Guimarães", "MT", "2026-11-05"),
+    placed("sinop", "Sinop", "MT", -11.8604, -55.5091),
+    placed("cuiaba", "Cuiabá", "MT", -15.601, -56.0974),
+    item({ id: "online", registrationDeadline: "2026-12-20" }),
+  ];
+
+  it("lists what is inside the radius first, then the rest of Brazil by distance", () => {
+    const s = buildSections(items, [], profile, TODAY, varzeaGrande);
+    expect(s.nearbyScope).toBe("radius");
+    expect(s.nearbyWithin).toBe(1);
+    expect(s.nearby.map((o) => o.sourceId)).toEqual(["cuiaba", "sinop", "goiania", "recife", "chapada"]);
+  });
+
+  it("uses the radius from the profile", () => {
+    const s = buildSections(items, [], { ...profile, radiusKm: 500 }, TODAY, varzeaGrande);
+    expect(s.nearbyWithin).toBe(2);
+  });
+
+  it("reports the distance of each item with coordinates", () => {
+    const s = buildSections(items, [], profile, TODAY, varzeaGrande);
+    expect(s.distances.get("test:cuiaba")).toBeLessThan(10);
+    expect(s.distances.has("test:chapada")).toBe(false);
+  });
+
+  it("falls back to state and region when the city has no coordinates", () => {
+    const s = buildSections(items, [], profile, TODAY, null);
+    expect(s.nearbyScope).toBe("state");
+    expect(s.nearby.map((o) => o.sourceId)).toEqual(["chapada", "cuiaba", "sinop", "goiania"]);
+    expect(s.distances.size).toBe(0);
   });
 });

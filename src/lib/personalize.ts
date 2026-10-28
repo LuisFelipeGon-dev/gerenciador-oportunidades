@@ -1,5 +1,6 @@
 import { areaById, type AreaId } from "./areas";
 import { isUF, regionOf, type UF } from "./brazil";
+import { distanceKm, type Point } from "./geo";
 import type { Opportunity, OpportunityType } from "./opportunity";
 
 export const LEVELS = ["high_school", "undergraduate", "graduate", "phd"] as const;
@@ -16,7 +17,12 @@ export type Profile = {
   birthDate: string;
   /** Empty means "use the defaults of my area". */
   interests: OpportunityType[];
+  /** "Perto de você" covers in-person items up to this distance from the city. */
+  radiusKm: number;
 };
+
+export const RADIUS_OPTIONS = [50, 100, 200, 500] as const;
+export const DEFAULT_RADIUS_KM = 100;
 
 /** Whole years between a birth date and `today` (both YYYY-MM-DD). */
 export function ageOn(birthDate: string, today: string): number {
@@ -104,17 +110,25 @@ function byKeyDate(a: Opportunity, b: Opportunity): number {
 export type Sections = {
   closingSoon: Opportunity[];
   nearby: Opportunity[];
-  nearbyScope: "state" | "region" | "country";
+  /** How many of `nearby`, from the start, are really near: inside the radius, state or region. */
+  nearbyWithin: number;
+  nearbyScope: "radius" | "state" | "region" | "country";
+  /** km from the person's city, by itemKey; only for items with coordinates. */
+  distances: Map<string, number>;
   online: Opportunity[];
   programs: Opportunity[];
 };
 
-/** Splits open items into the home sections for a profile (or for an anonymous visitor). */
+/**
+ * Splits open items into the home sections for a profile (or for an anonymous visitor).
+ * `origin` is the profile's city on the map; without it, "near" means same state or region.
+ */
 export function buildSections(
   items: Opportunity[],
   programs: Opportunity[],
   profile: Profile | null,
   today: string,
+  origin: Point | null = null,
 ): Sections {
   const interests = effectiveInterests(profile);
   const wanted = (o: Opportunity) => (!interests || interests.includes(o.type)) && !isExcluded(o, profile, today);
@@ -131,14 +145,33 @@ export function buildSections(
 
   const inBrazil = visible.filter((o) => o.modality !== "online" && o.location.country === "BR");
   let nearby = inBrazil;
+  let nearbyWithin = inBrazil.length;
   let nearbyScope: Sections["nearbyScope"] = "country";
+  const distances = new Map<string, number>();
+
   if (profile && isUF(profile.state)) {
     const sameState = inBrazil.filter((o) => o.location.state === profile.state);
     const sameRegion = inBrazil.filter(
       (o) => o.location.state !== profile.state && regionOf(o.location.state) === regionOf(profile.state),
     );
-    if (sameState.length + sameRegion.length > 0) {
+
+    if (origin) {
+      // Everything in Brazil, nearest first; items without coordinates go last, state first.
+      for (const o of inBrazil) {
+        const { lat, lng } = o.location;
+        if (lat !== null && lng !== null) distances.set(itemKey(o), distanceKm(origin, { lat, lng }));
+      }
+      const placed = inBrazil
+        .filter((o) => distances.has(itemKey(o)))
+        .sort((a, b) => distances.get(itemKey(a))! - distances.get(itemKey(b))!);
+      const unplaced = (list: Opportunity[]) => list.filter((o) => !distances.has(itemKey(o)));
+      const elsewhere = inBrazil.filter((o) => !sameState.includes(o) && !sameRegion.includes(o));
+      nearby = [...placed, ...unplaced(sameState), ...unplaced(sameRegion), ...unplaced(elsewhere)];
+      nearbyWithin = placed.filter((o) => distances.get(itemKey(o))! <= profile.radiusKm).length;
+      nearbyScope = "radius";
+    } else if (sameState.length + sameRegion.length > 0) {
       nearby = [...sameState, ...sameRegion];
+      nearbyWithin = nearby.length;
       nearbyScope = sameState.length > 0 ? "state" : "region";
     }
   }
@@ -150,7 +183,7 @@ export function buildSections(
     .filter((p) => (!interests || interests.includes("ambassador")) && !isExcluded(p, profile, today))
     .sort((a, b) => rank[a.status] - rank[b.status] || a.title.localeCompare(b.title));
 
-  return { closingSoon, nearby, nearbyScope, online, programs: programList };
+  return { closingSoon, nearby, nearbyWithin, nearbyScope, distances, online, programs: programList };
 }
 
 /** Today's date (YYYY-MM-DD) in the visitor's own time zone. */
