@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { diffLines, extractText, hashText } from "./page-monitor";
+import { diffLines, extractText, fingerprint } from "./page-monitor";
 
 describe("extractText", () => {
   it("keeps visible text and drops scripts, styles and markup", () => {
@@ -14,7 +14,17 @@ describe("extractText", () => {
   it("ignores changes that only touch scripts or attributes", () => {
     const a = `<p class="x" data-id="1">Texto</p><script>var t=1</script>`;
     const b = `<p class="y" data-id="2">Texto</p><script>var t=2</script>`;
-    expect(hashText(extractText(a))).toBe(hashText(extractText(b)));
+    expect(fingerprint(extractText(a))).toBe(fingerprint(extractText(b)));
+  });
+});
+
+describe("fingerprint", () => {
+  it("ignores reordered and repeated blocks", () => {
+    expect(fingerprint("A\nB\nC")).toBe(fingerprint("C\nA\nB\nA"));
+  });
+
+  it("changes when a line changes", () => {
+    expect(fingerprint("Inscrições fechadas\nA")).not.toBe(fingerprint("Inscrições abertas\nA"));
   });
 });
 

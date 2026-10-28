@@ -2,7 +2,7 @@ import { appendFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 import { loadPrograms } from "../src/collectors/curated";
 import { politeFetchText } from "../src/collectors/http";
-import { diffLines, extractText, hashText } from "../src/collectors/page-monitor";
+import { diffLines, extractText, fingerprint } from "../src/collectors/page-monitor";
 
 // Watches the official page of each curated program and reports what changed, so a person can
 // review it and update data/ambassador-programs.yaml. Nothing is published automatically.
@@ -34,7 +34,7 @@ async function main() {
     try {
       const text = extractText(await politeFetchText(url));
       if (text.length < 50) throw new Error("page has almost no text (rendered by JavaScript?)");
-      const hash = hashText(text);
+      const hash = fingerprint(text);
 
       const { data: previous, error } = await supabase
         .from("page_snapshots")

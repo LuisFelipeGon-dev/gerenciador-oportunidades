@@ -23,8 +23,13 @@ export function extractText(html: string): string {
     .join("\n");
 }
 
-export function hashText(text: string): string {
-  return createHash("sha256").update(text).digest("hex");
+/**
+ * Hash of the set of lines. Order and repetition are ignored: some pages shuffle or repeat
+ * blocks (carousels, testimonials) on every load without any real change.
+ */
+export function fingerprint(text: string): string {
+  const lines = [...new Set(text.split("\n"))].sort();
+  return createHash("sha256").update(lines.join("\n")).digest("hex");
 }
 
 /** Lines that appeared and disappeared, for a short human-readable summary. */

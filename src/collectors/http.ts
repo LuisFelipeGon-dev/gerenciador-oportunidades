@@ -24,7 +24,9 @@ async function politeFetch(url: string, accept: string): Promise<Response> {
   lastRequestByHost.set(host, Date.now());
 
   const res = await fetch(url, {
-    headers: { "User-Agent": USER_AGENT, Accept: accept },
+    // Fixed language: without it some sites (developers.google.com) pick one per request,
+    // which the page monitor would report as a change.
+    headers: { "User-Agent": USER_AGENT, Accept: accept, "Accept-Language": "en-US,en;q=0.9" },
     signal: AbortSignal.timeout(20_000),
   });
   if (!res.ok) throw new Error(`GET ${url} failed: ${res.status} ${res.statusText}`);

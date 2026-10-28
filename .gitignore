@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# relatório gerado pelo monitor de páginas (scripts/monitor.ts)
+monitor-report.md
+
 # vercel
 .vercel
 
