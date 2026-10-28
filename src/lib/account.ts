@@ -1,13 +1,13 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { PROFILE_KEY, SAVED_KEY, readProfile, readSaved, writeLocal } from "./local-store";
 import type { Profile } from "./personalize";
 import { profileFromRow as fromRow, profileToRow as toRow, type ProfileRow } from "./profile-row";
 import { browserClient } from "./supabase/browser";
 
-export const PRIVACY_VERSION = "2026-10-27";
+export const PRIVACY_VERSION = "2026-10-28";
 const PENDING_CONSENT_KEY = "oportunidades:consentimento-pendente";
 
 // ---- session store --------------------------------------------------------------------------
@@ -104,6 +104,43 @@ export async function saveProfile(profile: Profile | null) {
   const supabase = browserClient();
   if (!supabase || !session || !profile) return;
   await supabase.from("profiles").update(toRow(session.user.id, profile)).eq("id", session.user.id);
+}
+
+// ---- weekly e-mail digest (migration 0007) -------------------------------------------------
+
+/** Whether the signed-in person gets the weekly e-mail, and to which address; null without an account. */
+export function useAlerts(): { enabled: boolean; email: string } | null {
+  const current = useSession();
+  const [loaded, setLoaded] = useState<{ userId: string; enabled: boolean } | null>(null);
+  useEffect(() => {
+    const supabase = browserClient();
+    if (!supabase || !current) return;
+    let active = true;
+    void supabase
+      .from("profiles")
+      .select("alerts_enabled")
+      .eq("id", current.user.id)
+      .maybeSingle<{ alerts_enabled: boolean }>()
+      .then(({ data }) => {
+        if (active) setLoaded({ userId: current.user.id, enabled: data?.alerts_enabled ?? false });
+      });
+    return () => {
+      active = false;
+    };
+  }, [current]);
+  if (!current?.user.email) return null;
+  return { enabled: loaded?.userId === current.user.id && loaded.enabled, email: current.user.email };
+}
+
+/** Turns the weekly e-mail on (recording when, as the consent) or off. Returns an error message or null. */
+export async function setAlerts(enabled: boolean): Promise<string | null> {
+  const supabase = browserClient();
+  if (!supabase || !session) return "Entre na sua conta para receber o resumo.";
+  const { error } = await supabase
+    .from("profiles")
+    .update(enabled ? { alerts_enabled: true, alerts_enabled_at: new Date().toISOString() } : { alerts_enabled: false })
+    .eq("id", session.user.id);
+  return error ? "Não foi possível salvar a opção do resumo. Tente de novo." : null;
 }
 
 export async function toggleSaved(key: string) {

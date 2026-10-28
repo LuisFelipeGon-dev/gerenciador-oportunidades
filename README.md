@@ -23,6 +23,22 @@ O mesmo evento pode vir de duas fontes. O site junta os itens com a mesma data d
 
 O botão "reportar erro" do painel grava na tabela `reports` (migração 0006) sem identificar quem enviou. Qualquer pessoa pode enviar e ninguém lê pelo site. A coleta diária (`npm run reports`) junta os reportes novos numa issue com a etiqueta `reporte`.
 
+## Resumo semanal por e-mail
+
+Quem tem conta pode ligar, no perfil, um resumo que chega toda segunda às 07:00 (horário de Cuiabá): oportunidades novas que servem para o perfil e os prazos dos salvos que fecham em até 7 dias. Começa desligado; o link "Parar de receber" de cada e-mail desliga sem login (`/alertas/cancelar`). Design em `docs/superpowers/specs/2026-10-28-alertas-email-design.md`.
+
+O workflow `.github/workflows/alerts.yml` roda `npm run alerts`. O envio sai de um Gmail do projeto com senha de app. Segredos necessários, além dos do Supabase:
+
+- `GMAIL_USER`
+- `GMAIL_APP_PASSWORD`
+
+Para conferir antes de enviar:
+
+```bash
+npm run alerts -- --dry-run          # grava o HTML de cada e-mail em alerts-preview/, sem enviar
+npm run alerts -- --to=voce@email    # envia só para esse endereço
+```
+
 ## Programas recorrentes e monitor
 
 Os programas ficam em `data/programs.yaml`, com um comentário no topo explicando cada campo; `type` diz se é embaixador, competição, estágio ou bolsa. Cada item registra a data em que a página oficial foi conferida (`checked_on`). O site mostra também os programas fechados, com o mês em que costumam abrir.

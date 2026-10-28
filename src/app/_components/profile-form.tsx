@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { saveProfile } from "@/lib/account";
+import { saveProfile, setAlerts, useAlerts } from "@/lib/account";
 import { AREAS, areaById, areaForCourse, type AreaId } from "@/lib/areas";
 import { STATES, isUF } from "@/lib/brazil";
 import { findMunicipality } from "@/lib/geo";
@@ -50,6 +51,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
   const municipalities = useMunicipalities(state);
   const cityUnknown = municipalities !== null && city.trim() !== "" && !findMunicipality(municipalities, city);
   const today = localToday();
+  const alerts = useAlerts();
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -79,6 +81,9 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
       interests: data.getAll("interests").map(String) as OpportunityType[],
       radiusKm,
     });
+    // Only on change: turning it on records the date of consent.
+    const wantsAlerts = data.get("alerts") === "on";
+    if (alerts && wantsAlerts !== alerts.enabled) void setAlerts(wantsAlerts);
     setError(null);
     onClose();
   }
@@ -220,6 +225,28 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
               </label>
             ))}
           </div>
+        </fieldset>
+        <fieldset>
+          <legend className="text-[13.5px] font-semibold">Resumo por e-mail</legend>
+          {alerts ? (
+            <>
+              {/* key: re-mounts with the saved value once it loads. */}
+              <label key={String(alerts.enabled)} className={`${choice} mt-1.5 items-start`}>
+                <input type="checkbox" name="alerts" defaultChecked={alerts.enabled} className="mt-0.5 accent-action" />
+                <span>Quero um resumo por e-mail toda segunda com o que serve pra mim</span>
+              </label>
+              <p className="mt-1 text-[12.5px] text-muted">
+                Vai para {alerts.email}. Dá para parar a qualquer momento, aqui ou pelo link no próprio e-mail.
+              </p>
+            </>
+          ) : (
+            <p className="mt-1 text-[13.5px] text-muted">
+              <Link href="/entrar" className="font-semibold text-action underline-offset-2 hover:underline">
+                Entre com seu e-mail
+              </Link>{" "}
+              para receber um resumo semanal com o que serve pra você.
+            </p>
+          )}
         </fieldset>
       </div>
 

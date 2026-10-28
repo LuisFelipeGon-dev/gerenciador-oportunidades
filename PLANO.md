@@ -190,5 +190,5 @@ Decisões em aberto:
 - [x] Coletor do Luma por lista curada de calendários (`data/luma-calendars.yaml`): Hack Brasil, Gama House (só hackathons) e TDC Recife. Falta achar comunidades de MT e do Centro-Oeste. Meetup fica fora: robots.txt bloqueia feeds e API, e os termos não abrem para robôs.
 - [x] Aba "Agenda": eventos de todas as fontes, prazos de inscrição e meses em que os programas costumam abrir, filtrados pelo perfil e agrupados por semana e mês. Falta o feed iCal assinável (Fase 3).
 - [x] Fase 2: deduplicação entre fontes (no site, `src/lib/dedupe.ts`) e botão "reportar erro" (tabela `reports`, issue diária).
-- [ ] Fase 2: alertas por e-mail.
+- [x] Fase 2: alertas por e-mail (resumo semanal, opcional, pelo Gmail do projeto). Com domínio próprio, trocar o envio por um provedor com domínio verificado: e-mail de Gmail pessoal tem mais chance de cair em spam.
 - [x] Configurar o GitHub Actions para rodar a coleta uma vez por dia (09:17 UTC).
