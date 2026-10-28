@@ -15,7 +15,7 @@ import { AgendaCalendar } from "./agenda-calendar";
 import { CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
 import { DetailDrawer } from "./detail-drawer";
 import { TYPE_PLURAL, dateStub, shortDate } from "./format";
-import { PencilIcon, PinIcon } from "./icons";
+import { PencilIcon, PinIcon, SlidersIcon } from "./icons";
 import { ProfileForm } from "./profile-form";
 
 type Tab = "for-you" | "hackathon" | "event" | "programs" | "agenda";
@@ -60,7 +60,7 @@ function SectionHeader({ title, count, hint }: { title: string; count?: number; 
     <div className="mb-3 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
       <h2 className="text-[19px] font-extrabold tracking-tight">{title}</h2>
       {count !== undefined && (
-        <span className="rounded-full bg-ink px-2 py-0.5 text-[12px] font-bold text-white tabular-nums">{count}</span>
+        <span className="rounded-full bg-ink px-2 py-0.5 text-[12px] font-bold text-card tabular-nums">{count}</span>
       )}
       {hint && <p className="w-full text-[13.5px] text-muted sm:w-auto">{hint}</p>}
     </div>
@@ -123,7 +123,7 @@ function AccountBox({ email }: { email: string | null }) {
                 const failure = await deleteAccount();
                 if (failure) setError("Não deu certo agora. Tente de novo.");
               }}
-              className="rounded-lg bg-urgent px-3 py-2 text-[13.5px] font-bold text-white"
+              className="rounded-lg bg-urgent px-3 py-2 text-[13.5px] font-bold text-card"
             >
               Apagar tudo
             </button>
@@ -235,15 +235,23 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                 </button>
               ))}
             </div>
+            <Link
+              href="/ajustes"
+              aria-label="Ajustes"
+              title="Ajustes"
+              className="ml-auto grid size-9 shrink-0 place-items-center rounded-full text-navy-text hover:bg-white/15 hover:text-white"
+            >
+              <SlidersIcon className="size-5" />
+            </Link>
             {session === null && (
-              <Link href="/entrar" className="ml-auto shrink-0 rounded-full px-3 py-1.5 text-[14px] font-semibold text-white hover:bg-white/15">
+              <Link href="/entrar" className="shrink-0 rounded-full px-3 py-1.5 text-[14px] font-semibold text-white hover:bg-white/15">
                 Entrar
               </Link>
             )}
             <button
               type="button"
               onClick={() => setProfileOpen(true)}
-              className={`${session === null ? "" : "ml-auto "}flex shrink-0 items-center gap-2 rounded-full bg-navy-2 p-1.5 text-[13.5px] hover:bg-white/15 sm:pr-3.5`}
+              className={`flex shrink-0 items-center gap-2 rounded-full bg-navy-2 p-1.5 text-[13.5px] hover:bg-white/15 sm:pr-3.5`}
             >
               <span className="grid size-[26px] place-items-center rounded-full bg-sky text-[11px] font-extrabold text-navy">
                 {p?.name ? p.name.slice(0, 2).toUpperCase() : <PencilIcon className="size-3.5" />}
@@ -469,7 +477,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                     type="button"
                     aria-pressed={agendaFilter === f.id}
                     onClick={() => setAgendaFilter(f.id)}
-                    className={`rounded-lg border px-3 py-1.5 text-[13.5px] font-semibold ${agendaFilter === f.id ? "border-ink bg-ink text-white" : "border-line bg-card hover:border-ink"}`}
+                    className={`rounded-lg border px-3 py-1.5 text-[13.5px] font-semibold ${agendaFilter === f.id ? "border-ink bg-ink text-card" : "border-line bg-card hover:border-ink"}`}
                   >
                     {f.label}
                   </button>
@@ -501,7 +509,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                       type="button"
                       aria-pressed={modeFilter === f.id}
                       onClick={() => setModeFilter(f.id)}
-                      className={`rounded-lg border px-3 py-1.5 text-[13.5px] font-semibold ${modeFilter === f.id ? "border-ink bg-ink text-white" : "border-line bg-card hover:border-ink"}`}
+                      className={`rounded-lg border px-3 py-1.5 text-[13.5px] font-semibold ${modeFilter === f.id ? "border-ink bg-ink text-card" : "border-line bg-card hover:border-ink"}`}
                     >
                       {f.l}
                     </button>

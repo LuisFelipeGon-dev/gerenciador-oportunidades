@@ -12,9 +12,9 @@
   --ground: #eef1f6;
   --card: #ffffff;
   --action: #1d4fd8;
-  --hack: #c8432d;
+  --hack: #b83a25;
   --hack-bg: #fdebe7;
-  --event: #0b7f74;
+  --event: #0a7368;
   --event-bg: #e2f5f2;
   --prog: #6d32d6;
   --prog-bg: #f1eafe;
@@ -24,9 +24,77 @@
   --open-bg: #e5f5ec;
   --prize: #126b41;
   --prize-bg: #e4f5ec;
+  /* Hover of action buttons, and the RGB of every shadow. */
+  --action-strong: #0c2a66;
+  --shadow-rgb: 12 42 102;
+  color-scheme: light;
+}
+
+/*
+ * Dark theme: chosen in /ajustes (data-theme on <html>, set before paint by the script in
+ * layout.tsx) or, with "Automático", by the system setting. text-card is the inverse of ink:
+ * white on dark fills in the light theme, dark on light fills in the dark one.
+ */
+:root[data-theme="dark"] {
+  --navy: #0f2557;
+  --navy-2: #1b3470;
+  --navy-text: #b8c8ec;
+  --sky: #5cc8ff;
+  --ink: #e7ecf5;
+  --muted: #9ba7bd;
+  --line: #26324a;
+  --ground: #0b1220;
+  --card: #131c2e;
+  --action: #7aa2ff;
+  --action-strong: #a8c1ff;
+  --hack: #ff8f7a;
+  --hack-bg: #3a1f1b;
+  --event: #4fd1c0;
+  --event-bg: #0f302d;
+  --prog: #b99bff;
+  --prog-bg: #291d47;
+  --urgent: #ff8076;
+  --urgent-bg: #3d1a19;
+  --open: #5fd394;
+  --open-bg: #12301f;
+  --prize: #7be3ad;
+  --prize-bg: #12301f;
+  --shadow-rgb: 0 0 0;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --navy: #0f2557;
+    --navy-2: #1b3470;
+    --navy-text: #b8c8ec;
+    --sky: #5cc8ff;
+    --ink: #e7ecf5;
+    --muted: #9ba7bd;
+    --line: #26324a;
+    --ground: #0b1220;
+    --card: #131c2e;
+    --action: #7aa2ff;
+    --action-strong: #a8c1ff;
+    --hack: #ff8f7a;
+    --hack-bg: #3a1f1b;
+    --event: #4fd1c0;
+    --event-bg: #0f302d;
+    --prog: #b99bff;
+    --prog-bg: #291d47;
+    --urgent: #ff8076;
+    --urgent-bg: #3d1a19;
+    --open: #5fd394;
+    --open-bg: #12301f;
+    --prize: #7be3ad;
+    --prize-bg: #12301f;
+    --shadow-rgb: 0 0 0;
+    color-scheme: dark;
+  }
 }
 
 @theme inline {
+  --color-action-strong: var(--action-strong);
   --color-navy: var(--navy);
   --color-navy-2: var(--navy-2);
   --color-navy-text: var(--navy-text);

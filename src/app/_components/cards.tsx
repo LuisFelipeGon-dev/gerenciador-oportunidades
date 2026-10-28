@@ -53,7 +53,7 @@ export function ModeTag({ o, onNavy = false }: { o: Opportunity; onNavy?: boolea
       ? "border-white bg-white text-navy"
       : "border-white text-white"
     : solid
-      ? "border-ink bg-ink text-white"
+      ? "border-ink bg-ink text-card"
       : "border-ink text-ink";
   return (
     <span className={`${cls} rounded-md border-[1.5px] px-2 py-px text-[11.5px] font-bold tracking-wide uppercase`}>
@@ -94,7 +94,7 @@ function SaveButton({ o, actions }: { o: Opportunity; actions: CardActions }) {
       aria-pressed={saved}
       aria-label={saved ? `Remover ${o.title} dos salvos` : `Salvar ${o.title}`}
       className={`relative z-10 grid size-9 place-items-center rounded-lg border transition-colors ${
-        saved ? "border-action bg-action text-white" : "border-line text-muted hover:border-ink hover:text-ink"
+        saved ? "border-action bg-action text-card" : "border-line text-muted hover:border-ink hover:text-ink"
       }`}
     >
       <BookmarkIcon filled={saved} className="size-4" />
@@ -122,7 +122,7 @@ export function OpportunityCard({
   const topics = topicTags(o).slice(0, 3);
 
   return (
-    <article className="group relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-3.5 gap-y-3 rounded-2xl border border-line bg-card p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(12,42,102,0.10)] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-x-4">
+    <article className="group relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-3.5 gap-y-3 rounded-2xl border border-line bg-card p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-px hover:shadow-[0_6px_20px_rgb(var(--shadow-rgb)/0.10)] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-x-4">
       <Avatar o={o} />
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-1.5">
@@ -173,7 +173,7 @@ export function OpportunityCard({
             href={o.officialUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative z-10 inline-flex items-center gap-1.5 rounded-[9px] bg-action px-3 py-2 text-[13px] font-bold whitespace-nowrap text-white hover:bg-navy"
+            className="relative z-10 inline-flex items-center gap-1.5 rounded-[9px] bg-action px-3 py-2 text-[13px] font-bold whitespace-nowrap text-card hover:bg-action-strong"
           >
             Página oficial
             <ArrowIcon className="size-3.5" />

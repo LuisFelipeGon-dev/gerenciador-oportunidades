@@ -84,6 +84,13 @@ export const BellIcon = (p: IconProps) => (
     <path d="M10 20.5a2.2 2.2 0 0 0 4 0" />
   </Svg>
 );
+export const SlidersIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+    <circle cx="16" cy="7" r="2" />
+    <circle cx="10" cy="17" r="2" />
+  </Svg>
+);
 export const PencilIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M4 20l4.2-1 10.6-10.6a2.1 2.1 0 0 0-3-3L5.2 16z" />

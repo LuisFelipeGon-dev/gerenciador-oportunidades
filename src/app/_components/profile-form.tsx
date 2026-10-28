@@ -38,7 +38,7 @@ const COURSES = [
   "Sistemas de Informação", "Zootecnia",
 ];
 
-const field = "mt-1 w-full min-w-0 rounded-lg border border-line bg-white px-3 py-2.5 text-[15px] focus:border-action focus:outline-none";
+const field = "mt-1 w-full min-w-0 rounded-lg border border-line bg-card px-3 py-2.5 text-[15px] focus:border-action focus:outline-none";
 const choice = "flex min-w-0 items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-[14px] has-checked:border-action has-checked:bg-ground";
 
 function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => void }) {
@@ -230,7 +230,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
       )}
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
-        <button type="submit" className="rounded-xl bg-action px-5 py-3 text-[15px] font-bold text-white hover:bg-navy">
+        <button type="submit" className="rounded-xl bg-action px-5 py-3 text-[15px] font-bold text-card hover:bg-action-strong">
           {initial ? "Salvar perfil" : "Ver oportunidades pra mim"}
         </button>
         {initial && (

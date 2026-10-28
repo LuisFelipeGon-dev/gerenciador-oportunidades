@@ -107,7 +107,7 @@ export function DetailDrawer({
         <div className="flex items-center gap-3 pr-10">
           <Avatar o={o} size="sm" />
           <div className="flex flex-wrap gap-1.5">
-            <span className="rounded-md bg-white">
+            <span className="rounded-md bg-card">
               <TypeTag o={o} />
             </span>
             <ModeTag o={o} onNavy />
@@ -216,7 +216,7 @@ export function DetailDrawer({
           href={o.officialUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded-xl bg-action px-4 py-3 text-[15px] font-bold text-white hover:bg-navy"
+          className="flex items-center justify-center gap-2 rounded-xl bg-action px-4 py-3 text-[15px] font-bold text-card hover:bg-action-strong"
         >
           Ver página oficial
           <ArrowIcon className="size-4" />
@@ -227,7 +227,7 @@ export function DetailDrawer({
             onClick={() => actions.onToggleSave(o)}
             aria-pressed={saved}
             className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[13.5px] font-semibold ${
-              saved ? "border-action bg-action text-white" : "border-line hover:border-ink"
+              saved ? "border-action bg-action text-card" : "border-line hover:border-ink"
             }`}
           >
             <BookmarkIcon filled={saved} />

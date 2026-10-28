@@ -70,7 +70,7 @@ function Stepper({ onPrev, onNext, onToday, prevLabel, nextLabel }: { onPrev: ()
   );
 }
 
-const shell = "overflow-hidden rounded-3xl border border-line bg-card shadow-[0_1px_2px_rgba(12,42,102,0.05),0_16px_40px_-24px_rgba(12,42,102,0.25)]";
+const shell = "overflow-hidden rounded-3xl border border-line bg-card shadow-[0_1px_2px_rgb(var(--shadow-rgb)/0.05),0_16px_40px_-24px_rgb(var(--shadow-rgb)/0.25)]";
 
 /** One week of the month view: day numbers, bars for long events and chips for one-day ones. */
 function WeekRow({
@@ -113,9 +113,9 @@ function WeekRow({
             <span
               className={`grid size-7 shrink-0 place-items-center self-start rounded-full text-[13px] font-bold tabular-nums transition-colors ${
                 day.date === today
-                  ? "bg-action text-white shadow-[0_2px_6px_rgba(29,78,216,0.35)]"
+                  ? "bg-action text-card shadow-[0_2px_6px_rgb(var(--shadow-rgb)/0.3)]"
                   : !day.inMonth
-                    ? "text-muted/50"
+                    ? "text-muted"
                     : past
                       ? "text-muted"
                       : "group-hover:bg-card"
@@ -354,7 +354,7 @@ export function AgendaCalendar({
               aria-pressed={view === v.id}
               onClick={() => setView(v.id)}
               className={`rounded-lg px-3.5 py-1.5 text-[13.5px] font-semibold transition-[background-color,box-shadow,color] ${
-                view === v.id ? "bg-card text-ink shadow-[0_1px_3px_rgba(12,42,102,0.15)]" : "text-muted hover:text-ink"
+                view === v.id ? "bg-card text-ink shadow-[0_1px_3px_rgb(var(--shadow-rgb)/0.15)]" : "text-muted hover:text-ink"
               }`}
             >
               {v.label}
@@ -391,11 +391,11 @@ export function AgendaCalendar({
                   aria-pressed={m === month}
                   onClick={() => goToMonth(year, m)}
                   className={`flex shrink-0 items-baseline gap-1 rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-colors ${
-                    m === month ? "bg-ink text-white" : count > 0 ? "text-ink hover:bg-card" : "text-muted/70 hover:bg-card"
+                    m === month ? "bg-ink text-card" : count > 0 ? "text-ink hover:bg-card" : "text-muted hover:bg-card"
                   }`}
                 >
                   {monthShort(m)}
-                  {count > 0 && <span className={`text-[11px] tabular-nums ${m === month ? "text-white/70" : "text-muted"}`}>{count}</span>}
+                  {count > 0 && <span className={`text-[11px] tabular-nums ${m === month ? "text-card/70" : "text-muted"}`}>{count}</span>}
                 </button>
               );
             })}
@@ -404,7 +404,7 @@ export function AgendaCalendar({
           <div className={shell}>
             <div className="grid grid-cols-7 bg-ground/60">
               {WEEKDAYS.map((d, i) => (
-                <span key={d} className={`py-2 text-center text-[11.5px] font-bold tracking-wide text-muted uppercase ${i === 0 || i === 6 ? "text-muted/70" : ""}`}>
+                <span key={d} className={`py-2 text-center text-[11.5px] font-bold tracking-wide text-muted uppercase ${i === 0 || i === 6 ? "text-muted" : ""}`}>
                   <span className="sm:hidden">{d[0]}</span>
                   <span className="hidden sm:inline">{d}</span>
                 </span>
@@ -443,7 +443,7 @@ export function AgendaCalendar({
               </button>
               <div className="grid grid-cols-7 gap-0.5 text-center text-[11px] tabular-nums">
                 {WEEKDAYS.map((d) => (
-                  <span key={d} className="pb-0.5 font-bold text-muted/70">
+                  <span key={d} className="pb-0.5 font-bold text-muted">
                     {d[0]}
                   </span>
                 ))}
@@ -460,11 +460,11 @@ export function AgendaCalendar({
                         aria-label={`${longDate(cell.date)}: ${active.length === 0 ? "nada marcado" : `${active.length} na agenda`}`}
                         className={`grid aspect-square place-items-center rounded-full transition-colors ${
                           cell.date === today
-                            ? "bg-action font-bold text-white"
+                            ? "bg-action font-bold text-card"
                             : active.length > 0
                               ? `${tone(active[0]).chip} font-bold`
                               : cell.date < today
-                                ? "text-muted/50 hover:bg-ground"
+                                ? "text-muted hover:bg-ground"
                                 : "hover:bg-ground"
                         }`}
                       >

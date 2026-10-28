@@ -99,7 +99,7 @@ export function ReportForm({ itemKey }: { itemKey: string }) {
           name="message"
           maxLength={REPORT_MESSAGE_MAX}
           rows={3}
-          className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-[14px] focus:border-action focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-line bg-card px-3 py-2 text-[14px] focus:border-action focus:outline-none"
         />
       </label>
       <p className="mt-1 text-[12px] text-muted">Não pedimos nem guardamos seu nome ou e-mail.</p>
@@ -112,7 +112,7 @@ export function ReportForm({ itemKey }: { itemKey: string }) {
         <button
           type="submit"
           disabled={state === "sending"}
-          className="rounded-lg bg-action px-3.5 py-2 text-[13.5px] font-bold text-white hover:bg-navy disabled:opacity-60"
+          className="rounded-lg bg-action px-3.5 py-2 text-[13.5px] font-bold text-card hover:bg-action-strong disabled:opacity-60"
         >
           {state === "sending" ? "Enviando…" : "Enviar"}
         </button>

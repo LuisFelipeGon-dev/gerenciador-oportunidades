@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { rememberConsent, useSession } from "@/lib/account";
 import { browserClient } from "@/lib/supabase/browser";
 
-const field = "mt-1 w-full rounded-xl border border-line bg-white px-3.5 py-3 text-[16px] focus:border-action focus:outline-none";
+const field = "mt-1 w-full rounded-xl border border-line bg-card px-3.5 py-3 text-[16px] focus:border-action focus:outline-none";
 
 function friendly(message: string): string {
   if (/rate limit|too many|seconds/i.test(message)) return "Muitos pedidos seguidos. Espere alguns minutos e tente de novo.";
@@ -85,7 +85,7 @@ export function LoginForm() {
           {error}
         </p>
       )}
-      <button type="submit" disabled={busy} className="rounded-xl bg-action px-5 py-3.5 text-[15px] font-bold text-white hover:bg-navy disabled:opacity-60">
+      <button type="submit" disabled={busy} className="rounded-xl bg-action px-5 py-3.5 text-[15px] font-bold text-card hover:bg-action-strong disabled:opacity-60">
         {busy ? "Enviando…" : "Receber link de acesso"}
       </button>
       <p className="text-[13px] text-muted">Sem senha: a gente manda um link e um código para o seu e-mail. Se for a primeira vez, a conta é criada.</p>
@@ -111,7 +111,7 @@ export function LoginForm() {
           {error}
         </p>
       )}
-      <button type="submit" disabled={busy} className="rounded-xl bg-action px-5 py-3.5 text-[15px] font-bold text-white hover:bg-navy disabled:opacity-60">
+      <button type="submit" disabled={busy} className="rounded-xl bg-action px-5 py-3.5 text-[15px] font-bold text-card hover:bg-action-strong disabled:opacity-60">
         {busy ? "Conferindo…" : "Entrar"}
       </button>
       <button
