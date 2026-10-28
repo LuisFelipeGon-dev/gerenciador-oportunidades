@@ -1,0 +1,145 @@
+import { isUF, regionOf, type UF } from "./brazil";
+import type { Opportunity, OpportunityType } from "./opportunity";
+
+export const LEVELS = ["high_school", "undergraduate", "graduate", "phd"] as const;
+export type Level = (typeof LEVELS)[number];
+
+export type Profile = {
+  name: string;
+  course: string;
+  city: string;
+  state: UF;
+  level: Level;
+  adult: boolean;
+  interests: OpportunityType[];
+};
+
+export type Check = { ok: boolean | null; label: string };
+
+const DAY_MS = 86_400_000;
+
+/** Days from `today` (YYYY-MM-DD) until a date-only value; negative when it has passed. */
+export function daysUntil(isoDate: string, today: string): number {
+  return Math.round((Date.parse(isoDate.slice(0, 10)) - Date.parse(today)) / DAY_MS);
+}
+
+/** The date that matters for ordering and urgency: the deadline, or the start of the event. */
+export function keyDate(o: Opportunity): string | null {
+  return o.registrationDeadline ?? o.startsOn;
+}
+
+export function itemKey(o: Pick<Opportunity, "source" | "sourceId">): string {
+  return `${o.source}:${o.sourceId}`;
+}
+
+/**
+ * "Posso participar?" for one person. ok=false means the item excludes them, ok=null means the
+ * source does not say. Course is not checked yet: no source publishes course restrictions.
+ */
+export function checksFor(o: Opportunity, profile: Profile | null): Check[] {
+  const checks: Check[] = [];
+  const { countries, minAge, levels } = o.eligibility;
+
+  if (o.modality === "online") {
+    checks.push({ ok: true, label: "Online" });
+  } else if (o.location.country === "BR") {
+    const state = o.location.state;
+    if (profile && state === profile.state) checks.push({ ok: true, label: "No seu estado" });
+    else if (profile && regionOf(state) === regionOf(profile.state)) checks.push({ ok: true, label: "Na sua região" });
+    else checks.push({ ok: true, label: "No Brasil" });
+  } else if (o.location.country) {
+    checks.push({ ok: null, label: `Presencial fora do Brasil (${o.location.country})` });
+  }
+
+  if (countries) {
+    checks.push(countries.includes("BR") ? { ok: true, label: "Aceita o Brasil" } : { ok: false, label: "Não aceita o Brasil" });
+  } else if (o.modality === "online") {
+    checks.push({ ok: null, label: "Países aceitos: a fonte não informa" });
+  }
+
+  if (minAge) {
+    checks.push(
+      profile && !profile.adult && minAge >= 18
+        ? { ok: false, label: `Exige ${minAge}+ anos` }
+        : { ok: true, label: `${minAge}+ anos` },
+    );
+  }
+
+  if (levels?.length) {
+    checks.push(
+      profile && !levels.includes(profile.level)
+        ? { ok: false, label: "Não aceita o seu nível de estudo" }
+        : { ok: true, label: profile ? "Aceita o seu nível de estudo" : "Para estudantes" },
+    );
+  }
+
+  return checks;
+}
+
+export function isExcluded(o: Opportunity, profile: Profile | null): boolean {
+  return checksFor(o, profile).some((c) => c.ok === false);
+}
+
+function byKeyDate(a: Opportunity, b: Opportunity): number {
+  return (keyDate(a) ?? "9999").localeCompare(keyDate(b) ?? "9999") || a.title.localeCompare(b.title);
+}
+
+export type Sections = {
+  closingSoon: Opportunity[];
+  nearby: Opportunity[];
+  nearbyScope: "state" | "region" | "country";
+  online: Opportunity[];
+  programs: Opportunity[];
+};
+
+/** Splits open items into the home sections for a profile (or for an anonymous visitor). */
+export function buildSections(
+  items: Opportunity[],
+  programs: Opportunity[],
+  profile: Profile | null,
+  today: string,
+): Sections {
+  const wanted = (o: Opportunity) =>
+    (!profile || profile.interests.length === 0 || profile.interests.includes(o.type)) && !isExcluded(o, profile);
+  const visible = items.filter(wanted).sort(byKeyDate);
+
+  // In-person events abroad stay out of the personalized sections (they remain in the type tabs).
+  const reachable = (o: Opportunity) => o.modality === "online" || o.location.country === "BR";
+
+  const closingSoon = visible.filter((o) => {
+    if (!o.registrationDeadline || !reachable(o)) return false;
+    const d = daysUntil(o.registrationDeadline, today);
+    return d >= 0 && d <= 7;
+  });
+
+  const inBrazil = visible.filter((o) => o.modality !== "online" && o.location.country === "BR");
+  let nearby = inBrazil;
+  let nearbyScope: Sections["nearbyScope"] = "country";
+  if (profile && isUF(profile.state)) {
+    const sameState = inBrazil.filter((o) => o.location.state === profile.state);
+    const sameRegion = inBrazil.filter(
+      (o) => o.location.state !== profile.state && regionOf(o.location.state) === regionOf(profile.state),
+    );
+    if (sameState.length + sameRegion.length > 0) {
+      nearby = [...sameState, ...sameRegion];
+      nearbyScope = sameState.length > 0 ? "state" : "region";
+    }
+  }
+
+  const online = visible.filter((o) => o.modality === "online");
+
+  const rank = { open: 0, upcoming: 1, closed: 2 } as const;
+  const programList = programs
+    .filter((p) => (!profile || profile.interests.length === 0 || profile.interests.includes("ambassador")) && !isExcluded(p, profile))
+    .sort((a, b) => rank[a.status] - rank[b.status] || a.title.localeCompare(b.title));
+
+  return { closingSoon, nearby, nearbyScope, online, programs: programList };
+}
+
+/** Today's date (YYYY-MM-DD) in the visitor's own time zone. */
+export function localToday(now = new Date()): string {
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}

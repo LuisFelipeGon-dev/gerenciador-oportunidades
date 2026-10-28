@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prévia 6: azul sem amarelo</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:#0c2a66; --forest-2:#16397f; --ipe:#5cc8ff; --ipe-soft:#e4f5ec;
+    --ink:#17221f; --muted:#5b6765; --line:#dfe5e3; --ground:#eef1f6; --card:#fff;
+    --hack:#e04e35; --hack-bg:#fdebe7; --event:#0f9b8e; --event-bg:#e2f5f2; --prog:#7c3aed; --prog-bg:#f1eafe;
+    --urgent:#d63b2f; --urgent-bg:#fdecea; --open:#14804a; --open-bg:#e5f5ec; --action:#1d4fd8;
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:Figtree,system-ui,sans-serif; background:var(--ground); color:var(--ink); font-feature-settings:"tnum"; }
+  a { color:inherit; text-decoration:none; }
+  .note { background:#000; color:#fff; font-size:12.5px; padding:7px 16px; text-align:center; }
+
+  .band { background:var(--forest); color:#fff; }
+  .band .in { max-width:1180px; margin:0 auto; padding:0 20px; }
+  .nav { display:flex; align-items:center; gap:22px; height:60px; }
+  .logo { font-weight:800; font-size:19px; letter-spacing:-.03em; display:flex; align-items:center; gap:8px; }
+  .logo i { width:22px; height:22px; border-radius:6px; background:var(--ipe); display:inline-block; position:relative; }
+  .logo i::after { content:""; position:absolute; inset:6px; border-radius:50%; background:var(--forest); }
+  .links { display:flex; gap:20px; font-size:14.5px; font-weight:500; color:#b8c8ec; }
+  .links b { color:#fff; font-weight:600; border-bottom:2px solid var(--ipe); padding-bottom:18px; margin-bottom:-20px; }
+  .pill { margin-left:auto; display:flex; align-items:center; gap:8px; font-size:13.5px; background:var(--forest-2); padding:6px 12px 6px 6px; border-radius:999px; }
+  .pill i { width:26px; height:26px; border-radius:50%; background:var(--ipe); color:var(--forest); font-style:normal; font-weight:800; font-size:11px; display:grid; place-items:center; }
+  .hero { padding:30px 0 26px; display:grid; grid-template-columns:1fr auto; gap:24px; align-items:end; }
+  .hero h1 { font-size:34px; font-weight:800; letter-spacing:-.035em; line-height:1.1; max-width:20ch; }
+  .hero h1 em { font-style:normal; color:var(--ipe); }
+  .hero p { color:#b8c8ec; margin-top:8px; font-size:15px; }
+  .stats { display:grid; grid-template-columns:repeat(4, auto); gap:8px; }
+  .stat { background:var(--forest-2); border-radius:12px; padding:12px 14px; min-width:118px; }
+  .stat strong { display:block; font-size:26px; font-weight:800; letter-spacing:-.03em; }
+  .stat span { font-size:12.5px; color:#b8c8ec; }
+  .stat.u strong { color:#ff9b8f; } .stat.y strong { color:var(--ipe); }
+  @media (max-width:900px) { .hero { grid-template-columns:1fr; } .stats { grid-template-columns:repeat(2,1fr); } .links { display:none; } }
+
+  .layout { max-width:1180px; margin:0 auto; padding:24px 20px 60px; display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:28px; align-items:start; }
+  @media (max-width:900px) { .layout { grid-template-columns:1fr; } }
+  .block { margin-bottom:32px; }
+  .bh { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .bh h2 { font-size:19px; font-weight:800; letter-spacing:-.02em; }
+  .bh .ct { font-size:12px; font-weight:700; background:var(--ink); color:#fff; border-radius:999px; padding:2px 8px; }
+  .bh a { margin-left:auto; font-size:13.5px; font-weight:600; color:var(--forest); }
+
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; display:grid; grid-template-columns:56px minmax(0,1fr) 124px; gap:14px; padding:16px; margin-bottom:12px; position:relative; overflow:hidden; transition:box-shadow .15s, transform .15s; }
+  .card:hover { box-shadow:0 6px 20px rgba(12,42,102,.12); transform:translateY(-1px); }
+  .card::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--c); }
+  .hk { --c:var(--hack); --cb:var(--hack-bg); } .ev { --c:var(--event); --cb:var(--event-bg); } .pg { --c:var(--prog); --cb:var(--prog-bg); }
+  .av { width:56px; height:56px; border-radius:12px; background:var(--cb); color:var(--c); font-weight:800; font-size:18px; display:grid; place-items:center; letter-spacing:-.02em; }
+  .top { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .type { font-size:11.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--c); background:var(--cb); padding:3px 8px; border-radius:6px; }
+  .mode { font-size:11.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:3px 8px; border-radius:6px; border:1.5px solid var(--ink); }
+  .mode.p { background:var(--ink); color:#fff; }
+  .loc { font-size:14px; font-weight:700; }
+  .card h3 { font-size:18px; font-weight:700; letter-spacing:-.02em; margin-top:6px; line-height:1.25; }
+  .org { font-size:13.5px; color:var(--muted); margin-top:2px; }
+  .prize { display:inline-flex; gap:6px; align-items:center; margin-top:8px; font-size:13.5px; font-weight:700; background:var(--ipe-soft); color:#126b41; padding:4px 9px; border-radius:7px; }
+  .check { display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:10px; font-size:12.5px; font-weight:600; color:var(--open); }
+  .check .q { color:#97a19f; font-weight:500; }
+  .why { font-size:12.5px; color:var(--muted); margin-top:8px; }
+  .side { display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; text-align:right; gap:8px; }
+  .side small { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .side strong { font-size:26px; font-weight:800; letter-spacing:-.03em; line-height:1; }
+  .left { font-size:12.5px; font-weight:700; padding:3px 8px; border-radius:999px; }
+  .left.u { background:var(--urgent-bg); color:var(--urgent); } .left.n { background:#eef1f0; color:var(--muted); } .left.o { background:var(--open-bg); color:var(--open); }
+  .btn { background:var(--action); color:#fff; font-size:13px; font-weight:700; padding:8px 12px; border-radius:9px; white-space:nowrap; }
+  @media (max-width:620px) { .card { grid-template-columns:44px 1fr; } .av { width:44px; height:44px; font-size:15px; } .side { grid-column:1 / -1; flex-direction:row; align-items:center; text-align:left; border-top:1px dashed var(--line); padding-top:10px; } .side strong { font-size:20px; } }
+
+  .compact { background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .crow { display:grid; grid-template-columns:40px 1fr auto auto; gap:12px; padding:11px 14px; border-top:1px solid var(--line); align-items:center; }
+  .crow:first-child { border-top:0; }
+  .crow .mini { width:40px; height:40px; border-radius:10px; background:var(--hack-bg); color:var(--hack); font-weight:800; font-size:13px; display:grid; place-items:center; }
+  .crow b { font-weight:700; font-size:14.5px; } .crow span.s { display:block; font-size:12.5px; color:var(--muted); }
+  .crow .pz { font-size:12.5px; font-weight:700; color:#126b41; background:var(--ipe-soft); padding:3px 8px; border-radius:6px; }
+  .crow .dt { font-weight:800; font-size:15px; min-width:48px; text-align:right; }
+
+  .prog { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px; }
+  .pc { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; border-top:4px solid var(--prog); }
+  .pc .st { font-size:12px; font-weight:700; }
+  .pc .st.o { color:var(--open); } .pc .st.c { color:var(--prog); }
+  .pc h4 { font-size:16px; font-weight:700; margin-top:6px; letter-spacing:-.01em; }
+  .pc p { font-size:13px; color:var(--muted); margin-top:3px; }
+  .pc .bell { display:inline-block; margin-top:12px; font-size:13px; font-weight:700; color:var(--prog); background:var(--prog-bg); padding:6px 10px; border-radius:8px; }
+
+  aside .box { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px; }
+  aside h3 { font-size:15px; font-weight:800; margin-bottom:12px; }
+  .me { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+  .me i { width:44px; height:44px; border-radius:50%; background:var(--ipe); color:var(--forest); font-style:normal; font-weight:800; display:grid; place-items:center; }
+  .me b { display:block; font-size:15px; } .me span { font-size:13px; color:var(--muted); }
+  .tags { display:flex; flex-wrap:wrap; gap:6px; }
+  .tags span { font-size:12.5px; font-weight:600; background:var(--ground); padding:5px 9px; border-radius:7px; }
+  .edit { display:block; margin-top:14px; text-align:center; font-size:13.5px; font-weight:700; background:var(--forest); color:#fff; border-radius:10px; padding:9px; }
+  .tl { list-style:none; padding:0; }
+  .tl li { display:grid; grid-template-columns:52px 1fr; gap:10px; padding:8px 0; border-top:1px solid var(--line); font-size:13.5px; align-items:center; }
+  .tl li:first-child { border-top:0; }
+  .tl b { font-weight:800; font-size:13px; text-align:center; background:var(--ground); border-radius:8px; padding:5px 0; }
+  .tl li.u b { background:var(--urgent-bg); color:var(--urgent); }
+  .src { font-size:12.5px; color:var(--muted); line-height:1.55; }
+
+  .card[data-open] { cursor:pointer; }
+  .card[data-open] h3 { text-decoration:underline; text-decoration-color:transparent; text-underline-offset:3px; transition:text-decoration-color .15s; }
+  .card[data-open]:hover h3 { text-decoration-color:currentColor; }
+  .scrim { position:fixed; inset:0; background:rgba(9,20,48,.45); opacity:0; pointer-events:none; transition:opacity .2s; z-index:10; }
+  .drawer { position:fixed; top:0; right:0; bottom:0; width:min(560px, 100%); background:#fff; z-index:11; transform:translateX(100%); transition:transform .25s cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column; box-shadow:-12px 0 40px rgba(9,20,48,.18); }
+  body.open .scrim { opacity:1; pointer-events:auto; } body.open .drawer.on { transform:none; }
+  .dh { background:var(--forest); color:#fff; padding:18px 22px 20px; position:relative; }
+  .dh .x { position:absolute; right:14px; top:12px; width:34px; height:34px; border-radius:50%; background:var(--forest-2); color:#fff; border:0; font-size:20px; cursor:pointer; }
+  .dh .top .type { background:#fff; }
+  .dh .top .mode { border-color:#fff; color:#fff; } .dh .top .mode.p { background:#fff; color:var(--forest); }
+  .dh h2 { font-size:24px; font-weight:800; letter-spacing:-.03em; margin-top:10px; line-height:1.15; padding-right:30px; }
+  .dh p { color:#b8c8ec; font-size:14px; margin-top:4px; }
+  .dh .keys { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px; }
+  .dh .k { background:var(--forest-2); border-radius:10px; padding:9px 11px; }
+  .dh .k small { display:block; font-size:11px; color:#b8c8ec; text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
+  .dh .k b { font-size:15px; font-weight:700; }
+  .db { padding:20px 22px; overflow:auto; flex:1; }
+  .db h4 { font-size:13px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:18px 0 6px; }
+  .db h4:first-child { margin-top:0; }
+  .db p, .db li { font-size:15px; line-height:1.55; }
+  .db ul { padding-left:18px; }
+  .auto { font-size:12px; color:var(--muted); margin-top:6px; background:var(--ground); border-radius:8px; padding:7px 10px; }
+  .elig { list-style:none; padding:0 !important; display:grid; gap:6px; }
+  .elig li { display:flex; gap:8px; font-size:14px; }
+  .elig .ok { color:var(--open); font-weight:700; } .elig .q { color:#97a19f; font-weight:700; }
+  .steps { counter-reset:s; list-style:none; padding:0 !important; }
+  .steps li { counter-increment:s; display:grid; grid-template-columns:28px 1fr; gap:8px; margin-bottom:8px; }
+  .steps li::before { content:counter(s); width:24px; height:24px; border-radius:50%; background:var(--ground); font-weight:800; font-size:12.5px; display:grid; place-items:center; }
+  .df { border-top:1px solid var(--line); padding:14px 22px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .df .primary { background:var(--action); color:#fff; font-weight:700; font-size:14.5px; padding:11px 16px; border-radius:10px; flex:1; text-align:center; min-width:180px; }
+  .df .ghost { border:1px solid var(--line); font-weight:600; font-size:13.5px; padding:10px 12px; border-radius:10px; }
+  .df small { width:100%; font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="note">Prévia 6 · azul, sem amarelo · detalhe ao clicar (clique no DevFest Cerrado) · dados reais · perfil de exemplo: Ciência da Computação, UFMT, Várzea Grande (MT)</div>
+
+  <div class="band"><div class="in">
+    <nav class="nav">
+      <a class="logo" href="#"><i></i>oportunidades</a>
+      <div class="links"><b>Para você</b><span>Hackathons</span><span>Eventos</span><span>Programas</span></div>
+      <div class="pill"><i>LF</i>Computação · Várzea Grande</div>
+    </nav>
+    <div class="hero">
+      <div>
+        <h1>Tem <em>9 oportunidades</em> abertas que combinam com você.</h1>
+        <p>Montado a partir do seu curso, cidade, nível e idade. Tudo leva à página oficial.</p>
+      </div>
+      <div class="stats">
+        <div class="stat u"><strong>3</strong><span>fecham nesta semana</span></div>
+        <div class="stat y"><strong>2</strong><span>presenciais em MT</span></div>
+        <div class="stat"><strong>41</strong><span>online pra você</span></div>
+        <div class="stat"><strong>2</strong><span>programas abrem logo</span></div>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="layout">
+    <main>
+      <section class="block">
+        <div class="bh"><h2>Fecha esta semana</h2><span class="ct">3</span><a href="#">Ver todas →</a></div>
+        <article class="card hk" data-open="d-nebius">
+          <div class="av">NV</div>
+          <div>
+            <div class="top"><span class="type">Hackathon</span><span class="mode">Online</span><span class="loc">De qualquer lugar</span></div>
+            <h3>Nebius x NVIDIA Global AI Hackathon</h3>
+            <div class="org">Nebius · via Devpost · 28 mil inscritos</div>
+            <span class="prize">US$ 50.000 em prêmios</span>
+            <div class="check"><span>✓ Online</span><span>✓ Qualquer curso</span><span>✓ Bom para iniciantes</span><span class="q">? País: a página não informa</span></div>
+          </div>
+          <div class="side"><small>Inscrições até</small><strong>30/10</strong><span class="left u">fecha em 3 dias</span><a class="btn" href="#">Ver página oficial</a></div>
+        </article>
+      </section>
+
+      <section class="block">
+        <div class="bh"><h2>Perto de você</h2><span class="ct">2</span><a href="#">Ver no mapa →</a></div>
+        <article class="card ev">
+          <div class="av">GS</div>
+          <div>
+            <div class="top"><span class="type">Evento</span><span class="mode p">Presencial</span><span class="loc">Sinop, MT</span></div>
+            <h3>DevFest Nortão 2026</h3>
+            <div class="org">GDG Sinop</div>
+            <div class="check"><span>✓ No seu estado</span><span>✓ Qualquer curso</span><span class="q">? Valor: veja na página</span></div>
+            <div class="why">Aparece pra você porque é o evento presencial de tecnologia mais perto de Várzea Grande.</div>
+          </div>
+          <div class="side"><small>Acontece em</small><strong>04/12</strong><span class="left n">sexta e sábado</span><a class="btn" href="#">Ver página oficial</a></div>
+        </article>
+        <article class="card ev" data-open="d-cerrado">
+          <div class="av">GG</div>
+          <div>
+            <div class="top"><span class="type">Evento</span><span class="mode p">Presencial</span><span class="loc">Goiânia, GO</span></div>
+            <h3>DevFest Cerrado 2026</h3>
+            <div class="org">GDG Goiânia · mais de 800 participantes</div>
+            <div class="check"><span>✓ Centro-Oeste</span><span>✓ Qualquer curso</span><span>✓ Certificado de 10 h</span></div>
+          </div>
+          <div class="side"><small>Acontece em</small><strong>28/11</strong><span class="left n">sábado</span><a class="btn" href="#">Ver página oficial</a></div>
+        </article>
+      </section>
+
+      <section class="block">
+        <div class="bh"><h2>Online e aberto pra você</h2><span class="ct">41</span><a href="#">Ver todas →</a></div>
+        <div class="compact">
+          <div class="crow"><span class="mini">NB</span><span><b>Next Byte Hacks V5</b><span class="s">Hackathon · Devpost</span></span><span></span><span class="dt">02/11</span></div>
+          <div class="crow"><span class="mini">PP</span><span><b>PayPal AI Hackathon</b><span class="s">Hackathon · PayPal</span></span><span class="pz">US$ 67.500</span><span class="dt">12/11</span></div>
+          <div class="crow"><span class="mini">DH</span><span><b>DSH Hacks V2</b><span class="s">Hackathon · STEMise</span></span><span class="pz">US$ 100k+</span><span class="dt">15/11</span></div>
+          <div class="crow"><span class="mini">AT</span><span><b>Codegeist 2026</b><span class="s">Hackathon · Atlassian</span></span><span></span><span class="dt">22/12</span></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="bh"><h2>Programas pra ficar de olho</h2><span class="ct">5</span></div>
+        <div class="prog">
+          <div class="pc"><div class="st o">● Inscrições abertas</div><h4>AWS Student Builder Groups</h4><p>18+ · graduação ou pós · créditos AWS e vouchers</p><a class="bell" href="#">Ver página oficial</a></div>
+          <div class="pc"><div class="st c">Fechado · costuma abrir em julho</div><h4>GitHub Campus Experts</h4><p>18+ · mais de 1 ano até formar</p><a class="bell" href="#">Me avise quando abrir</a></div>
+          <div class="pc"><div class="st c">Fechado · costuma abrir em setembro</div><h4>Claude Campus</h4><p>Qualquer país · bolsa de US$ 3.600</p><a class="bell" href="#">Me avise quando abrir</a></div>
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <div class="box">
+        <h3>Seu perfil</h3>
+        <div class="me"><i>LF</i><div><b>Luis Felipe</b><span>Várzea Grande, MT</span></div></div>
+        <div class="tags"><span>Ciência da Computação</span><span>Graduação</span><span>18+</span><span>Hackathons</span><span>Eventos</span><span>Programas</span></div>
+        <a class="edit" href="#">Editar perfil</a>
+      </div>
+      <div class="box">
+        <h3>Seus próximos prazos</h3>
+        <ul class="tl">
+          <li class="u"><b>30/10</b>Nebius x NVIDIA Hackathon</li>
+          <li class="u"><b>02/11</b>Next Byte Hacks V5</li>
+          <li><b>12/11</b>PayPal AI Hackathon</li>
+          <li><b>28/11</b>DevFest Cerrado</li>
+          <li><b>04/12</b>DevFest Nortão</li>
+        </ul>
+      </div>
+      <div class="box src">Coletado todo dia do Devpost, MLH, GDGs brasileiros e páginas oficiais conferidas à mão.</div>
+    </aside>
+  </div>
+
+  <div class="scrim" data-close></div>
+
+  <aside class="drawer ev" id="d-cerrado" role="dialog" aria-modal="true" aria-labelledby="t-cerrado">
+    <div class="dh">
+      <button class="x" data-close aria-label="Fechar">×</button>
+      <div class="top"><span class="type">Evento</span><span class="mode p">Presencial</span></div>
+      <h2 id="t-cerrado">DevFest Cerrado 2026</h2>
+      <p>GDG Goiânia · Google Developer Groups</p>
+      <div class="keys">
+        <div class="k"><small>Quando</small><b>28/11 · sábado</b></div>
+        <div class="k"><small>Onde</small><b>Goiânia, GO</b></div>
+        <div class="k"><small>Horário</small><b>07:30 às 18:30</b></div>
+      </div>
+    </div>
+    <div class="db">
+      <h4>O que é</h4>
+      <p>Uma conferência de tecnologia de um dia, organizada pela comunidade Google de Goiânia. São palestras sobre inteligência artificial, Google Cloud e desenvolvimento, com mentorias e tempo para conhecer gente da área. É um dos maiores eventos de tecnologia do Centro-Oeste, com mais de 800 participantes.</p>
+      <p class="auto">Resumo escrito por nós a partir da página oficial. Confira os detalhes lá antes de se inscrever.</p>
+
+      <h4>Pra quem é</h4>
+      <p>Qualquer pessoa interessada em tecnologia, de quem está começando a quem já trabalha na área. Não precisa ser de computação.</p>
+
+      <h4>O que você ganha</h4>
+      <ul>
+        <li>Certificado de 10 horas</li>
+        <li>Palestras e mentorias com profissionais da área</li>
+        <li>Networking com a comunidade de tecnologia do Centro-Oeste</li>
+      </ul>
+
+      <h4>Posso participar?</h4>
+      <ul class="elig">
+        <li><span class="ok">✓</span>Presencial no Centro-Oeste, a cerca de 890 km de você</li>
+        <li><span class="ok">✓</span>Aberto a qualquer curso</li>
+        <li><span class="q">?</span>Valor do ingresso: há desconto para grupos; veja na página oficial</li>
+      </ul>
+
+      <h4>Como se inscrever</h4>
+      <ol class="steps">
+        <li>Abra a página oficial do evento no GDG</li>
+        <li>Siga para a inscrição na Doity (plataforma de ingressos)</li>
+        <li>Se for com amigos, veja o desconto para grupos</li>
+      </ol>
+
+      <h4>Onde</h4>
+      <p>Equatore Eventos · Avenida T-3, 1494 · Goiânia, GO</p>
+    </div>
+    <div class="df">
+      <a class="primary" href="https://gdg.community.dev/events/details/google-gdg-goiania-presents-devfest-cerrado-2026/" target="_blank" rel="noopener">Ver página oficial →</a>
+      <a class="ghost" href="#">Salvar</a><a class="ghost" href="#">Adicionar à agenda</a><a class="ghost" href="#">Compartilhar</a>
+      <small>Verificado em 27/10/2026 · fonte: GDG · <a href="#" style="text-decoration:underline">reportar erro</a></small>
+    </div>
+  </aside>
+
+  <aside class="drawer hk" id="d-nebius" role="dialog" aria-modal="true" aria-labelledby="t-nebius">
+    <div class="dh">
+      <button class="x" data-close aria-label="Fechar">×</button>
+      <div class="top"><span class="type">Hackathon</span><span class="mode">Online</span></div>
+      <h2 id="t-nebius">Nebius x NVIDIA Global AI Hackathon</h2>
+      <p>Nebius · via Devpost</p>
+      <div class="keys">
+        <div class="k"><small>Inscrições até</small><b>30/10</b></div>
+        <div class="k"><small>Onde</small><b>Online</b></div>
+        <div class="k"><small>Prêmios</small><b>US$ 50.000</b></div>
+      </div>
+    </div>
+    <div class="db">
+      <h4>O que é</h4>
+      <p>Um hackathon online: você monta um projeto (sozinho ou em equipe) dentro do prazo e envia pela plataforma Devpost para concorrer a prêmios.</p>
+      <p class="auto">A fonte só traz dados básicos deste hackathon. O tema e as regras completas estão na página oficial.</p>
+
+      <h4>Temas</h4>
+      <ul><li>Machine Learning e IA</li><li>Automação de processos (RPA)</li><li>Bom para iniciantes</li></ul>
+
+      <h4>O que você ganha</h4>
+      <ul><li>US$ 50.000 em prêmios: 6 prêmios em dinheiro e 4 de outro tipo</li></ul>
+
+      <h4>Posso participar?</h4>
+      <ul class="elig">
+        <li><span class="ok">✓</span>Online, de qualquer lugar</li>
+        <li><span class="ok">✓</span>Não exige curso específico</li>
+        <li><span class="q">?</span>Países aceitos: a fonte não informa; confira nas regras</li>
+      </ul>
+
+      <h4>Período de envio</h4>
+      <p>De 26/08 a 30/10/2026 · 28 mil pessoas inscritas</p>
+    </div>
+    <div class="df">
+      <a class="primary" href="https://nebiusglobalaihackathon.devpost.com/" target="_blank" rel="noopener">Ver página oficial →</a>
+      <a class="ghost" href="#">Salvar</a><a class="ghost" href="#">Adicionar à agenda</a><a class="ghost" href="#">Compartilhar</a>
+      <small>Verificado em 27/10/2026 · fonte: Devpost · <a href="#" style="text-decoration:underline">reportar erro</a></small>
+    </div>
+  </aside>
+
+  <script>
+    let last;
+    function open(id) { last = document.activeElement; document.querySelectorAll('.drawer').forEach(d => d.classList.toggle('on', d.id === id)); document.body.classList.add('open'); document.querySelector('#' + id + ' .x').focus(); }
+    function close() { document.body.classList.remove('open'); last && last.focus(); }
+    document.querySelectorAll('[data-open]').forEach(c => { c.tabIndex = 0; c.addEventListener('click', e => { if (!e.target.closest('a')) open(c.dataset.open); }); c.addEventListener('keydown', e => { if (e.key === 'Enter') open(c.dataset.open); }); });
+    document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', close));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  </script>
+</body>
+</html>
