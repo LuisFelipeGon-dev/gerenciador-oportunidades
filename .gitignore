@@ -47,3 +47,4 @@ monitor-report.md
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+alerts-preview/

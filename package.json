@@ -10,12 +10,14 @@
     "test": "vitest run",
     "collect": "tsx --env-file-if-exists=.env.local scripts/collect.ts",
     "monitor": "tsx --env-file-if-exists=.env.local scripts/monitor.ts",
+    "alerts": "tsx --env-file-if-exists=.env.local scripts/alerts.ts",
     "reports": "tsx --env-file-if-exists=.env.local scripts/reports.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
     "next": "16.4.3",
+    "nodemailer": "^10.2.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "yaml": "^2.9.1",
@@ -24,6 +26,7 @@
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^24.19.2",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
