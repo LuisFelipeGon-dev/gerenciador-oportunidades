@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeOn, agendaEntries, isLongOnline, buildAgenda, entriesByDay, groupAgenda, monthGrid, weekBars, type AgendaGroup } from "./agenda";
+import { activeOn, agendaEntries, calendarColors, isLongOnline, buildAgenda, entriesByDay, groupAgenda, monthGrid, weekBars, type AgendaGroup } from "./agenda";
 import { opportunitySchema, type Opportunity } from "./opportunity";
 import type { Profile } from "./personalize";
 
@@ -257,5 +257,35 @@ describe("isLongOnline", () => {
   it("is false for short online events and for in-person ones of any length", () => {
     expect(isLongOnline(entryOf("2026-11-01", "2026-11-03", "online"))).toBe(false);
     expect(isLongOnline(entryOf("2026-10-01", "2026-12-15", "in_person"))).toBe(false);
+  });
+});
+
+describe("calendarColors", () => {
+  const span = (id: string, startsOn: string, endsOn: string) => item({ id, startsOn, endsOn });
+  const entriesOf = (items: Opportunity[]) => agendaEntries({ items, programs: [], profile, today: TODAY, origin: cuiaba });
+
+  it("gives events on the same day different colors", () => {
+    const entries = entriesOf([
+      span("a", "2026-11-03", "2026-11-05"),
+      span("b", "2026-11-04", "2026-11-04"),
+      span("c", "2026-11-05", "2026-11-06"),
+    ]);
+    const colors = calendarColors(entries, 6);
+    const of = (id: string) => colors.get(entries.find((e) => e.o.sourceId === id)!.key);
+    expect(new Set([of("a"), of("b")]).size).toBe(2);
+    expect(new Set([of("a"), of("c")]).size).toBe(2);
+  });
+
+  it("reuses a color once the earlier event is over", () => {
+    const entries = entriesOf([span("a", "2026-11-03", "2026-11-04"), span("b", "2026-11-10", "2026-11-11")]);
+    const colors = calendarColors(entries, 6);
+    expect(colors.get(entries[0].key)).toBe(colors.get(entries[1].key));
+  });
+
+  it("keeps going when a day has more events than colors", () => {
+    const entries = entriesOf(["a", "b", "c"].map((id) => span(id, "2026-11-04", "2026-11-04")));
+    const colors = calendarColors(entries, 2);
+    expect([...colors.values()].every((c) => c >= 0 && c < 2)).toBe(true);
+    expect(colors.size).toBe(3);
   });
 });

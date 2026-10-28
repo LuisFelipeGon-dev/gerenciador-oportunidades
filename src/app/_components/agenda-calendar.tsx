@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { activeOn, groupAgenda, isLongOnline, monthGrid, weekBars, type AgendaEntry, type CalendarDay } from "@/lib/agenda";
+import { activeOn, calendarColors, groupAgenda, isLongOnline, monthGrid, weekBars, type AgendaEntry, type CalendarDay } from "@/lib/agenda";
 import type { Profile } from "@/lib/personalize";
 import { AgendaRow, OpportunityCard, type CardActions } from "./cards";
-import { TYPE_TONE, longDate, shortDate, whatItIs } from "./format";
+import { longDate, shortDate, whatItIs } from "./format";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 
 type View = "month" | "year" | "list";
@@ -38,11 +38,47 @@ function addDays(date: string, days: number): string {
 const dayCount = (from: string, to: string) =>
   Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
 
-/** Deadlines in red, otherwise the color of the opportunity type. */
-function tone(e: AgendaEntry): { chip: string; dot: string } {
-  if (e.kind === "deadline") return { chip: "bg-card text-urgent ring-1 ring-inset ring-urgent/40", dot: "bg-urgent" };
-  const t = TYPE_TONE[e.o.type];
-  return { chip: `${t.bg} ${t.text}`, dot: t.bar };
+/**
+ * One color per event (tokens in globals.css, light and dark). Literal classes for Tailwind.
+ * bar: the strong tone on phones, where the bar is a thin line, and the tint with text on wider screens.
+ */
+const PALETTE = [
+  {
+    chip: "bg-[var(--cal-0-bg)] text-[var(--cal-0-fg)]",
+    dot: "bg-[var(--cal-0-fg)]",
+    bar: "bg-[var(--cal-0-fg)] text-[var(--cal-0-fg)] sm:bg-[var(--cal-0-bg)]",
+  },
+  {
+    chip: "bg-[var(--cal-1-bg)] text-[var(--cal-1-fg)]",
+    dot: "bg-[var(--cal-1-fg)]",
+    bar: "bg-[var(--cal-1-fg)] text-[var(--cal-1-fg)] sm:bg-[var(--cal-1-bg)]",
+  },
+  {
+    chip: "bg-[var(--cal-2-bg)] text-[var(--cal-2-fg)]",
+    dot: "bg-[var(--cal-2-fg)]",
+    bar: "bg-[var(--cal-2-fg)] text-[var(--cal-2-fg)] sm:bg-[var(--cal-2-bg)]",
+  },
+  {
+    chip: "bg-[var(--cal-3-bg)] text-[var(--cal-3-fg)]",
+    dot: "bg-[var(--cal-3-fg)]",
+    bar: "bg-[var(--cal-3-fg)] text-[var(--cal-3-fg)] sm:bg-[var(--cal-3-bg)]",
+  },
+  {
+    chip: "bg-[var(--cal-4-bg)] text-[var(--cal-4-fg)]",
+    dot: "bg-[var(--cal-4-fg)]",
+    bar: "bg-[var(--cal-4-fg)] text-[var(--cal-4-fg)] sm:bg-[var(--cal-4-bg)]",
+  },
+  {
+    chip: "bg-[var(--cal-5-bg)] text-[var(--cal-5-fg)]",
+    dot: "bg-[var(--cal-5-fg)]",
+    bar: "bg-[var(--cal-5-fg)] text-[var(--cal-5-fg)] sm:bg-[var(--cal-5-bg)]",
+  },
+];
+
+/** Deadlines keep the red outline; events take their own color from the palette. */
+function tone(e: AgendaEntry, colors: Map<string, number>): { chip: string; dot: string; bar: string } {
+  if (e.kind === "deadline") return { chip: "bg-card text-urgent ring-1 ring-inset ring-urgent/40", dot: "bg-urgent", bar: "bg-urgent" };
+  return PALETTE[colors.get(e.key) ?? 0];
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
@@ -79,12 +115,14 @@ function WeekRow({
   today,
   onOpenDay,
   actions,
+  colors,
 }: {
   week: CalendarDay[];
   entries: AgendaEntry[];
   today: string;
   onOpenDay: (date: string) => void;
   actions: CardActions;
+  colors: Map<string, number>;
 }) {
   const bars = weekBars(week, entries);
   const shownBars = bars.filter((b) => b.lane < MAX_LANES);
@@ -124,18 +162,18 @@ function WeekRow({
               {Number(day.date.slice(8))}
             </span>
             {/* Room for the bars drawn over the week. */}
-            <span aria-hidden="true" className="block shrink-0 sm:hidden" style={{ height: lanes * 7 }} />
-            <span aria-hidden="true" className="hidden shrink-0 sm:block" style={{ height: lanes * 22 }} />
+            <span aria-hidden="true" className="block shrink-0 sm:hidden" style={{ height: lanes * 9 }} />
+            <span aria-hidden="true" className="hidden shrink-0 sm:block" style={{ height: lanes * 26 }} />
             {chips.length > 0 && (
               <span className="mt-1 flex flex-wrap gap-0.5 sm:hidden">
                 {singles.slice(0, 3).map((e) => (
-                  <span key={e.key} className={`size-1.5 rounded-full ${tone(e).dot}`} />
+                  <span key={e.key} className={`size-2 rounded-full ${tone(e, colors).dot}`} />
                 ))}
               </span>
             )}
             <span className="mt-1 hidden min-w-0 flex-col gap-0.5 sm:flex">
               {chips.map((e) => (
-                <span key={e.key} className={`truncate rounded-md px-1.5 py-0.5 text-[11.5px] leading-tight font-semibold ${tone(e).chip}`}>
+                <span key={e.key} className={`truncate rounded-md px-1.5 py-[3px] text-[12px] leading-tight font-semibold ${tone(e, colors).chip}`}>
                   {e.o.title}
                 </span>
               ))}
@@ -158,7 +196,7 @@ function WeekRow({
             onClick={() => actions.onOpen(b.entry.o)}
             title={`${b.entry.o.title} · ${shortDate(b.entry.date)} a ${shortDate(b.entry.endDate)}`}
             style={{ gridColumn: `${b.start + 1} / span ${b.span}`, gridRow: b.lane + 1 }}
-            className={`h-1 truncate text-left text-[11.5px] leading-[18px] font-semibold transition-[filter] hover:brightness-95 sm:pointer-events-auto sm:h-[18px] sm:px-1.5 ${tone(b.entry).chip} ${
+            className={`h-1.5 truncate text-left text-[12px] leading-[22px] font-semibold transition-[filter] hover:brightness-95 sm:pointer-events-auto sm:h-[22px] sm:px-1.5 ${tone(b.entry, colors).bar} ${
               b.continuesBefore ? "rounded-l-none" : "ml-1 rounded-l-md"
             } ${b.continuesAfter ? "rounded-r-none" : "mr-1 rounded-r-md"}`}
           >
@@ -297,6 +335,8 @@ export function AgendaCalendar({
     [entries, today],
   );
 
+  const colors = useMemo(() => calendarColors(calendarEntries, PALETTE.length), [calendarEntries]);
+
   const countByMonth = useMemo(() => {
     const counts = new Map<string, number>();
     for (const e of calendarEntries) counts.set(e.date.slice(0, 7), (counts.get(e.date.slice(0, 7)) ?? 0) + 1);
@@ -411,12 +451,17 @@ export function AgendaCalendar({
               ))}
             </div>
             {monthGrid(year, month).map((week) => (
-              <WeekRow key={week[0].date} week={week} entries={calendarEntries} today={today} onOpenDay={openDay} actions={actions} />
+              <WeekRow key={week[0].date} week={week} entries={calendarEntries} today={today} onOpenDay={openDay} actions={actions} colors={colors} />
             ))}
           </div>
           <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-muted">
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-5 rounded-sm bg-hack-bg ring-1 ring-hack/30" /> eventos de vários dias
+              <span className="flex gap-0.5">
+                {PALETTE.slice(0, 3).map((p) => (
+                  <span key={p.dot} className={`h-2 w-3 rounded-sm ${p.dot}`} />
+                ))}
+              </span>
+              cada evento tem sua cor
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2 w-5 rounded-sm bg-card ring-1 ring-urgent/50" /> inscrições fecham
@@ -462,7 +507,7 @@ export function AgendaCalendar({
                           cell.date === today
                             ? "bg-action font-bold text-card"
                             : active.length > 0
-                              ? `${tone(active[0]).chip} font-bold`
+                              ? `${tone(active[0], colors).chip} font-bold`
                               : cell.date < today
                                 ? "text-muted hover:bg-ground"
                                 : "hover:bg-ground"

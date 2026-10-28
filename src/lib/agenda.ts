@@ -149,6 +149,25 @@ export function activeOn(entries: AgendaEntry[], date: string): AgendaEntry[] {
   return entries.filter((e) => e.date <= date && date <= e.endDate);
 }
 
+/**
+ * A color index (0 to count-1) per entry, so entries on the same day differ while there are
+ * colors left. One color per entry: a long event keeps it on every day and week it covers.
+ */
+export function calendarColors(entries: AgendaEntry[], count: number): Map<string, number> {
+  const colors = new Map<string, number>();
+  const placed: AgendaEntry[] = [];
+  const ordered = [...entries].sort((a, b) => a.date.localeCompare(b.date) || b.endDate.localeCompare(a.endDate));
+  for (const e of ordered) {
+    const overlapping = placed.filter((p) => p.date <= e.endDate && e.date <= p.endDate);
+    const uses = Array<number>(count).fill(0);
+    for (const p of overlapping) uses[colors.get(p.key)!]++;
+    // The first free color or, when all are taken that day, the least used one.
+    colors.set(e.key, uses.indexOf(Math.min(...uses)));
+    placed.push(e);
+  }
+  return colors;
+}
+
 export type WeekBar = {
   entry: AgendaEntry;
   /** Column (0 = Sunday) where the bar starts in this week, and how many days it covers. */

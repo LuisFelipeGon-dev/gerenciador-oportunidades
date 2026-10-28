@@ -27,6 +27,19 @@
   /* Hover of action buttons, and the RGB of every shadow. */
   --action-strong: #0c2a66;
   --shadow-rgb: 12 42 102;
+  /* Calendar: one color per event (blue, teal, purple, amber, pink, green). */
+  --cal-0-bg: #e3ecff;
+  --cal-0-fg: #1d48c2;
+  --cal-1-bg: #ddf3ef;
+  --cal-1-fg: #0a6b61;
+  --cal-2-bg: #efe7fe;
+  --cal-2-fg: #5f2bc0;
+  --cal-3-bg: #fdf0d5;
+  --cal-3-fg: #8a5300;
+  --cal-4-bg: #fde4ef;
+  --cal-4-fg: #a3245e;
+  --cal-5-bg: #e2f4e6;
+  --cal-5-fg: #1b6b35;
   color-scheme: light;
 }
 
@@ -60,6 +73,18 @@
   --prize: #7be3ad;
   --prize-bg: #12301f;
   --shadow-rgb: 0 0 0;
+  --cal-0-bg: #1a2a52;
+  --cal-0-fg: #a9c1ff;
+  --cal-1-bg: #0f302d;
+  --cal-1-fg: #5fd9c8;
+  --cal-2-bg: #291d47;
+  --cal-2-fg: #c4a8ff;
+  --cal-3-bg: #3a2a0d;
+  --cal-3-fg: #f5c56b;
+  --cal-4-bg: #3d1729;
+  --cal-4-fg: #ff9cc6;
+  --cal-5-bg: #12301f;
+  --cal-5-fg: #7fe0a4;
   color-scheme: dark;
 }
 
@@ -89,6 +114,18 @@
     --prize: #7be3ad;
     --prize-bg: #12301f;
     --shadow-rgb: 0 0 0;
+    --cal-0-bg: #1a2a52;
+    --cal-0-fg: #a9c1ff;
+    --cal-1-bg: #0f302d;
+    --cal-1-fg: #5fd9c8;
+    --cal-2-bg: #291d47;
+    --cal-2-fg: #c4a8ff;
+    --cal-3-bg: #3a2a0d;
+    --cal-3-fg: #f5c56b;
+    --cal-4-bg: #3d1729;
+    --cal-4-fg: #ff9cc6;
+    --cal-5-bg: #12301f;
+    --cal-5-fg: #7fe0a4;
     color-scheme: dark;
   }
 }
