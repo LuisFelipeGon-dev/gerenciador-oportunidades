@@ -2,8 +2,9 @@
 
 import type { Session } from "@supabase/supabase-js";
 import { useSyncExternalStore } from "react";
-import { PROFILE_KEY, SAVED_KEY, profileSchema, readProfile, readSaved, writeLocal } from "./local-store";
+import { PROFILE_KEY, SAVED_KEY, readProfile, readSaved, writeLocal } from "./local-store";
 import type { Profile } from "./personalize";
+import { profileFromRow as fromRow, profileToRow as toRow, type ProfileRow } from "./profile-row";
 import { browserClient } from "./supabase/browser";
 
 export const PRIVACY_VERSION = "2026-10-27";
@@ -46,53 +47,6 @@ function subscribe(listener: () => void) {
 /** undefined until the browser knows whether someone is signed in. */
 export function useSession(): Session | null | undefined {
   return useSyncExternalStore(subscribe, () => session, () => undefined);
-}
-
-// ---- profile rows ---------------------------------------------------------------------------
-
-type ProfileRow = {
-  id: string;
-  name: string | null;
-  course: string | null;
-  area: string | null;
-  city: string | null;
-  state: string | null;
-  study_level: string | null;
-  birth_date: string | null;
-  interests: string[] | null;
-  radius_km: number | null;
-  consented_at: string | null;
-  privacy_version: string | null;
-};
-
-function toRow(userId: string, p: Profile) {
-  return {
-    id: userId,
-    name: p.name,
-    course: p.course,
-    area: p.area,
-    city: p.city,
-    state: p.state,
-    study_level: p.level,
-    birth_date: p.birthDate,
-    interests: p.interests,
-    radius_km: p.radiusKm,
-  };
-}
-
-function fromRow(row: ProfileRow): Profile | null {
-  const parsed = profileSchema.safeParse({
-    name: row.name ?? "",
-    course: row.course,
-    area: row.area,
-    city: row.city,
-    state: row.state,
-    level: row.study_level,
-    birthDate: row.birth_date,
-    interests: row.interests ?? [],
-    radiusKm: row.radius_km ?? undefined,
-  });
-  return parsed.success ? (parsed.data as Profile) : null;
 }
 
 /** Remembers consent given on the login form until the account exists. */
