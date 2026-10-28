@@ -1,0 +1,39 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Luma//Hack Brasil//EN
+X-WR-CALNAME:Hack Brasil
+X-WR-CALDESC:Luma Calendar
+REFRESH-INTERVAL;VALUE=DURATION:PT12H
+X-PUBLISHED-TTL:PT12H
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTART:20261104T220000Z
+DTEND:20261105T000000Z
+DTSTAMP:20261028T164426Z
+ORGANIZER;CN="Hackathon Brasil":MAILTO:calendar-invite@lu.ma
+UID:evt-HguKQn6Kzb5vGgO@events.lu.ma
+SUMMARY:Hack Brasil · Sessão de abertura (ao vivo)
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/a1s82qk
+ w\n\nOrganizado por Hackathon Brasil
+LOCATION:https://luma.com/event/evt-HguKQn6Kzb5vGgO
+SEQUENCE:215369066
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261105T210000Z
+DTEND:20261106T000000Z
+DTSTAMP:20261028T164426Z
+ORGANIZER;CN="Hackathon Brasil":MAILTO:calendar-invite@lu.ma
+UID:evt-7h7mwMFwJtJhCWC@events.lu.ma
+SUMMARY:Hack Brasil · Encontro de lançamento em São Paulo
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/11obblo
+ e\n\nEndereço:\nAv. Paulista, 1106\nFIAP Paulista\nSão Paulo, SP\nBrasil
+ \n\nOrganizado por Hackathon Brasil
+LOCATION:Av. Paulista, 1106 - Bela Vista, São Paulo - SP, 01310-100, Bras
+ il
+GEO:-23.5642011;-46.6525289
+SEQUENCE:215369066
+STATUS:TENTATIVE
+END:VEVENT
+END:VCALENDAR

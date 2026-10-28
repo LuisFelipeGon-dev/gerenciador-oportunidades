@@ -1,0 +1,91 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Luma//TDC Recife//EN
+X-WR-CALNAME:TDC Recife
+X-WR-CALDESC:Luma Calendar
+REFRESH-INTERVAL;VALUE=DURATION:PT12H
+X-PUBLISHED-TTL:PT12H
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTART:20260610T213000Z
+DTEND:20260611T000000Z
+DTSTAMP:20261028T164429Z
+ORGANIZER;CN="Yara Mascarenhas":MAILTO:calendar-invite@lu.ma
+UID:evt-AZO15CBBFP9JkoY@events.lu.ma
+SUMMARY:1o Esquenta TDC Recife + Rec'n'play na Thoughtworks
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/hhpqnyi
+ 7\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Yara Mascarenhas e mais 6 outros
+LOCATION:https://luma.com/event/evt-AZO15CBBFP9JkoY
+GEO:-8.066516867860607;-34.89722621054386
+SEQUENCE:215369069
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260804T213000Z
+DTEND:20260805T003000Z
+DTSTAMP:20261028T164429Z
+ORGANIZER;CN="Thyago Oliveira":MAILTO:calendar-invite@lu.ma
+UID:evt-0rSs6EYoukJm9BB@events.lu.ma
+SUMMARY:TDC Tech Talk: O Fim da Lua de Mel: O que separa empresas curiosas
+  de operações produtivas que entregam com IA
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/88yo7yo
+ a\n\nEndereço:\nPorto Digital - NGPD (Núcleo de Gestão do Porto Digital
+ )\nAuditório - Oitavo andar\nRecife, PE\nBrasil\n\nOrganizado por Thyago 
+ Oliveira, TDC e Luana Condratovicis
+LOCATION:Porto Digital - NGPD (Núcleo de Gestão do Porto Digital), Cais 
+ do Apolo, 222 - And 16 - Recife, PE, 50030-230, Brasil
+GEO:-8.0631281;-34.8739236
+SEQUENCE:215369069
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260915T213000Z
+DTEND:20260916T003000Z
+DTSTAMP:20261028T164429Z
+ORGANIZER;CN="Equipe TDC":MAILTO:calendar-invite@lu.ma
+UID:evt-sSss9W8YEij7ChK@events.lu.ma
+SUMMARY:A Conta Invisível: Os Custos Ocultos e o Verdadeiro ROI em Produt
+ os Inteligentes
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/i35bbli
+ 7\n\nEndereço:\nNERD (Núcleo de Empreendedorismo e Residência Digital) 
+ do Porto Digital\nRecife, PE\nBrasil\n\nOrganizado por Equipe TDC, Luana C
+ ondratovicis e Thyago Oliveira
+LOCATION:NERD (Núcleo de Empreendedorismo e Residência Digital) do Porto
+  Digital, R. Dona Maria César, 70 - Recife, PE, 50030-140, Brasil
+GEO:-8.0638597;-34.8721794
+SEQUENCE:215369069
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261015T213000Z
+DTEND:20261016T003000Z
+DTSTAMP:20261028T164429Z
+ORGANIZER;CN="Equipe TDC":MAILTO:calendar-invite@lu.ma
+UID:evt-28xDOTcuMEX6ctG@events.lu.ma
+SUMMARY:3º TDC Tech Talk Recife
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/mkxl094
+ p\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Equipe TDC e mais 3 outros
+LOCATION:https://luma.com/event/evt-28xDOTcuMEX6ctG
+GEO:-8.064463128128443;-34.8754837976917
+SEQUENCE:215369069
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261111T130000Z
+DTEND:20261112T210000Z
+DTSTAMP:20261028T164429Z
+ORGANIZER;CN="Yara Mascarenhas":MAILTO:calendar-invite@lu.ma
+UID:evt-2B6WiCeZx9h5Gf6@events.lu.ma
+SUMMARY:Pré-inscrição TDC Stage + Rec'n'play
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/7ot453y
+ l\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Yara Mascarenhas & Andre Noel
+LOCATION:https://luma.com/event/evt-2B6WiCeZx9h5Gf6
+GEO:-8.057064303341651;-34.8706335877757
+SEQUENCE:215369069
+STATUS:TENTATIVE
+END:VEVENT
+END:VCALENDAR

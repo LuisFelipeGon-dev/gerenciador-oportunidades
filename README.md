@@ -12,6 +12,7 @@ Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e even
 | MLH | JSON embutido na página da temporada (`mlh.com/seasons/<ano>/events`) |
 | GDG | Sitemaps mensais de eventos e JSON-LD de cada página de evento. O robots.txt proíbe `/api/` e pede 2 s entre requisições. Só capítulos brasileiros, listados em `src/collectors/gdg-chapters-br.ts` |
 | dev.events | JSON-LD da página `dev.events/SA/BR` e link oficial na página de cada evento. Só presenciais e híbridos; o estado vem da cidade pela lista do IBGE. Eventos que apontam para o GDG ficam com o coletor do GDG |
+| Luma | Feed iCal público de cada calendário listado em `data/luma-calendars.yaml` (comunidades brasileiras). Só eventos futuros, no Brasil ou online; cidade pelas coordenadas do evento |
 | Programas recorrentes | Lista curada em `data/programs.yaml` (embaixadores, competições e olimpíadas, estágios e mentorias pagas, bolsas), conferida à mão na página oficial |
 
 O Sympla não é coletado: os termos de uso proíbem robôs e mineração de dados (item 13.3, "Segurança da Plataforma Sympla").

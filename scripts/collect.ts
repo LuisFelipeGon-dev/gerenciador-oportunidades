@@ -4,6 +4,7 @@ import { collectDevEvents } from "../src/collectors/devevents";
 import { collectDevpost } from "../src/collectors/devpost";
 import { collectGdg } from "../src/collectors/gdg";
 import { addCoordinates, loadMunicipalities } from "../src/collectors/geocode";
+import { collectLuma } from "../src/collectors/luma";
 import { collectMlh } from "../src/collectors/mlh";
 import type { Opportunity } from "../src/lib/opportunity";
 import { toRow } from "../src/lib/opportunity-row";
@@ -22,6 +23,8 @@ const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] =
   { name: "gdg", collect: collectGdg, requireResults: false },
   // Brazilian conferences; may legitimately come out empty when all of them are GDG events.
   { name: "devevents", collect: collectDevEvents, requireResults: false },
+  // Community calendars curated in data/luma-calendars.yaml; a quiet month has no events.
+  { name: "luma", collect: collectLuma, requireResults: false },
   // Programs curated in data/programs.yaml.
   { name: "curated", collect: collectCurated, requireResults: true },
 ];

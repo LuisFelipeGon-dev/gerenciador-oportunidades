@@ -1,0 +1,209 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Luma//GAMA HOUSE | powered by Monashees, Google for Startups & B
+ 3//EN
+X-WR-CALNAME:GAMA HOUSE | powered by Monashees, Google for Startups & B3
+X-WR-CALDESC:Luma Calendar
+REFRESH-INTERVAL;VALUE=DURATION:PT12H
+X-PUBLISHED-TTL:PT12H
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTART:20260815T113000Z
+DTEND:20260815T213000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Henrique Paes":MAILTO:calendar-invite@lu.ma
+UID:evt-HUZFAJexPYwSM48@events.lu.ma
+SUMMARY:Shiva Hack #6 @ Gama House
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/b91reli
+ 8\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Henrique Paes & Fernanda Markiewicz
+LOCATION:https://luma.com/event/evt-HUZFAJexPYwSM48
+GEO:-23.573340658899834;-46.68299274839544
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260912T120000Z
+DTEND:20260912T210000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Henrique Paes":MAILTO:calendar-invite@lu.ma
+UID:evt-vIwh3au9MyWzWnP@events.lu.ma
+SUMMARY:Shiva Hack #7 @ Gama House
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/fsk8rw2
+ 8\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Henrique Paes, Fernanda Markiewicz e Aline Nolasco
+LOCATION:https://luma.com/event/evt-vIwh3au9MyWzWnP
+GEO:-23.5748761577057;-46.68179222411314
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260914T120000Z
+DTEND:20260914T133000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Jason Alexander Scott":MAILTO:calendar-invite@lu.ma
+UID:evt-J5CAuaXzERNqYpu@events.lu.ma
+SUMMARY:[SP Tech Week] Black Angels, VCs & Founders Breakfast Meetup!
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/r7h7tvh
+ 9\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Jason Alexander Scott e mais 6 outros
+LOCATION:https://luma.com/event/evt-J5CAuaXzERNqYpu
+GEO:-23.573232194772544;-46.68338816480304
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260914T190000Z
+DTEND:20260914T203000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Monashees Community":MAILTO:calendar-invite@lu.ma
+UID:evt-ulBFiKviEiCKALT@events.lu.ma
+SUMMARY:Navigating the Agentic Commerce
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/xq83d4p
+ f\n\nEndereço:\nR. Mariana Corrêa, 61\nSão Paulo, SP\nBrasil\n\nOrganiz
+ ado por Monashees Community e mais 3 outros
+LOCATION:R. Mariana Corrêa, 61 - Pinheiros, São Paulo - SP, 01444-000, B
+ rasil
+GEO:-23.574693;-46.6838528
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260916T160000Z
+DTEND:20260916T180000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Monashees Community":MAILTO:calendar-invite@lu.ma
+UID:evt-BtFykutTLzWMxE5@events.lu.ma
+SUMMARY:Monashees & NGCash Fintech's Lunch
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/jn98j1i
+ q\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Monashees Community e mais 3 outros
+LOCATION:https://luma.com/event/evt-BtFykutTLzWMxE5
+GEO:-23.57464974501532;-46.68567486491557
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260917T150000Z
+DTEND:20260917T163000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Monashees Community":MAILTO:calendar-invite@lu.ma
+UID:evt-7jqAOA2VOThZ6mm@events.lu.ma
+SUMMARY:[CANCELLED] AI Founder's Lunch w/ Decagon
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/wwgbhw7
+ g\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Monashees Community, Gama House Community e Aline Nolasco
+LOCATION:https://luma.com/event/evt-7jqAOA2VOThZ6mm
+GEO:-23.576721515408316;-46.68318149218194
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260917T203000Z
+DTEND:20260917T220000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Jason Alexander Scott":MAILTO:calendar-invite@lu.ma
+UID:evt-yFeZlFuvaMMn3Qm@events.lu.ma
+SUMMARY:[SP Tech Week] Global Founders Reception @ Gama House!
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/7frtmxr
+ f\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Jason Alexander Scott e mais 5 outros
+LOCATION:https://luma.com/event/evt-yFeZlFuvaMMn3Qm
+GEO:-23.57477842771455;-46.68569748582308
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260918T120000Z
+DTEND:20260918T170000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Laura Marchiori":MAILTO:calendar-invite@lu.ma
+UID:evt-ZqNGAQoaVKmw4sB@events.lu.ma
+SUMMARY:Bringing Women Together for the AI-Native Era | by Gama House, Fem
+ ale Force, Caravela Capital, Endeavor, BZCP & Comp
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/8zwmt1f
+ i\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Laura Marchiori e mais 5 outros
+LOCATION:https://luma.com/event/evt-ZqNGAQoaVKmw4sB
+GEO:-23.574805334494883;-46.68570090575504
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20260929T163000Z
+DTEND:20260929T180000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Fernanda Markiewicz":MAILTO:calendar-invite@lu.ma
+UID:evt-jYOnCbvsBlTwThD@events.lu.ma
+SUMMARY:BZCP Legal Session - Google & Shiva
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/4o7xczt
+ b\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Fernanda Markiewicz & Aline Nolasco
+LOCATION:https://luma.com/event/evt-jYOnCbvsBlTwThD
+GEO:-23.57418017226171;-46.685496723391246
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261017T120000Z
+DTEND:20261017T200000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Henrique Paes":MAILTO:calendar-invite@lu.ma
+UID:evt-macrWlYAoHF7oD4@events.lu.ma
+SUMMARY:Shiva Hack #8 – Stripe + Dalea AI
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/4iunw1x
+ l\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Henrique Paes e mais 3 outros
+LOCATION:https://luma.com/event/evt-macrWlYAoHF7oD4
+GEO:-23.57575197250264;-46.68553269642623
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261103T123000Z
+DTEND:20261103T150000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Fernanda Markiewicz":MAILTO:calendar-invite@lu.ma
+UID:evt-FQltJajRJPe9Vt4@events.lu.ma
+SUMMARY:Stripe Workshop | Princing for AI Native Startups
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/v2k3frq
+ 0\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Fernanda Markiewicz
+LOCATION:https://luma.com/event/evt-FQltJajRJPe9Vt4
+GEO:-23.575114415240275;-46.68179154137583
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261107T120000Z
+DTEND:20261107T200000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Henrique Paes":MAILTO:calendar-invite@lu.ma
+UID:evt-XPG0UhVIvq9k41V@events.lu.ma
+SUMMARY:Shiva Hack #9 – Empowering Women w/ Endeavor + Sororitê
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/447n4gs
+ d\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Henrique Paes e mais 3 outros
+LOCATION:https://luma.com/event/evt-XPG0UhVIvq9k41V
+GEO:-23.573302666382247;-46.68439932093208
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261204T220000Z
+DTEND:20261205T010000Z
+DTSTAMP:20261028T164428Z
+ORGANIZER;CN="Fernanda Markiewicz":MAILTO:calendar-invite@lu.ma
+UID:evt-BthKbFUC3YBXO7D@events.lu.ma
+SUMMARY:ITA AI Founder's Dinner at Gama House powered by Monashees, Google
+  & B3
+DESCRIPTION:Obtenha informações atualizadas em: https://luma.com/8cawilr
+ h\n\nEndereço:\nVerifique a página do evento para mais detalhes.\n\nOrga
+ nizado por Fernanda Markiewicz
+LOCATION:https://luma.com/event/evt-BthKbFUC3YBXO7D
+GEO:-23.576746490192626;-46.68328085632895
+SEQUENCE:215369068
+STATUS:TENTATIVE
+END:VEVENT
+END:VCALENDAR

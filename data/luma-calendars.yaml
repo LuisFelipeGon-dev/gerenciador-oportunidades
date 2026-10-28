@@ -1,0 +1,32 @@
+# Calendários de comunidades brasileiras no Luma (lista curada).
+#
+# O coletor (src/collectors/luma.ts) lê o feed iCal público de cada calendário
+# (api.lu.ma/ics/get?entity=calendar&id=<id>) e guarda só os eventos futuros no Brasil,
+# ou online, porque todos os calendários desta lista são brasileiros.
+#
+# Campos:
+#   id             id do calendário no Luma (cal-...); está no link "Assinar" da página
+#   name           nome exibido como organizador
+#   url            página do calendário no Luma
+#   only_matching  opcional: só entram eventos cujo título contém este texto (sem diferenciar maiúsculas)
+#   why            por que este calendário está na lista
+#   checked_on     data em que o calendário foi conferido
+
+- id: cal-XwtEMwMvmBXhsrH
+  name: Hack Brasil
+  url: https://luma.com/hackbr
+  why: Hackathon nacional, com encontros presenciais e sessões online.
+  checked_on: 2026-10-28
+
+- id: cal-wU90pJjb6H1p9G9
+  name: Gama House
+  url: https://luma.com/gamahouse
+  only_matching: hack
+  why: Hub de startups em São Paulo (Monashees, Google for Startups e B3) que organiza o Shiva Hack, hackathon para mulheres. O resto da agenda é para fundadores e investidores.
+  checked_on: 2026-10-28
+
+- id: cal-8vjlp1OuJKaJSan
+  name: TDC Recife
+  url: https://luma.com/recife
+  why: Tech talks e esquentas do TDC (The Developer's Conference) em Recife.
+  checked_on: 2026-10-28
