@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { distanceKm, findMunicipality, normalizeCity, type MunicipalityRow } from "./geo";
+import { distanceKm, findMunicipality, normalizeCity, stateForCity, type MunicipalityRow, type MunicipalityTable } from "./geo";
 
 const MT: MunicipalityRow[] = [
   ["Cuiabá", -15.601, -56.0974],
@@ -53,5 +53,30 @@ describe("distanceKm", () => {
 
   it("is zero for the same point", () => {
     expect(distanceKm({ lat: -15.6, lng: -56.1 }, { lat: -15.6, lng: -56.1 })).toBe(0);
+  });
+});
+
+describe("stateForCity", () => {
+  const table: MunicipalityTable = {
+    MT: [["Cuiabá", -15.601, -56.0974, 1], ["Sinop", -11.8604, -55.5091]],
+    PA: [["Belém", -1.4554, -48.4898, 1]],
+    PB: [["Belém", -6.6917, -35.5333]],
+    PI: [["Bom Jesus", -9.0712, -44.359]],
+    RN: [["Bom Jesus", -5.9864, -35.5792]],
+  };
+
+  it("finds the state of a city that exists in only one", () => {
+    expect(stateForCity(table, "Sinop")).toBe("MT");
+    expect(stateForCity(table, "Cuiaba")).toBe("MT");
+  });
+
+  it("prefers the capital among namesakes", () => {
+    expect(stateForCity(table, "Belem")).toBe("PA");
+  });
+
+  it("gives up on namesakes without a capital, and on unknown cities", () => {
+    expect(stateForCity(table, "Bom Jesus")).toBeNull();
+    expect(stateForCity(table, "Pituacu")).toBeNull();
+    expect(stateForCity(table, null)).toBeNull();
   });
 });

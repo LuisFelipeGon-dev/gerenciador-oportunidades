@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { collectCurated } from "../src/collectors/curated";
+import { collectDevEvents } from "../src/collectors/devevents";
 import { collectDevpost } from "../src/collectors/devpost";
 import { collectGdg } from "../src/collectors/gdg";
 import { addCoordinates, loadMunicipalities } from "../src/collectors/geocode";
@@ -19,6 +20,8 @@ const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] =
   { name: "mlh", collect: collectMlh, requireResults: false },
   // Few Brazilian GDG events may be scheduled in a given quarter.
   { name: "gdg", collect: collectGdg, requireResults: false },
+  // Brazilian conferences; may legitimately come out empty when all of them are GDG events.
+  { name: "devevents", collect: collectDevEvents, requireResults: false },
   // Programs curated in data/ambassador-programs.yaml.
   { name: "curated", collect: collectCurated, requireResults: true },
 ];

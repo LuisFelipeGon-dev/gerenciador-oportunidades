@@ -59,7 +59,7 @@ A maioria das plataformas de eventos não tem API pública de busca, então a co
 | MLH | Hackathons estudantis | Página do calendário da temporada (mlh.io/events) | Sem API: raspagem |
 | GDG / Bevy | Eventos, DevFest, GDG on Campus | API pública em /api; algumas rotas exigem chave. Também há sitemaps de eventos | Testar quais rotas abrem sem chave |
 | dev.events | Conferências e meetups por cidade | Páginas já filtradas por país e cidade | Sem API conhecida: raspagem |
-| Sympla | Eventos no Brasil | API só lista eventos do próprio organizador (token) | Busca pública só por raspagem |
+| Sympla | Eventos no Brasil | API só lista eventos do próprio organizador (token) | Fora: os termos proíbem robôs e mineração de dados (item 13.3), verificado em 28/10/2026 |
 | Even3 | Eventos acadêmicos | API só para eventos do próprio organizador | Busca pública só por raspagem |
 | Eventbrite | Eventos | Busca pública desligada em fev/2020 | Fora do MVP |
 | Meetup | Meetups | API para clientes Pro | Fora do MVP |
@@ -184,7 +184,8 @@ Decisões em aberto:
 - [x] Testar quais rotas da API do Bevy (GDG) respondem sem chave: o robots.txt proíbe `/api/`; a coleta usa os sitemaps e o JSON-LD das páginas.
 - [x] Montar o YAML inicial de programas de embaixador (Gemini, Microsoft, GitHub, AWS, Claude, Notion).
 - [x] Fase 2: coordenadas por cidade (lista do IBGE, sem Nominatim por enquanto) e "Perto de você" pelo raio do perfil.
-- [ ] Fase 2: coletores de Sympla e dev.events.
+- [x] Fase 2: coletor do dev.events (conferências presenciais no Brasil).
+- [x] Fase 2: Sympla descartado, porque os termos proíbem robôs. Eventos de lá podem entrar pelo envio da comunidade ou por parceria.
 - [ ] Fase 2: deduplicação entre fontes e botão "reportar erro".
 - [ ] Fase 2: alertas por e-mail.
 - [x] Configurar o GitHub Actions para rodar a coleta uma vez por dia (09:17 UTC).

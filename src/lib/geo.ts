@@ -1,8 +1,8 @@
 // City-level coordinates for Brazil, from the IBGE municipality list
 // (built by scripts/build-municipalities.ts into data/ and public/municipios/).
 
-/** [name, lat, lng], as stored in the generated JSON files. */
-export type MunicipalityRow = [string, number, number];
+/** [name, lat, lng], plus a trailing 1 for state capitals, as stored in the generated JSON files. */
+export type MunicipalityRow = [string, number, number] | [string, number, number, 1];
 /** UF -> municipalities of that state. */
 export type MunicipalityTable = Record<string, MunicipalityRow[]>;
 
@@ -30,6 +30,21 @@ export function findMunicipality(rows: MunicipalityRow[], city: string | null | 
   if (!wanted) return null;
   const row = rows.find(([name]) => normalizeCity(name) === wanted);
   return row ? { name: row[0], lat: row[1], lng: row[2] } : null;
+}
+
+/**
+ * The state of a city given without one ("Sao Paulo", "Belem"): the only match in Brazil or,
+ * among namesakes, the state capital. null when it is unknown or ambiguous.
+ */
+export function stateForCity(table: MunicipalityTable, city: string | null | undefined): string | null {
+  const wanted = city ? normalizeCity(city) : "";
+  if (!wanted) return null;
+  const matches = Object.entries(table).flatMap(([uf, rows]) =>
+    rows.filter(([name]) => normalizeCity(name) === wanted).map((row) => ({ uf, capital: row[3] === 1 })),
+  );
+  if (matches.length === 1) return matches[0].uf;
+  const capitals = matches.filter((m) => m.capital);
+  return capitals.length === 1 ? capitals[0].uf : null;
 }
 
 const EARTH_RADIUS_KM = 6371;

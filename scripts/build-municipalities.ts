@@ -30,6 +30,7 @@ async function main() {
     const uf = ufByCode.get(m.codigo_uf);
     if (!uf) throw new Error(`unknown state code ${m.codigo_uf} for ${m.nome}`);
     const row: MunicipalityRow = [m.nome, Number(m.latitude), Number(m.longitude)];
+    if (m.capital === "1") row.push(1);
     if (!Number.isFinite(row[1]) || !Number.isFinite(row[2])) throw new Error(`bad coordinates for ${m.nome}`);
     (table[uf] ??= []).push(row);
   }
