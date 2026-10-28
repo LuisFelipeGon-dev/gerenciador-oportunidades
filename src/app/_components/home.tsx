@@ -3,24 +3,33 @@
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { deleteAccount, signOut, toggleSaved, useSession } from "@/lib/account";
+import { buildAgenda, type AgendaFilter } from "@/lib/agenda";
 import { areaById } from "@/lib/areas";
 import { regionOf, stateName } from "@/lib/brazil";
 import { useProfile, useSaved } from "@/lib/local-store";
 import { useProfilePlace } from "@/lib/municipalities";
 import type { Opportunity, OpportunityType } from "@/lib/opportunity";
 import { ageOn, buildSections, effectiveInterests, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
-import { CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
+import { AgendaRow, CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
 import { DetailDrawer } from "./detail-drawer";
 import { TYPE_PLURAL, dateStub, shortDate } from "./format";
 import { PencilIcon, PinIcon } from "./icons";
 import { ProfileForm } from "./profile-form";
 
-type Tab = "for-you" | "hackathon" | "event" | "programs";
+type Tab = "for-you" | "hackathon" | "event" | "programs" | "agenda";
 const TABS: { id: Tab; label: string }[] = [
   { id: "for-you", label: "Para você" },
   { id: "hackathon", label: TYPE_PLURAL.hackathon },
   { id: "event", label: TYPE_PLURAL.event },
   { id: "programs", label: "Programas" },
+  { id: "agenda", label: "Agenda" },
+];
+
+const AGENDA_FILTERS: { id: AgendaFilter; label: string }[] = [
+  { id: "all", label: "Tudo" },
+  { id: "near", label: "Perto de mim" },
+  { id: "online", label: "Online" },
+  { id: "saved", label: "Salvos" },
 ];
 
 // The open item lives in the URL hash (#o=source:id): shareable, and "back" closes it.
@@ -141,6 +150,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   const hash = useSyncExternalStore(subscribeHash, readHash, () => "");
   const [tab, setTab] = useState<Tab>("for-you");
   const [modeFilter, setModeFilter] = useState<"all" | "online" | "in_person">("all");
+  const [agendaFilter, setAgendaFilter] = useState<AgendaFilter>("all");
   const [profileOpen, setProfileOpen] = useState(false);
   const [limits, setLimits] = useState<Record<string, number>>({});
 
@@ -155,6 +165,13 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
     [items, programs, p, today, place],
   );
   const saved = savedKeys.map((k) => byKey.get(k)).filter((o): o is Opportunity => !!o);
+  const agenda = useMemo(
+    () =>
+      tab === "agenda" && today
+        ? buildAgenda({ items, programs, profile: p, today, origin: place, filter: agendaFilter, savedKeys })
+        : [],
+    [tab, items, programs, p, today, place, agendaFilter, savedKeys],
+  );
   const area = p ? areaById(p.area) : null;
   const interests = effectiveInterests(p);
 
@@ -185,7 +202,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
     .slice(0, 6);
 
   const tabItems =
-    tab === "for-you"
+    tab === "for-you" || tab === "agenda"
       ? []
       : (tab === "programs" ? sections.programs : items.filter((o) => o.type === tab && !isExcluded(o, p, today ?? "1970-01-01")))
           .filter((o) => modeFilter === "all" || (modeFilter === "online" ? o.modality === "online" : o.modality !== "online"))
@@ -429,6 +446,51 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                 </section>
               )}
             </>
+          ) : tab === "agenda" ? (
+            <section>
+              <SectionHeader
+                title="Agenda"
+                count={agenda.reduce((n, g) => n + g.entries.length, 0)}
+                hint={
+                  p
+                    ? place
+                      ? `eventos online, presenciais até ${p.radiusKm} km de ${place.name} e prazos, do mais próximo ao mais distante`
+                      : `eventos online, presenciais em ${p.state} e prazos, do mais próximo ao mais distante`
+                    : "monte seu perfil para ver só o que serve pra você"
+                }
+              />
+              <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Filtrar agenda">
+                {AGENDA_FILTERS.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    aria-pressed={agendaFilter === f.id}
+                    onClick={() => setAgendaFilter(f.id)}
+                    className={`rounded-lg border px-3 py-1.5 text-[13.5px] font-semibold ${agendaFilter === f.id ? "border-ink bg-ink text-white" : "border-line bg-card hover:border-ink"}`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+              {agenda.length === 0 ? (
+                <Empty>
+                  {agendaFilter === "saved"
+                    ? "Nada salvo com data marcada. Salve um evento para ele aparecer aqui."
+                    : "Nada com data marcada para este filtro agora."}
+                </Empty>
+              ) : (
+                agenda.map((g) => (
+                  <section key={g.id} className="mb-6">
+                    <h3 className="mb-2 text-[12.5px] font-bold tracking-wider text-muted uppercase">{g.label}</h3>
+                    <ul className="overflow-hidden rounded-2xl border border-line bg-card">
+                      {g.entries.map((e) => (
+                        <AgendaRow key={e.key} entry={e} actions={actions} />
+                      ))}
+                    </ul>
+                  </section>
+                ))
+              )}
+            </section>
           ) : (
             <section>
               <SectionHeader
@@ -546,6 +608,9 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                   );
                 })}
               </ul>
+              <button type="button" onClick={() => setTab("agenda")} className="mt-2 text-[13.5px] font-bold text-action hover:underline">
+                Ver agenda completa
+              </button>
             </div>
           )}
 

@@ -1,5 +1,6 @@
 "use client";
 
+import type { AgendaEntry } from "@/lib/agenda";
 import type { Opportunity } from "@/lib/opportunity";
 import { checksFor, type Check, type Profile } from "@/lib/personalize";
 import {
@@ -8,8 +9,11 @@ import {
   TYPE_TONE,
   dateStub,
   initials,
+  monthNames,
   placeLine,
+  shortDate,
   topicTags,
+  weekdayOf,
 } from "./format";
 import { ArrowIcon, BookmarkIcon, CheckIcon, QuestionIcon, XIcon } from "./icons";
 
@@ -197,6 +201,50 @@ export function CompactRow({ o, today, actions }: { o: Opportunity; today: strin
         <p className="text-[15px] font-extrabold">{stub.date}</p>
         {stub.hint && <p className={`text-[12px] font-semibold ${stub.urgent ? "text-urgent" : "text-muted"}`}>{stub.hint}</p>}
       </div>
+    </li>
+  );
+}
+
+const AGENDA_KIND_LABEL: Record<AgendaEntry["kind"], string | null> = {
+  event: null,
+  deadline: "Inscrições fecham",
+  opens: "Costuma abrir",
+};
+
+/** One line of the Agenda tab: the date, what happens that day and where. */
+export function AgendaRow({ entry, actions }: { entry: AgendaEntry; actions: CardActions }) {
+  const { o, kind, date, distanceKm } = entry;
+  const where =
+    kind === "opens"
+      ? null
+      : o.modality === "online"
+        ? "Online"
+        : distanceKm !== null
+          ? `${placeLine(o)} · a ${Math.max(1, Math.round(distanceKm))} km`
+          : placeLine(o);
+  return (
+    <li className="group relative grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-3 border-t border-line px-3.5 py-3 first:border-t-0 hover:bg-ground/60">
+      <span className={`rounded-lg py-1.5 text-center ${kind === "deadline" ? "bg-urgent-bg text-urgent" : "bg-ground"}`}>
+        <span className="block text-[15px] font-extrabold tabular-nums">
+          {kind === "opens" ? monthNames([Number(date.slice(5, 7))]).slice(0, 3) : shortDate(date)}
+        </span>
+        <span className="block text-[11px] font-semibold text-muted">{kind === "opens" ? "mês" : weekdayOf(date).slice(0, 3)}</span>
+      </span>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <TypeTag o={o} />
+          {AGENDA_KIND_LABEL[kind] && <span className="text-[12.5px] font-bold">{AGENDA_KIND_LABEL[kind]}</span>}
+        </div>
+        <button
+          type="button"
+          onClick={() => actions.onOpen(o)}
+          className="mt-1 block max-w-full truncate text-left text-[15px] font-bold after:absolute after:inset-0 after:content-[''] group-hover:underline group-hover:underline-offset-4 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-action"
+        >
+          {o.title}
+        </button>
+        {where && <p className="truncate text-[12.5px] text-muted">{where}</p>}
+      </div>
+      <SaveButton o={o} actions={actions} />
     </li>
   );
 }
