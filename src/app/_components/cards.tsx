@@ -140,7 +140,7 @@ export function OpportunityCard({
         )}
         {topics.length > 0 && <p className="mt-2 text-[12.5px] text-muted">{topics.join(" · ")}</p>}
         <div className="mt-2.5">
-          <CheckList checks={checksFor(o, profile)} />
+          <CheckList checks={checksFor(o, profile, today ?? "1970-01-01")} />
         </div>
         {why && <p className="mt-2 text-[12.5px] text-muted">{why}</p>}
       </div>

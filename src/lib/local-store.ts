@@ -2,23 +2,25 @@
 
 import { useSyncExternalStore } from "react";
 import { z } from "zod";
+import { AREA_IDS } from "./areas";
 import { STATES } from "./brazil";
 import { OPPORTUNITY_TYPES } from "./opportunity";
 import { LEVELS, type Profile } from "./personalize";
 
-// Per-visitor data kept in this browser until login exists. Every read is defensive:
-// storage can be blocked (private mode) or hold a value from an older version.
+// Per-visitor data kept in this browser. With an account it mirrors the database (see account.ts).
+// Every read is defensive: storage can be blocked (private mode) or hold an older version.
 
-const PROFILE_KEY = "oportunidades:perfil:v1";
-const SAVED_KEY = "oportunidades:salvos:v1";
+export const PROFILE_KEY = "oportunidades:perfil:v2";
+export const SAVED_KEY = "oportunidades:salvos:v1";
 
-const profileSchema = z.object({
+export const profileSchema = z.object({
   name: z.string().max(60).default(""),
-  course: z.string().max(80),
-  city: z.string().max(80),
+  course: z.string().min(1).max(80),
+  area: z.enum(AREA_IDS),
+  city: z.string().min(1).max(80),
   state: z.enum(STATES.map((s) => s.uf) as [string, ...string[]]),
   level: z.enum(LEVELS),
-  adult: z.boolean(),
+  birthDate: z.iso.date(),
   interests: z.array(z.enum(OPPORTUNITY_TYPES)),
 });
 
@@ -46,7 +48,7 @@ function read<T>(key: string, parse: (raw: string) => T, fallback: T): T {
   return value;
 }
 
-function write(key: string, value: unknown) {
+export function writeLocal(key: string, value: unknown) {
   try {
     if (value === null) window.localStorage.removeItem(key);
     else window.localStorage.setItem(key, JSON.stringify(value));
@@ -54,10 +56,14 @@ function write(key: string, value: unknown) {
     // Storage unavailable: the change lives only until the page reloads.
     cache.set(key, { raw: null, value });
   }
+  notify();
+}
+
+export function notify() {
   listeners.forEach((l) => l());
 }
 
-function subscribe(listener: () => void) {
+export function subscribeLocal(listener: () => void) {
   listeners.add(listener);
   const onStorage = (e: StorageEvent) => {
     if (e.key === PROFILE_KEY || e.key === SAVED_KEY) listener();
@@ -70,32 +76,14 @@ function subscribe(listener: () => void) {
 }
 
 const EMPTY: string[] = [];
-const readProfile = () => read(PROFILE_KEY, (raw) => profileSchema.parse(JSON.parse(raw)) as Profile, null);
-const readSaved = () => read(SAVED_KEY, (raw) => z.array(z.string()).parse(JSON.parse(raw)), EMPTY);
+export const readProfile = () => read(PROFILE_KEY, (raw) => profileSchema.parse(JSON.parse(raw)) as Profile, null);
+export const readSaved = () => read(SAVED_KEY, (raw) => z.array(z.string()).parse(JSON.parse(raw)), EMPTY);
 
 /** undefined while rendering on the server, before the browser storage can be read. */
 export function useProfile(): Profile | null | undefined {
-  return useSyncExternalStore(subscribe, readProfile, () => undefined);
-}
-
-export function saveProfile(profile: Profile | null) {
-  write(PROFILE_KEY, profile);
+  return useSyncExternalStore(subscribeLocal, readProfile, () => undefined);
 }
 
 export function useSaved(): string[] {
-  return useSyncExternalStore(subscribe, readSaved, () => EMPTY);
-}
-
-export function toggleSaved(key: string) {
-  const current = readSaved();
-  write(SAVED_KEY, current.includes(key) ? current.filter((k) => k !== key) : [...current, key]);
-}
-
-/** False on the server and during hydration, true afterwards. */
-export function useHydrated(): boolean {
-  return useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
+  return useSyncExternalStore(subscribeLocal, readSaved, () => EMPTY);
 }

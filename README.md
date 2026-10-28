@@ -50,6 +50,18 @@ O esquema está em `supabase/migrations/`. Para aplicar em um projeto novo, cole
 - `open_opportunities`: view com o que não fechou e ainda está no prazo.
 - `profiles`: cada pessoa lê e altera só o próprio perfil (RLS). Apagar a conta apaga o perfil.
 
+## Login
+
+Login sem senha pelo Supabase Auth: link mágico e código de 6 dígitos no mesmo e-mail. A sessão fica no navegador, e o RLS garante que cada pessoa só lê e altera o próprio perfil e os próprios salvos. Sem conta, o perfil fica só no navegador.
+
+Configuração no painel do Supabase:
+
+1. Authentication > URL Configuration: Site URL com o endereço da Vercel; em Redirect URLs, `https://<seu-site>/entrar` e `http://localhost:3000/entrar`.
+2. Authentication > Emails > Magic Link: o modelo precisa incluir `{{ .Token }}` (o código) além do link.
+3. Para uso real, configure um SMTP próprio: o envio padrão do Supabase tem limite baixo de e-mails por hora.
+
+A conta pode ser apagada pela própria pessoa (função `delete_my_account`, migração 0004). A política de privacidade fica em `/privacidade`; ao mudá-la, atualize `PRIVACY_VERSION` em `src/lib/account.ts`.
+
 ## Estrutura
 
 ```

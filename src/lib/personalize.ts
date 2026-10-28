@@ -1,3 +1,4 @@
+import { areaById, type AreaId } from "./areas";
 import { isUF, regionOf, type UF } from "./brazil";
 import type { Opportunity, OpportunityType } from "./opportunity";
 
@@ -7,12 +8,28 @@ export type Level = (typeof LEVELS)[number];
 export type Profile = {
   name: string;
   course: string;
+  area: AreaId;
   city: string;
   state: UF;
   level: Level;
-  adult: boolean;
+  /** YYYY-MM-DD. Only the age derived from it is shown or compared. */
+  birthDate: string;
+  /** Empty means "use the defaults of my area". */
   interests: OpportunityType[];
 };
+
+/** Whole years between a birth date and `today` (both YYYY-MM-DD). */
+export function ageOn(birthDate: string, today: string): number {
+  const [by, bm, bd] = birthDate.split("-").map(Number);
+  const [ty, tm, td] = today.split("-").map(Number);
+  return ty - by - (tm < bm || (tm === bm && td < bd) ? 1 : 0);
+}
+
+/** The kinds of opportunity this person sees: chosen interests, else their area's defaults. */
+export function effectiveInterests(profile: Profile | null): OpportunityType[] | null {
+  if (!profile) return null;
+  return profile.interests.length > 0 ? profile.interests : areaById(profile.area).defaultTypes;
+}
 
 export type Check = { ok: boolean | null; label: string };
 
@@ -36,7 +53,7 @@ export function itemKey(o: Pick<Opportunity, "source" | "sourceId">): string {
  * "Posso participar?" for one person. ok=false means the item excludes them, ok=null means the
  * source does not say. Course is not checked yet: no source publishes course restrictions.
  */
-export function checksFor(o: Opportunity, profile: Profile | null): Check[] {
+export function checksFor(o: Opportunity, profile: Profile | null, today: string): Check[] {
   const checks: Check[] = [];
   const { countries, minAge, levels } = o.eligibility;
 
@@ -59,7 +76,7 @@ export function checksFor(o: Opportunity, profile: Profile | null): Check[] {
 
   if (minAge) {
     checks.push(
-      profile && !profile.adult && minAge >= 18
+      profile && ageOn(profile.birthDate, today) < minAge
         ? { ok: false, label: `Exige ${minAge}+ anos` }
         : { ok: true, label: `${minAge}+ anos` },
     );
@@ -76,8 +93,8 @@ export function checksFor(o: Opportunity, profile: Profile | null): Check[] {
   return checks;
 }
 
-export function isExcluded(o: Opportunity, profile: Profile | null): boolean {
-  return checksFor(o, profile).some((c) => c.ok === false);
+export function isExcluded(o: Opportunity, profile: Profile | null, today: string): boolean {
+  return checksFor(o, profile, today).some((c) => c.ok === false);
 }
 
 function byKeyDate(a: Opportunity, b: Opportunity): number {
@@ -99,8 +116,8 @@ export function buildSections(
   profile: Profile | null,
   today: string,
 ): Sections {
-  const wanted = (o: Opportunity) =>
-    (!profile || profile.interests.length === 0 || profile.interests.includes(o.type)) && !isExcluded(o, profile);
+  const interests = effectiveInterests(profile);
+  const wanted = (o: Opportunity) => (!interests || interests.includes(o.type)) && !isExcluded(o, profile, today);
   const visible = items.filter(wanted).sort(byKeyDate);
 
   // In-person events abroad stay out of the personalized sections (they remain in the type tabs).
@@ -130,7 +147,7 @@ export function buildSections(
 
   const rank = { open: 0, upcoming: 1, closed: 2 } as const;
   const programList = programs
-    .filter((p) => (!profile || profile.interests.length === 0 || profile.interests.includes("ambassador")) && !isExcluded(p, profile))
+    .filter((p) => (!interests || interests.includes("ambassador")) && !isExcluded(p, profile, today))
     .sort((a, b) => rank[a.status] - rank[b.status] || a.title.localeCompare(b.title));
 
   return { closingSoon, nearby, nearbyScope, online, programs: programList };

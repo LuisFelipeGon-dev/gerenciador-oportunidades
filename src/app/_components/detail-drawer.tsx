@@ -180,7 +180,7 @@ export function DetailDrawer({
         )}
 
         <Section title="Posso participar?">
-          <CheckList checks={checksFor(o, profile)} size="md" />
+          <CheckList checks={checksFor(o, profile, today)} size="md" />
           {!profile && <p className="mt-2 text-[13px] text-muted">Monte seu perfil para ver se você se encaixa.</p>}
         </Section>
 

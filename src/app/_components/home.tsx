@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
+import { deleteAccount, signOut, toggleSaved, useSession } from "@/lib/account";
+import { areaById } from "@/lib/areas";
 import { regionOf, stateName } from "@/lib/brazil";
-import { toggleSaved, useProfile, useSaved } from "@/lib/local-store";
+import { useProfile, useSaved } from "@/lib/local-store";
 import type { Opportunity, OpportunityType } from "@/lib/opportunity";
-import { buildSections, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
+import { ageOn, buildSections, effectiveInterests, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
 import { CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
 import { DetailDrawer } from "./detail-drawer";
 import { TYPE_PLURAL, dateStub, shortDate } from "./format";
@@ -70,11 +72,66 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="rounded-2xl border border-dashed border-line bg-card px-4 py-5 text-[14px] text-muted">{children}</p>;
 }
 
+const SUGGEST_URL = "https://github.com/LuisFelipeGon-dev/gerenciador-oportunidades/issues/new";
+
+function AccountBox({ email }: { email: string | null }) {
+  const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!email) {
+    return (
+      <div className="rounded-2xl border border-line bg-card p-4">
+        <h2 className="text-[15px] font-extrabold">Sua conta</h2>
+        <p className="mt-1 text-[14px] text-muted">Entre para levar perfil e salvos para o celular e o computador.</p>
+        <Link href="/entrar" className="mt-3 block rounded-xl border border-line py-2.5 text-center text-[14px] font-bold hover:border-ink">
+          Entrar
+        </Link>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-2xl border border-line bg-card p-4">
+      <h2 className="text-[15px] font-extrabold">Sua conta</h2>
+      <p className="mt-1 truncate text-[14px] text-muted">{email}</p>
+      {!confirming ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => void signOut()} className="rounded-lg border border-line px-3 py-2 text-[13.5px] font-semibold hover:border-ink">
+            Sair
+          </button>
+          <button type="button" onClick={() => setConfirming(true)} className="rounded-lg px-3 py-2 text-[13.5px] font-semibold text-urgent hover:bg-urgent-bg">
+            Apagar minha conta
+          </button>
+        </div>
+      ) : (
+        <div className="mt-3 rounded-xl bg-urgent-bg p-3">
+          <p className="text-[13.5px] font-semibold text-urgent">Apagar conta, perfil e salvos? Não dá para desfazer.</p>
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                const failure = await deleteAccount();
+                if (failure) setError("Não deu certo agora. Tente de novo.");
+              }}
+              className="rounded-lg bg-urgent px-3 py-2 text-[13.5px] font-bold text-white"
+            >
+              Apagar tudo
+            </button>
+            <button type="button" onClick={() => setConfirming(false)} className="rounded-lg px-3 py-2 text-[13.5px] font-semibold">
+              Cancelar
+            </button>
+          </div>
+          {error && <p role="alert" className="mt-2 text-[13px] text-urgent">{error}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Home({ items, programs }: { items: Opportunity[]; programs: Opportunity[] }) {
   const profile = useProfile();
   const hydrated = profile !== undefined;
   const p: Profile | null = profile ?? null;
   const savedKeys = useSaved();
+  const session = useSession();
   const hash = useSyncExternalStore(subscribeHash, readHash, () => "");
   const [tab, setTab] = useState<Tab>("for-you");
   const [modeFilter, setModeFilter] = useState<"all" | "online" | "in_person">("all");
@@ -92,6 +149,8 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
     [items, programs, p, today],
   );
   const saved = savedKeys.map((k) => byKey.get(k)).filter((o): o is Opportunity => !!o);
+  const area = p ? areaById(p.area) : null;
+  const interests = effectiveInterests(p);
 
   const actions: CardActions = {
     onOpen: openItem,
@@ -119,7 +178,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   const tabItems =
     tab === "for-you"
       ? []
-      : (tab === "ambassador" ? sections.programs : items.filter((o) => o.type === tab && !isExcluded(o, p)))
+      : (tab === "ambassador" ? sections.programs : items.filter((o) => o.type === tab && !isExcluded(o, p, today ?? "1970-01-01")))
           .filter((o) => modeFilter === "all" || (modeFilter === "online" ? o.modality === "online" : o.modality !== "online"))
           .sort((a, b) => (keyDate(a) ?? "9999").localeCompare(keyDate(b) ?? "9999"));
 
@@ -147,15 +206,23 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                 </button>
               ))}
             </div>
+            {session === null && (
+              <Link href="/entrar" className="ml-auto shrink-0 rounded-full px-3 py-1.5 text-[14px] font-semibold text-white hover:bg-white/15">
+                Entrar
+              </Link>
+            )}
             <button
               type="button"
               onClick={() => setProfileOpen(true)}
-              className="ml-auto flex items-center gap-2 rounded-full bg-navy-2 py-1.5 pr-3.5 pl-1.5 text-[13.5px] hover:bg-white/15"
+              className={`${session === null ? "" : "ml-auto "}flex shrink-0 items-center gap-2 rounded-full bg-navy-2 p-1.5 text-[13.5px] hover:bg-white/15 sm:pr-3.5`}
             >
               <span className="grid size-[26px] place-items-center rounded-full bg-sky text-[11px] font-extrabold text-navy">
                 {p?.name ? p.name.slice(0, 2).toUpperCase() : <PencilIcon className="size-3.5" />}
               </span>
-              {p ? <span className="max-w-[16ch] truncate">{`${p.course} · ${p.city}`}</span> : "Montar perfil"}
+              {/* Phones only show the avatar: logo + "Entrar" + this pill must fit in 360px. */}
+              <span className="sr-only sm:not-sr-only sm:max-w-[16ch] sm:truncate">
+                {p ? `${p.course} · ${p.city}` : "Montar perfil"}
+              </span>
             </button>
           </nav>
 
@@ -173,7 +240,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               )}
               <p className="mt-2 max-w-[60ch] text-[15px] text-navy-text">
                 {p
-                  ? `Montado a partir do seu perfil: ${p.course}, ${p.city} (${p.state}). Tudo leva à página oficial.`
+                  ? `Montado a partir do seu perfil: ${p.course} (${area!.label.toLowerCase()}), ${p.city} (${p.state}). Tudo leva à página oficial.`
                   : "Monte seu perfil em 30 segundos e a página passa a mostrar o que serve pra você: perto da sua cidade, no seu nível, no prazo."}
               </p>
               {hydrated && !p && (
@@ -227,7 +294,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
             <>
               {saved.length > 0 && (
                 <section className="mb-9">
-                  <SectionHeader title="Salvos" count={saved.length} hint="guardados neste navegador" />
+                  <SectionHeader title="Salvos" count={saved.length} hint={session ? "guardados na sua conta" : "guardados neste navegador"} />
                   <ul className="overflow-hidden rounded-2xl border border-line bg-card">
                     {saved.map((o) => (
                       <CompactRow key={itemKey(o)} o={o} today={today} actions={actions} />
@@ -236,19 +303,42 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                 </section>
               )}
 
-              <section className="mb-9">
-                <SectionHeader title="Fecha esta semana" count={sections.closingSoon.length} hint="inscrições que encerram nos próximos 7 dias" />
-                {sections.closingSoon.length === 0 ? (
-                  <Empty>Nada fechando nos próximos 7 dias. Bom momento pra olhar com calma o resto.</Empty>
-                ) : (
-                  <div className="grid gap-3">
-                    {sections.closingSoon.slice(0, limit("soon", 3)).map((o) => (
-                      <OpportunityCard key={itemKey(o)} o={o} today={today} profile={p} actions={actions} />
-                    ))}
-                    <ShowMore total={sections.closingSoon.length} shown={limit("soon", 3)} onMore={() => more("soon", 3)} />
-                  </div>
-                )}
-              </section>
+              {area && !area.techIsCore && (
+                <section className="mb-9 rounded-2xl border border-line bg-card p-5" aria-labelledby="area-title">
+                  <p className="text-[12.5px] font-bold tracking-wide text-prog uppercase">{area.label}</p>
+                  <h2 id="area-title" className="mt-1 text-[19px] font-extrabold tracking-tight">
+                    Ainda não temos oportunidades específicas de {p!.course}
+                  </h2>
+                  <p className="mt-1.5 max-w-[65ch] text-[14.5px] text-muted">
+                    Por enquanto as fontes são de tecnologia. Abaixo ficam só os {interests!.map((t) => TYPE_PLURAL[t].toLowerCase()).join(" e ")}{" "}
+                    abertos a qualquer curso. Queremos incluir {area.missing}.
+                  </p>
+                  <a
+                    href={`${SUGGEST_URL}?${new URLSearchParams({ title: `Sugestão de fonte: ${area.label}`, labels: "sugestao-de-fonte", body: `Curso: ${p!.course}\nSite ou página com oportunidades:\n` })}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-block rounded-lg border border-line px-3 py-2 text-[13.5px] font-bold hover:border-ink"
+                  >
+                    Sugerir um site da sua área
+                  </a>
+                </section>
+              )}
+
+              {(sections.closingSoon.length > 0 || !area || area.techIsCore) && (
+                <section className="mb-9">
+                  <SectionHeader title="Fecha esta semana" count={sections.closingSoon.length} hint="inscrições que encerram nos próximos 7 dias" />
+                  {sections.closingSoon.length === 0 ? (
+                    <Empty>Nada fechando nos próximos 7 dias. Bom momento pra olhar com calma o resto.</Empty>
+                  ) : (
+                    <div className="grid gap-3">
+                      {sections.closingSoon.slice(0, limit("soon", 3)).map((o) => (
+                        <OpportunityCard key={itemKey(o)} o={o} today={today} profile={p} actions={actions} />
+                      ))}
+                      <ShowMore total={sections.closingSoon.length} shown={limit("soon", 3)} onMore={() => more("soon", 3)} />
+                    </div>
+                  )}
+                </section>
+              )}
 
               <section className="mb-9">
                 <SectionHeader
@@ -293,21 +383,23 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                 )}
               </section>
 
-              <section className="mb-9">
-                <SectionHeader title="Online e aberto pra você" count={sections.online.length} hint="de onde você estiver" />
-                {sections.online.length === 0 ? (
-                  <Empty>Nenhuma oportunidade online combina com o seu perfil agora.</Empty>
-                ) : (
-                  <>
-                    <ul className="overflow-hidden rounded-2xl border border-line bg-card">
-                      {sections.online.slice(0, limit("online", 8)).map((o) => (
-                        <CompactRow key={itemKey(o)} o={o} today={today} actions={actions} />
-                      ))}
-                    </ul>
-                    <ShowMore total={sections.online.length} shown={limit("online", 8)} onMore={() => more("online", 8)} />
-                  </>
-                )}
-              </section>
+              {(sections.online.length > 0 || !area || area.techIsCore) && (
+                <section className="mb-9">
+                  <SectionHeader title="Online e aberto pra você" count={sections.online.length} hint="de onde você estiver" />
+                  {sections.online.length === 0 ? (
+                    <Empty>Nenhuma oportunidade online combina com o seu perfil agora.</Empty>
+                  ) : (
+                    <>
+                      <ul className="overflow-hidden rounded-2xl border border-line bg-card">
+                        {sections.online.slice(0, limit("online", 8)).map((o) => (
+                          <CompactRow key={itemKey(o)} o={o} today={today} actions={actions} />
+                        ))}
+                      </ul>
+                      <ShowMore total={sections.online.length} shown={limit("online", 8)} onMore={() => more("online", 8)} />
+                    </>
+                  )}
+                </section>
+              )}
 
               {sections.programs.length > 0 && (
                 <section>
@@ -365,6 +457,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
         </main>
 
         <aside className="grid gap-4 lg:sticky lg:top-4">
+          {session !== undefined && <AccountBox email={session?.user.email ?? null} />}
           <div className="rounded-2xl border border-line bg-card p-4">
             <h2 className="mb-3 text-[15px] font-extrabold">Seu perfil</h2>
             {p ? (
@@ -385,8 +478,8 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                   {[
                     p.course,
                     { high_school: "Ensino médio", undergraduate: "Graduação", graduate: "Pós-graduação", phd: "Doutorado" }[p.level],
-                    p.adult ? "18+" : "Menor de 18",
-                    ...(p.interests.length ? p.interests.map((i) => TYPE_PLURAL[i]) : ["Todos os tipos"]),
+                    `${ageOn(p.birthDate, today ?? localToday())} anos`,
+                    ...(interests ?? []).map((i) => TYPE_PLURAL[i]),
                   ].map((t) => (
                     <li key={t} className="rounded-md bg-ground px-2 py-1">
                       {t}
