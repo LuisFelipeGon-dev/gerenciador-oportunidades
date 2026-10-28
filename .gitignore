@@ -37,8 +37,9 @@ yarn-error.log*
 # relatório gerado pelo monitor de páginas (scripts/monitor.ts)
 monitor-report.md
 
-# capturas de tela de revisão de design
+# capturas de tela e rodadas de decisão da ferramenta de design
 .impeccable/review/
+.impeccable/questions/
 
 # vercel
 .vercel
