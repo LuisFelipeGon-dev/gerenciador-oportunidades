@@ -120,7 +120,7 @@ export function DetailDrawer({
         if (e.target === e.currentTarget) onClose();
       }}
       aria-labelledby="detail-title"
-      className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-dvh w-full max-w-[560px] overflow-hidden bg-card p-0 text-ink shadow-[-12px_0_40px_rgba(9,20,48,0.18)] backdrop:bg-[rgba(9,20,48,0.45)] open:flex open:flex-col open:animate-[drawer-in_.25s_cubic-bezier(.2,.8,.2,1)]"
+      className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-dvh w-full max-w-[560px] overflow-y-auto overscroll-contain bg-card p-0 text-ink shadow-[-12px_0_40px_rgba(9,20,48,0.18)] backdrop:bg-[rgba(9,20,48,0.45)] open:block open:animate-[drawer-in_.25s_cubic-bezier(.2,.8,.2,1)]"
     >
       <header className="on-navy relative bg-navy px-5 pt-5 pb-5 text-white sm:px-6">
         <button
@@ -154,7 +154,8 @@ export function DetailDrawer({
         </dl>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+      {/* The whole drawer scrolls as one: a fixed header and footer left little room on phones. */}
+      <div className="px-5 py-5 sm:px-6">
         <Section title="O que é">
           <p className="max-w-[65ch] text-[15px] leading-relaxed">{whatItIs(o)}</p>
           <p className="mt-2 rounded-lg bg-ground px-3 py-2 text-[12.5px] text-muted">
@@ -214,6 +215,27 @@ export function DetailDrawer({
             <p className="text-[15px]">{o.note}</p>
           </Section>
         )}
+
+        <Section title="Fonte">
+          <div className="text-[13px] text-muted">
+            Verificado em {instantDate(o.verifiedAt)} · fonte: {SOURCE_LABEL[o.source] ?? o.source}
+            {o.alsoOn.length > 0 && (
+              <>
+                {" "}
+                · também em:{" "}
+                {o.alsoOn.map((a, i) => (
+                  <span key={`${a.source}:${a.sourceId}`}>
+                    {i > 0 && ", "}
+                    <a className="underline underline-offset-2 hover:text-ink" href={a.officialUrl} target="_blank" rel="noopener noreferrer">
+                      {SOURCE_LABEL[a.source] ?? a.source}
+                    </a>
+                  </span>
+                ))}
+              </>
+            )}{" "}
+            · <ReportForm key={itemKey(o)} itemKey={itemKey(o)} />
+          </div>
+        </Section>
       </div>
 
       <footer className="border-t border-line px-5 py-4 sm:px-6">
@@ -274,24 +296,6 @@ export function DetailDrawer({
             <ShareIcon />
             {shared ? "Aberto no WhatsApp" : "Compartilhar"}
           </button>
-        </div>
-        <div className="mt-3 text-[12px] text-muted">
-          Verificado em {instantDate(o.verifiedAt)} · fonte: {SOURCE_LABEL[o.source] ?? o.source}
-          {o.alsoOn.length > 0 && (
-            <>
-              {" "}
-              · também em:{" "}
-              {o.alsoOn.map((a, i) => (
-                <span key={`${a.source}:${a.sourceId}`}>
-                  {i > 0 && ", "}
-                  <a className="underline underline-offset-2 hover:text-ink" href={a.officialUrl} target="_blank" rel="noopener noreferrer">
-                    {SOURCE_LABEL[a.source] ?? a.source}
-                  </a>
-                </span>
-              ))}
-            </>
-          )}{" "}
-          · <ReportForm key={itemKey(o)} itemKey={itemKey(o)} />
         </div>
       </footer>
     </dialog>

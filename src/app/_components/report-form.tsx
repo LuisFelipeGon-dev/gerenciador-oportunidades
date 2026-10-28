@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { REPORT_MESSAGE_MAX, REPORT_REASONS, canReportAgain, validateReport } from "@/lib/reports";
 import { browserClient } from "@/lib/supabase/browser";
 
@@ -28,6 +28,12 @@ export function ReportForm({ itemKey }: { itemKey: string }) {
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // The form opens at the end of the drawer: bring it, and its send button, into view.
+  useEffect(() => {
+    if (open) formRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [open]);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -75,7 +81,7 @@ export function ReportForm({ itemKey }: { itemKey: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="mt-3 rounded-xl border border-line p-3 text-ink">
+    <form ref={formRef} onSubmit={submit} className="mt-3 rounded-xl border border-line p-3 text-ink">
       <fieldset>
         <legend className="text-[13.5px] font-bold">O que está errado?</legend>
         <div className="mt-2 grid gap-1.5">
