@@ -26,7 +26,7 @@ export const AREAS: Area[] = [
   {
     id: "tech",
     label: "Tecnologia e computação",
-    defaultTypes: ["hackathon", "event", "ambassador"],
+    defaultTypes: ["hackathon", "event", "ambassador", "competition", "internship"],
     techIsCore: true,
     missing: "estágios em tecnologia",
     keywords: ["computa", "sistemas de informa", "software", "analise e desenvolvimento", "ads", "dados", "informatica", "ciberseg", "redes de computa", "jogos digitais", "inteligencia artificial", "tecnologia da informa"],
@@ -34,7 +34,7 @@ export const AREAS: Area[] = [
   {
     id: "engineering",
     label: "Engenharias",
-    defaultTypes: ["hackathon", "event", "ambassador"],
+    defaultTypes: ["hackathon", "event", "ambassador", "competition"],
     techIsCore: true,
     missing: "competições de engenharia e estágios",
     keywords: ["engenharia", "mecatron", "automacao"],
@@ -90,9 +90,9 @@ export const AREAS: Area[] = [
   {
     id: "sciences",
     label: "Ciências exatas e naturais",
-    defaultTypes: ["hackathon", "event"],
+    defaultTypes: ["hackathon", "event", "competition"],
     techIsCore: false,
-    missing: "olimpíadas, iniciação científica e escolas de verão",
+    missing: "iniciação científica e escolas de verão",
     keywords: ["matematica", "fisica", "quimica", "biolog", "estatistica", "geolog", "astronom"],
   },
   {

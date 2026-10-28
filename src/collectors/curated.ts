@@ -3,13 +3,17 @@ import { parse } from "yaml";
 import { z } from "zod";
 import { STATUSES, opportunitySchema, type Opportunity } from "../lib/opportunity";
 
-export const PROGRAMS_FILE = new URL("../../data/ambassador-programs.yaml", import.meta.url);
+export const PROGRAMS_FILE = new URL("../../data/programs.yaml", import.meta.url);
+
+// Kinds of opportunity that are curated by hand: recurring programs with a yearly window.
+export const PROGRAM_TYPES = ["ambassador", "competition", "internship", "scholarship"] as const;
 
 const httpsUrl = z.url({ protocol: /^https$/ });
 
 const programSchema = z
   .object({
     id: z.string().regex(/^[a-z0-9-]+$/),
+    type: z.enum(PROGRAM_TYPES).default("ambassador"),
     title: z.string().min(1),
     organizer: z.string().min(1),
     official_url: httpsUrl,
@@ -22,7 +26,7 @@ const programSchema = z
     countries: z.array(z.string().length(2)).default([]),
     min_age: z.number().int().positive().optional(),
     students_only: z.boolean().optional(),
-    levels: z.array(z.enum(["undergraduate", "graduate", "phd"])).optional(),
+    levels: z.array(z.enum(["high_school", "undergraduate", "graduate", "phd"])).optional(),
     benefits: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
     note: z.string().min(1).optional(),
@@ -51,7 +55,7 @@ export async function loadPrograms(): Promise<Program[]> {
 
 export function mapProgram(p: Program): Opportunity {
   return opportunitySchema.parse({
-    type: "ambassador",
+    type: p.type,
     title: p.title,
     organizer: p.organizer,
     officialUrl: p.official_url,

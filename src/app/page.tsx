@@ -1,8 +1,8 @@
-import { getAmbassadorPrograms, getOpenOpportunities } from "@/lib/opportunities";
+import { getOpenOpportunities, getPrograms } from "@/lib/opportunities";
 import { Home } from "./_components/home";
 
 export default async function Page() {
-  const [items, programs] = await Promise.all([getOpenOpportunities(), getAmbassadorPrograms()]);
+  const [items, programs] = await Promise.all([getOpenOpportunities(), getPrograms()]);
 
   if (!items.configured || !programs.configured) {
     return (

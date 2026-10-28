@@ -6,6 +6,7 @@ export const OPPORTUNITY_TYPES = [
   "event",
   "scholarship",
   "internship",
+  "competition",
 ] as const;
 
 export const MODALITIES = ["in_person", "online", "hybrid"] as const;

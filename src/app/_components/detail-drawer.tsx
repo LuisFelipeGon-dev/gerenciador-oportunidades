@@ -26,6 +26,12 @@ function whatItIs(o: Opportunity): string {
     }
     case "ambassador":
       return `Um programa em que estudantes representam ${o.organizer ? `a ${o.organizer}` : "a empresa"} na própria faculdade, organizando atividades e comunidades.`;
+    case "competition":
+      return "Uma competição anual para estudantes. A inscrição costuma ser feita pela escola, pela faculdade ou por um professor responsável: confira as regras na página oficial.";
+    case "internship":
+      return "Um programa remoto e pago: durante alguns meses você trabalha num projeto real, com orientação de mentores.";
+    case "scholarship":
+      return "Uma bolsa ou formação gratuita, com seleção. Confira requisitos e prazos na página oficial.";
     default:
       return `Uma oportunidade ${where}.`;
   }

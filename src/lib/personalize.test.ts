@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { opportunitySchema, type Opportunity } from "./opportunity";
-import { ageOn, buildSections, checksFor, daysUntil, isExcluded, type Profile } from "./personalize";
+import { ageOn, buildSections, checksFor, daysUntil, effectiveInterests, isExcluded, type Profile } from "./personalize";
 
 function item(overrides: Partial<Opportunity> & { id: string }): Opportunity {
   const { id, ...rest } = overrides;
@@ -190,5 +190,36 @@ describe("buildSections with a radius", () => {
     expect(s.nearbyScope).toBe("state");
     expect(s.nearby.map((o) => o.sourceId)).toEqual(["chapada", "cuiaba", "sinop", "goiania"]);
     expect(s.distances.size).toBe(0);
+  });
+});
+
+describe("curated programs", () => {
+  const program = (id: string, type: Opportunity["type"], levels: string[] | null = null) =>
+    item({
+      id,
+      type,
+      source: "curated",
+      status: "closed",
+      eligibility: { countries: null, minAge: null, studentsOnly: null, levels },
+    });
+  const programs = [
+    program("campus", "ambassador", ["undergraduate"]),
+    program("obmep", "competition", ["high_school"]),
+    program("gsoc", "internship"),
+  ];
+
+  it("shows each program by its own type", () => {
+    const s = buildSections([], programs, { ...profile, interests: ["internship"] }, TODAY);
+    expect(s.programs.map((o) => o.sourceId)).toEqual(["gsoc"]);
+  });
+
+  it("shows competitions by default to high school students", () => {
+    const highSchool: Profile = { ...profile, level: "high_school", area: "other", course: "Ensino médio" };
+    expect(effectiveInterests(highSchool)).toContain("competition");
+    expect(buildSections([], programs, highSchool, TODAY).programs.map((o) => o.sourceId)).toContain("obmep");
+  });
+
+  it("does not add competitions to the chosen interests", () => {
+    expect(effectiveInterests({ ...profile, level: "high_school", interests: ["event"] })).toEqual(["event"]);
   });
 });

@@ -5,7 +5,7 @@ import { politeFetchText } from "../src/collectors/http";
 import { diffLines, extractText, fingerprint } from "../src/collectors/page-monitor";
 
 // Watches the official page of each curated program and reports what changed, so a person can
-// review it and update data/ambassador-programs.yaml. Nothing is published automatically.
+// review it and update data/programs.yaml. Nothing is published automatically.
 // With --report=<file>, writes a Markdown summary of the changes (used to open a GitHub issue).
 
 function requireEnv(name: string): string {
@@ -82,7 +82,7 @@ async function main() {
       reportFile,
       [
         "O monitor encontrou mudanças nas páginas oficiais abaixo. Confira cada uma e atualize",
-        "`data/ambassador-programs.yaml` (status, datas e `checked_on`) se for o caso.",
+        "`data/programs.yaml` (status, datas e `checked_on`) se for o caso.",
         "",
         ...report,
         ...(failures.length ? [`Falha ao verificar: ${failures.map((f) => `\`${f}\``).join(", ")}`] : []),

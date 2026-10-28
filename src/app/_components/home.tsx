@@ -15,12 +15,12 @@ import { TYPE_PLURAL, dateStub, shortDate } from "./format";
 import { PencilIcon, PinIcon } from "./icons";
 import { ProfileForm } from "./profile-form";
 
-type Tab = "for-you" | "hackathon" | "event" | "ambassador";
+type Tab = "for-you" | "hackathon" | "event" | "programs";
 const TABS: { id: Tab; label: string }[] = [
   { id: "for-you", label: "Para você" },
   { id: "hackathon", label: TYPE_PLURAL.hackathon },
   { id: "event", label: TYPE_PLURAL.event },
-  { id: "ambassador", label: TYPE_PLURAL.ambassador },
+  { id: "programs", label: "Programas" },
 ];
 
 // The open item lives in the URL hash (#o=source:id): shareable, and "back" closes it.
@@ -187,7 +187,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   const tabItems =
     tab === "for-you"
       ? []
-      : (tab === "ambassador" ? sections.programs : items.filter((o) => o.type === tab && !isExcluded(o, p, today ?? "1970-01-01")))
+      : (tab === "programs" ? sections.programs : items.filter((o) => o.type === tab && !isExcluded(o, p, today ?? "1970-01-01")))
           .filter((o) => modeFilter === "all" || (modeFilter === "online" ? o.modality === "online" : o.modality !== "online"))
           .sort((a, b) => (keyDate(a) ?? "9999").localeCompare(keyDate(b) ?? "9999"));
 
@@ -431,8 +431,12 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
             </>
           ) : (
             <section>
-              <SectionHeader title={TYPE_PLURAL[tab as OpportunityType]} count={tabItems.length} hint="da data mais próxima à mais distante" />
-              {tab !== "ambassador" && (
+              <SectionHeader
+                title={tab === "programs" ? "Programas" : TYPE_PLURAL[tab as OpportunityType]}
+                count={tabItems.length}
+                hint={tab === "programs" ? "embaixadores, competições, estágios e bolsas que abrem todo ano" : "da data mais próxima à mais distante"}
+              />
+              {tab !== "programs" && (
                 <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Modalidade">
                   {(
                     [
@@ -455,7 +459,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               )}
               {tabItems.length === 0 ? (
                 <Empty>Nada aberto aqui agora.</Empty>
-              ) : tab === "ambassador" ? (
+              ) : tab === "programs" ? (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {tabItems.map((o) => (
                     <ProgramCard key={itemKey(o)} o={o} actions={actions} />

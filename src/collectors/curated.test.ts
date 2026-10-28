@@ -12,7 +12,7 @@ const minimal = `
   checked_on: 2026-10-27
 `;
 
-describe("data/ambassador-programs.yaml", () => {
+describe("data/programs.yaml", () => {
   it("is valid and every program maps to an opportunity", async () => {
     const programs = await loadPrograms();
     expect(programs.length).toBeGreaterThan(0);
@@ -32,6 +32,15 @@ describe("parsePrograms", () => {
       eligibility: { minAge: 18, countries: null },
       verifiedAt: "2026-10-27T00:00:00.000Z",
     });
+  });
+
+  it("takes the type and accepts high school", () => {
+    const [p] = parsePrograms(minimal.replace("  status:", "  type: competition\n  levels: [high_school]\n  status:"));
+    expect(mapProgram(p)).toMatchObject({ type: "competition", eligibility: { levels: ["high_school"] } });
+  });
+
+  it("rejects types that are not curated programs", () => {
+    expect(() => parsePrograms(minimal.replace("  status:", "  type: hackathon\n  status:"))).toThrow();
   });
 
   it("rejects unknown fields, so typos do not go unnoticed", () => {

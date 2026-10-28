@@ -1,0 +1,256 @@
+# Programas recorrentes, conferidos à mão (lista curada): embaixadores, competições
+# e olimpíadas, estágios e mentorias pagas, bolsas.
+#
+# Cada item foi conferido na página oficial em `checked_on`. Quando o monitor
+# (scripts/monitor.ts) avisa que a página mudou, confira e atualize o item e a data.
+#
+# Campos:
+#   id                  identificador estável (não mude depois de publicado)
+#   type                ambassador (padrão) | competition | internship | scholarship
+#   official_url      página oficial; é o destino do botão no site
+#   monitor_url         página que o monitor acompanha (padrão: official_url)
+#   monitor             false para páginas sem texto legível no HTML (padrão: true)
+#   status              open | upcoming | closed
+#   registration_deadline  AAAA-MM-DD, quando a página oficial informa
+#   typical_open_months    meses (1 a 12) em que as inscrições costumam abrir
+#   countries           códigos ISO dos países aceitos; vazio = sem restrição publicada
+#   levels              high_school | undergraduate | graduate | phd
+#   note                aviso exibido no card (ex.: informação não confirmada)
+
+- id: claude-campus
+  title: Claude Campus (embaixadores)
+  organizer: Anthropic
+  official_url: https://claude.com/programs/campus
+  status: closed
+  typical_open_months: [9]
+  min_age: 18
+  students_only: true
+  levels: [undergraduate, graduate, phd]
+  benefits: ["Bolsa de US$ 3.600", "Créditos de API (graduação)"]
+  tags: [IA, Claude]
+  checked_on: 2026-10-27
+  # Página: inscrições de 1 a 12 de setembro; programa de setembro de 2026 a junho de 2027;
+  # "The program is closed for Fall 2026."; aceita estudantes de qualquer país.
+
+- id: github-campus-experts
+  title: GitHub Campus Experts
+  organizer: GitHub
+  official_url: https://github.com/education/students/campus-expert
+  monitor_url: https://docs.github.com/en/education/about-github-education/use-github-at-your-educational-institution/applying-to-be-a-github-campus-expert
+  status: closed
+  typical_open_months: [7]
+  min_age: 18
+  students_only: true
+  levels: [undergraduate, graduate]
+  benefits: ["Treinamento", "Apoio para eventos no campus"]
+  tags: [GitHub, Comunidade]
+  checked_on: 2026-10-27
+  # Docs: "Applications to the program open every July, and you'll have a full month to apply."
+  # Requisitos: 18+, conta GitHub há 6 meses, ensino superior com mais de 1 ano até a formatura,
+  # Student Developer Pack validado.
+
+- id: aws-student-builder-groups
+  title: AWS Student Builder Groups (antigo AWS Cloud Clubs)
+  organizer: Amazon Web Services
+  official_url: https://builder.aws.com/connect/community/cloud-clubs
+  status: open
+  min_age: 18
+  students_only: true
+  levels: [undergraduate, graduate]
+  benefits: ["Créditos AWS", "Vouchers de certificação"]
+  tags: [Cloud, AWS]
+  checked_on: 2026-10-27
+  # Página: formulário para abrir um grupo no campus, sem prazo publicado; 18+;
+  # estudantes de ensino superior. Já há grupos no Brasil (UECE, Fortaleza).
+
+- id: microsoft-student-ambassadors
+  title: Microsoft Student Ambassadors
+  organizer: Microsoft
+  official_url: https://mvp.microsoft.com/studentambassadors
+  # Sem HTML legível (só JavaScript): o monitor não consegue acompanhar. Revisar à mão.
+  monitor: false
+  status: open
+  min_age: 18
+  students_only: true
+  levels: [undergraduate, graduate]
+  benefits: ["Trilha de treinamento", "Comunidade no Discord"]
+  tags: [Microsoft, Azure]
+  checked_on: 2026-10-27
+  note: Regras confirmadas só por um moderador da comunidade. Confira na página oficial.
+  # A página oficial é renderizada por JavaScript. Segundo moderador voluntário (jan/2026):
+  # cadastro em vez de seleção; 18+, matrícula em tempo integral, conta Azure for Students.
+
+- id: gdg-on-campus-lead
+  title: Liderar um GDG on Campus
+  organizer: Google for Developers
+  official_url: https://developers.google.com/community/gdg/on-campus
+  # O botão "Lead a GDG on Campus" leva a um formulário ativo (app.advocu.com/gdg/join).
+  status: open
+  students_only: true
+  levels: [undergraduate, graduate]
+  benefits: ["Experiência de liderança", "Apoio do Google para eventos"]
+  tags: [Google, Comunidade]
+  checked_on: 2026-10-27
+  note: A página oficial não publica datas de inscrição.
+
+# ---- Competições e olimpíadas ------------------------------------------------------------
+
+- id: obmep
+  type: competition
+  title: OBMEP (Olimpíada Brasileira de Matemática das Escolas Públicas)
+  organizer: IMPA
+  official_url: https://www.obmep.org.br/
+  monitor_url: https://www.obmep.org.br/calendario.htm
+  status: closed
+  typical_open_months: [2]
+  countries: [BR]
+  levels: [high_school]
+  benefits: ["Medalhas", "Bolsa de Iniciação Científica Jr. (PIC) para premiados"]
+  tags: [Matemática, Olimpíada]
+  checked_on: 2026-10-28
+  note: A inscrição é feita pela escola. Pergunte na sua se ela participa.
+  # Calendário: em 2026 inscrições de 4 de fevereiro a 16 de março; 1ª fase em 9 de junho.
+  # Escolas públicas e privadas; do 6º ano do fundamental ao fim do médio.
+
+- id: obi
+  type: competition
+  title: OBI (Olimpíada Brasileira de Informática)
+  organizer: SBC e Unicamp
+  official_url: https://olimpiada.ic.unicamp.br/
+  monitor_url: https://olimpiada.ic.unicamp.br/calendario/
+  status: closed
+  typical_open_months: [3]
+  countries: [BR]
+  levels: [high_school]
+  benefits: ["Medalhas", "Seleção para olimpíadas internacionais"]
+  tags: [Programação, Olimpíada]
+  checked_on: 2026-10-28
+  note: A inscrição é feita pela escola, que precisa se cadastrar antes.
+  # Calendário 2026: inscrições abertas em 6 de março; último dia para competidores
+  # da Modalidade Programação em 8 de junho (Iniciação: 26 de maio).
+
+- id: oba
+  type: competition
+  title: OBA (Olimpíada Brasileira de Astronomia e Astronáutica)
+  organizer: Sociedade Astronômica Brasileira
+  official_url: https://sistema.oba.org.br/site/
+  monitor_url: https://sistema.oba.org.br/site/?p=conteudo&idcat=24&pag=conteudo&m=s
+  status: closed
+  typical_open_months: [2]
+  countries: [BR]
+  levels: [high_school]
+  benefits: ["Medalhas", "Seleção para olimpíadas internacionais"]
+  tags: [Astronomia, Olimpíada]
+  checked_on: 2026-10-28
+  note: A inscrição é feita pela escola. A prova é presencial, na própria escola.
+  # PDF de datas 2026: inscrições de 23 de fevereiro a 1º de maio; prova em 15 de maio.
+  # Do 1º ano do fundamental ao último do médio; a OBAFOG (foguetes) aceita também ensino superior.
+
+- id: maratona-sbc
+  type: competition
+  title: Maratona SBC de Programação
+  organizer: Sociedade Brasileira de Computação
+  official_url: https://maratona.sbc.org.br/
+  monitor_url: https://maratona.sbc.org.br/inscricoes.html
+  status: closed
+  typical_open_months: [6]
+  levels: [undergraduate]
+  benefits: ["Vaga nas fases internacionais do ICPC"]
+  tags: [Programação, ICPC]
+  checked_on: 2026-10-28
+  note: Times inscritos pelo técnico da faculdade, com taxa paga pela instituição.
+  # Página de inscrições: abertura no início de junho; preço com desconto até 20/7, inscrição até 10/8;
+  # 1ª fase em 29 de agosto de 2026; final em Uberlândia, de 5 a 8 de novembro.
+
+# ---- Estágios e mentorias pagas ----------------------------------------------------------
+
+- id: google-summer-of-code
+  type: internship
+  title: Google Summer of Code
+  organizer: Google
+  official_url: https://summerofcode.withgoogle.com/
+  monitor_url: https://developers.google.com/open-source/gsoc/timeline
+  status: closed
+  typical_open_months: [3]
+  min_age: 18
+  benefits: ["Bolsa paga pelo Google", "Mentoria em projeto de código aberto"]
+  tags: [Código aberto, Remoto]
+  checked_on: 2026-10-28
+  # Cronograma 2026: inscrições de colaboradores de 16 a 31 de março. FAQ: 18+ no registro,
+  # permissão para trabalhar no país, ser estudante ou iniciante em código aberto.
+
+- id: outreachy
+  type: internship
+  title: Outreachy
+  organizer: Software Freedom Conservancy
+  official_url: https://www.outreachy.org/
+  monitor_url: https://www.outreachy.org/docs/applicant/
+  status: closed
+  typical_open_months: [8]
+  min_age: 18
+  benefits: ["Bolsa de US$ 7.000", "Estágio remoto de 3 meses"]
+  tags: [Código aberto, Remoto, Diversidade]
+  checked_on: 2026-10-28
+  note: Para pessoas sub-representadas na tecnologia. Estudantes no Brasil só podem entrar na turma de dezembro, que abre em agosto.
+  # Página do candidato: turma de dezembro de 2026 com inscrição inicial de 24 a 31 de agosto;
+  # estudantes de universidades do hemisfério sul só podem na turma de dezembro a março.
+
+- id: lfx-mentorship
+  type: internship
+  title: LFX Mentorship
+  organizer: Linux Foundation
+  official_url: https://lfx.linuxfoundation.org/tools/mentorship/
+  monitor_url: https://docs.linuxfoundation.org/lfx/mentorship/mentee-guide/am-i-eligible
+  status: open
+  min_age: 18
+  benefits: ["Bolsa por projeto concluído", "Mentoria em projeto de código aberto"]
+  tags: [Código aberto, Remoto]
+  checked_on: 2026-10-28
+  note: Cada projeto tem o próprio prazo de inscrição. Confira na lista de projetos.
+  # Elegibilidade: 18+ no início da mentoria, permissão para trabalhar no país de residência.
+  # A página de elegibilidade não publica datas das turmas.
+
+- id: mlh-fellowship
+  type: internship
+  title: MLH Fellowship
+  organizer: Major League Hacking
+  official_url: https://fellowship.mlh.io/
+  status: open
+  benefits: ["Bolsa (stipend)", "12 semanas em projetos de código aberto"]
+  tags: [Código aberto, Remoto]
+  checked_on: 2026-10-28
+  note: Idade e requisitos não estão na página inicial. Confira o FAQ antes de se inscrever.
+  # Página: "Apply today to be considered for our upcoming start dates"; programa remoto de 12 semanas
+  # com bolsa, voltado a quem vai começar a carreira em engenharia de software.
+
+# ---- Bolsas ------------------------------------------------------------------------------
+
+- id: lideres-estudar
+  type: scholarship
+  title: Líderes Estudar
+  organizer: Fundação Estudar
+  official_url: https://www.estudar.org.br/lideres/
+  status: closed
+  countries: [BR]
+  levels: [undergraduate, graduate]
+  benefits: ["Bolsa de até 90% (mensalidade, moradia e transporte)", "Rede de fellows"]
+  tags: [Bolsa, Liderança]
+  checked_on: 2026-10-28
+  note: Só para brasileiros de até 34 anos. A seleção abre uma vez por ano; em 2026 as inscrições foram até 5 de abril.
+  # Página: "Inscrições abertas até dia 05 de abril"; "Demonstre seu interesse para 2027";
+  # brasileiro nato ou naturalizado, até 34 anos completos até 31/07/2026; graduação ou pós.
+
+- id: oracle-next-education
+  type: scholarship
+  title: ONE (Oracle Next Education)
+  organizer: Oracle e Alura
+  official_url: https://www.oracle.com/br/education/oracle-next-education/
+  status: upcoming
+  min_age: 18
+  countries: [BR]
+  benefits: ["Formação gratuita em IA", "Conexão com empresas parceiras"]
+  tags: [IA, Curso gratuito]
+  checked_on: 2026-10-28
+  note: Próximas turmas no 1º e no 2º semestre de 2027. Por enquanto, só pré-inscrição.
+  # Página: "Próximas turmas confirmadas": AI For Tech no 1º semestre de 2027 (6 meses) e
+  # AI For Business no 2º semestre de 2027; 18+, 4 horas por dia, sem conhecimento prévio.

@@ -22,17 +22,19 @@ export const monthNames = (months: number[]) =>
 export const TYPE_LABEL: Record<OpportunityType, string> = {
   hackathon: "Hackathon",
   event: "Evento",
-  ambassador: "Programa",
+  ambassador: "Embaixador",
   scholarship: "Bolsa",
   internship: "Estágio",
+  competition: "Competição",
 };
 
 export const TYPE_PLURAL: Record<OpportunityType, string> = {
   hackathon: "Hackathons",
   event: "Eventos",
-  ambassador: "Programas",
+  ambassador: "Programas de embaixador",
   scholarship: "Bolsas",
-  internship: "Estágios",
+  internship: "Estágios e mentorias",
+  competition: "Competições",
 };
 
 /** Tailwind classes per type: text color and tinted background (category is the only decorative color). */
@@ -42,6 +44,7 @@ export const TYPE_TONE: Record<OpportunityType, { text: string; bg: string; bar:
   ambassador: { text: "text-prog", bg: "bg-prog-bg", bar: "bg-prog" },
   scholarship: { text: "text-action", bg: "bg-ground", bar: "bg-action" },
   internship: { text: "text-action", bg: "bg-ground", bar: "bg-action" },
+  competition: { text: "text-prog", bg: "bg-prog-bg", bar: "bg-prog" },
 };
 
 export const SOURCE_LABEL: Record<string, string> = {
@@ -78,7 +81,7 @@ export const MODALITY_LABEL: Record<Opportunity["modality"], string> = {
 
 /** The right-hand stub: label, big date and a relative hint. */
 export function dateStub(o: Opportunity, today: string | null) {
-  if (o.type === "ambassador" && !o.registrationDeadline) {
+  if (o.source === "curated" && !o.registrationDeadline) {
     if (o.status === "open") return { label: "Inscrições", date: "abertas", hint: null, urgent: false, open: true };
     if (o.typicalOpenMonths.length > 0) {
       return { label: "Costuma abrir", date: monthNames(o.typicalOpenMonths), hint: null, urgent: false, open: false };

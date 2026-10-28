@@ -186,6 +186,9 @@ Decisões em aberto:
 - [x] Fase 2: coordenadas por cidade (lista do IBGE, sem Nominatim por enquanto) e "Perto de você" pelo raio do perfil.
 - [x] Fase 2: coletor do dev.events (conferências presenciais no Brasil).
 - [x] Fase 2: Sympla descartado, porque os termos proíbem robôs. Eventos de lá podem entrar pelo envio da comunidade ou por parceria.
+- [x] Lista curada ampliada (`data/programs.yaml`): olimpíadas (OBMEP, OBI, OBA), Maratona SBC, GSoC, Outreachy, LFX, MLH Fellowship, Líderes Estudar e ONE. Ficaram de fora por enquanto: Bolsas Santander (página só em JavaScript) e NASA Space Apps (certificado do site recusado na coleta).
+- [ ] Coletor do Luma por lista curada de calendários de comunidades brasileiras (feed iCal público). Meetup fica fora: robots.txt bloqueia feeds e API, e os termos não abrem para robôs.
+- [ ] Página "Agenda" com os próximos eventos e prazos do perfil, agrupados por semana.
 - [ ] Fase 2: deduplicação entre fontes e botão "reportar erro".
 - [ ] Fase 2: alertas por e-mail.
 - [x] Configurar o GitHub Actions para rodar a coleta uma vez por dia (09:17 UTC).

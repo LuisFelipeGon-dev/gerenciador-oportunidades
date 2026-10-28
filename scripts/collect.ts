@@ -22,7 +22,7 @@ const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] =
   { name: "gdg", collect: collectGdg, requireResults: false },
   // Brazilian conferences; may legitimately come out empty when all of them are GDG events.
   { name: "devevents", collect: collectDevEvents, requireResults: false },
-  // Programs curated in data/ambassador-programs.yaml.
+  // Programs curated in data/programs.yaml.
   { name: "curated", collect: collectCurated, requireResults: true },
 ];
 

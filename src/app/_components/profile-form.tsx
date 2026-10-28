@@ -22,6 +22,9 @@ const INTEREST_OPTIONS: { value: OpportunityType; label: string }[] = [
   { value: "hackathon", label: "Hackathons" },
   { value: "event", label: "Eventos e palestras" },
   { value: "ambassador", label: "Programas de embaixador" },
+  { value: "competition", label: "Competições e olimpíadas" },
+  { value: "internship", label: "Estágios e mentorias pagas" },
+  { value: "scholarship", label: "Bolsas" },
 ];
 
 const COURSES = [

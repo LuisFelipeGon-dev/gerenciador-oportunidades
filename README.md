@@ -1,6 +1,6 @@
 # Oportunidades para estudantes
 
-Site público que reúne oportunidades abertas para estudantes (hackathons, programas de embaixador, eventos e bolsas), com prazo, elegibilidade e link oficial. O plano completo está em [PLANO.md](PLANO.md).
+Site público que reúne oportunidades abertas para estudantes (hackathons, eventos, programas de embaixador, competições e olimpíadas, estágios e bolsas), com prazo, elegibilidade e link oficial. O plano completo está em [PLANO.md](PLANO.md).
 
 Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e eventos dos GDGs brasileiros, ordenados pelo prazo ou, sem prazo, pela data de início.
 
@@ -12,13 +12,13 @@ Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e even
 | MLH | JSON embutido na página da temporada (`mlh.com/seasons/<ano>/events`) |
 | GDG | Sitemaps mensais de eventos e JSON-LD de cada página de evento. O robots.txt proíbe `/api/` e pede 2 s entre requisições. Só capítulos brasileiros, listados em `src/collectors/gdg-chapters-br.ts` |
 | dev.events | JSON-LD da página `dev.events/SA/BR` e link oficial na página de cada evento. Só presenciais e híbridos; o estado vem da cidade pela lista do IBGE. Eventos que apontam para o GDG ficam com o coletor do GDG |
-| Programas de embaixador | Lista curada em `data/ambassador-programs.yaml`, conferida à mão na página oficial |
+| Programas recorrentes | Lista curada em `data/programs.yaml` (embaixadores, competições e olimpíadas, estágios e mentorias pagas, bolsas), conferida à mão na página oficial |
 
 O Sympla não é coletado: os termos de uso proíbem robôs e mineração de dados (item 13.3, "Segurança da Plataforma Sympla").
 
-## Programas de embaixador e monitor
+## Programas recorrentes e monitor
 
-Os programas ficam em `data/ambassador-programs.yaml`, com um comentário no topo explicando cada campo. Cada item registra a data em que a página oficial foi conferida (`checked_on`). O site mostra também os programas fechados, com o mês em que costumam abrir.
+Os programas ficam em `data/programs.yaml`, com um comentário no topo explicando cada campo; `type` diz se é embaixador, competição, estágio ou bolsa. Cada item registra a data em que a página oficial foi conferida (`checked_on`). O site mostra também os programas fechados, com o mês em que costumam abrir.
 
 O monitor (`npm run monitor`) baixa a página oficial de cada programa todo dia, compara o texto visível com o da véspera e, se mudou, a coleta diária abre uma issue com a etiqueta `monitor` (ou comenta na que já estiver aberta). Nada é publicado automaticamente: confira a página, atualize o YAML e feche a issue.
 

@@ -19,7 +19,7 @@ export async function getOpenOpportunities(): Promise<OpenOpportunities> {
   const { data, error } = await supabase
     .from("open_opportunities")
     .select("*")
-    .neq("type", "ambassador")
+    .neq("source", "curated")
     .order("sort_date", { ascending: true, nullsFirst: false })
     .order("title");
   if (error) throw new Error(`Failed to load opportunities: ${error.message}`);
@@ -27,8 +27,8 @@ export async function getOpenOpportunities(): Promise<OpenOpportunities> {
   return { configured: true, items: (data as OpportunityRow[]).map(fromRow) };
 }
 
-/** Ambassador programs, closed ones included: they show when the program usually reopens. */
-export async function getAmbassadorPrograms(): Promise<OpenOpportunities> {
+/** Curated recurring programs, closed ones included: they show when the program usually reopens. */
+export async function getPrograms(): Promise<OpenOpportunities> {
   "use cache";
   cacheLife("hours");
   cacheTag("opportunities");
@@ -39,7 +39,7 @@ export async function getAmbassadorPrograms(): Promise<OpenOpportunities> {
   const { data, error } = await supabase
     .from("opportunities")
     .select("*")
-    .eq("type", "ambassador")
+    .eq("source", "curated")
     .order("title");
   if (error) throw new Error(`Failed to load programs: ${error.message}`);
 

@@ -31,10 +31,15 @@ export function ageOn(birthDate: string, today: string): number {
   return ty - by - (tm < bm || (tm === bm && td < bd) ? 1 : 0);
 }
 
-/** The kinds of opportunity this person sees: chosen interests, else their area's defaults. */
+/**
+ * The kinds of opportunity this person sees: chosen interests, else their area's defaults
+ * (plus competitions for high school, where the olympiads are).
+ */
 export function effectiveInterests(profile: Profile | null): OpportunityType[] | null {
   if (!profile) return null;
-  return profile.interests.length > 0 ? profile.interests : areaById(profile.area).defaultTypes;
+  if (profile.interests.length > 0) return profile.interests;
+  const defaults = areaById(profile.area).defaultTypes;
+  return profile.level === "high_school" && !defaults.includes("competition") ? [...defaults, "competition"] : defaults;
 }
 
 export type Check = { ok: boolean | null; label: string };
@@ -180,7 +185,7 @@ export function buildSections(
 
   const rank = { open: 0, upcoming: 1, closed: 2 } as const;
   const programList = programs
-    .filter((p) => (!interests || interests.includes("ambassador")) && !isExcluded(p, profile, today))
+    .filter((p) => (!interests || interests.includes(p.type)) && !isExcluded(p, profile, today))
     .sort((a, b) => rank[a.status] - rank[b.status] || a.title.localeCompare(b.title));
 
   return { closingSoon, nearby, nearbyWithin, nearbyScope, distances, online, programs: programList };
