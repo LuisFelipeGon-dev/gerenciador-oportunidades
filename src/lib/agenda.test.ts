@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildAgenda, type AgendaGroup } from "./agenda";
+import { agendaEntries, buildAgenda, entriesByDay, groupAgenda, monthGrid, type AgendaGroup } from "./agenda";
 import { opportunitySchema, type Opportunity } from "./opportunity";
 import type { Profile } from "./personalize";
 
@@ -128,5 +128,58 @@ describe("buildAgenda", () => {
   it("leaves out what already happened", () => {
     const past = item({ id: "past", startsOn: "2026-10-01", endsOn: "2026-10-01", registrationDeadline: "2026-09-30" });
     expect(flat(buildAgenda({ items: [past], programs: [], profile, today: TODAY, origin: cuiaba }))).toEqual([]);
+  });
+});
+
+describe("agendaEntries", () => {
+  it("gives the same entries buildAgenda groups, flat and in date order", () => {
+    const items = [
+      item({ id: "b", startsOn: "2026-11-10", endsOn: "2026-11-10" }),
+      item({ id: "a", startsOn: "2026-10-30", endsOn: "2026-10-30" }),
+    ];
+    const options = { items, programs: [], profile, today: TODAY, origin: cuiaba };
+    expect(agendaEntries(options).map((e) => e.o.sourceId)).toEqual(["a", "b"]);
+    expect(groupAgenda(agendaEntries(options), TODAY)).toEqual(buildAgenda(options));
+  });
+});
+
+describe("entriesByDay", () => {
+  it("indexes entries by date", () => {
+    const items = [
+      item({ id: "a", startsOn: "2026-11-10", endsOn: "2026-11-10" }),
+      item({ id: "b", startsOn: "2026-11-10", endsOn: "2026-11-10" }),
+      item({ id: "c", startsOn: "2026-11-11", endsOn: "2026-11-11" }),
+    ];
+    const byDay = entriesByDay(agendaEntries({ items, programs: [], profile, today: TODAY, origin: cuiaba }));
+    expect(byDay.get("2026-11-10")?.map((e) => e.o.sourceId)).toEqual(["a", "b"]);
+    expect(byDay.get("2026-11-11")).toHaveLength(1);
+    expect(byDay.has("2026-11-12")).toBe(false);
+  });
+});
+
+describe("monthGrid", () => {
+  const days = (weeks: ReturnType<typeof monthGrid>) => weeks.flat();
+
+  it("starts weeks on Sunday and pads with days of the neighbouring months", () => {
+    // August 2026 starts on a Saturday and ends on a Monday: 6 weeks.
+    const weeks = monthGrid(2026, 8);
+    expect(weeks).toHaveLength(6);
+    expect(weeks[0][0]).toEqual({ date: "2026-07-26", inMonth: false });
+    expect(weeks[0][6]).toEqual({ date: "2026-08-01", inMonth: true });
+    expect(weeks[5][1]).toEqual({ date: "2026-08-31", inMonth: true });
+    expect(weeks[5][6]).toEqual({ date: "2026-09-05", inMonth: false });
+  });
+
+  it("uses only the weeks it needs", () => {
+    // February 2026 starts on a Sunday and has 28 days: exactly 4 weeks.
+    const weeks = monthGrid(2026, 2);
+    expect(weeks).toHaveLength(4);
+    expect(days(weeks).every((d) => d.inMonth)).toBe(true);
+  });
+
+  it("knows leap years and the turn of the year", () => {
+    expect(days(monthGrid(2028, 2)).filter((d) => d.inMonth)).toHaveLength(29);
+    const december = monthGrid(2026, 12);
+    expect(december.at(-1)!.at(-1)).toEqual({ date: "2027-01-02", inMonth: false });
   });
 });

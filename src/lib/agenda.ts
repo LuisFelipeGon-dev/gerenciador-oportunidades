@@ -42,7 +42,7 @@ function nextOpening(months: number[], today: string): string | null {
   return null;
 }
 
-export function buildAgenda(options: {
+export type AgendaOptions = {
   items: Opportunity[];
   programs: Opportunity[];
   profile: Profile | null;
@@ -51,7 +51,10 @@ export function buildAgenda(options: {
   origin: Point | null;
   filter?: AgendaFilter;
   savedKeys?: string[];
-}): AgendaGroup[] {
+};
+
+/** Every entry of the agenda for this person, in date order (the calendar views use this). */
+export function agendaEntries(options: AgendaOptions): AgendaEntry[] {
   const { items, programs, profile, today, origin, filter = "all", savedKeys = [] } = options;
   const interests = effectiveInterests(profile);
   const wanted = (o: Opportunity) => (!interests || interests.includes(o.type)) && !isExcluded(o, profile, today);
@@ -96,10 +99,13 @@ export function buildAgenda(options: {
     if (filter === "saved") return savedKeys.includes(itemKey(e.o));
     return true;
   });
-  shown.sort((a, b) => a.date.localeCompare(b.date) || a.o.title.localeCompare(b.o.title));
+  return shown.sort((a, b) => a.date.localeCompare(b.date) || a.o.title.localeCompare(b.o.title));
+}
 
+/** The list view: the next 7 days, the week after, then one group per month. */
+export function groupAgenda(entries: AgendaEntry[], today: string): AgendaGroup[] {
   const groups: AgendaGroup[] = [];
-  for (const e of shown) {
+  for (const e of entries) {
     const days = daysUntil(e.date, today);
     const id = days < 7 ? "this-week" : days < 14 ? "next-week" : e.date.slice(0, 7);
     const label = id === "this-week" ? "Esta semana" : id === "next-week" ? "Próxima semana" : monthLabel(id, today);
@@ -108,4 +114,32 @@ export function buildAgenda(options: {
     else groups.push({ id, label, entries: [e] });
   }
   return groups;
+}
+
+export function buildAgenda(options: AgendaOptions): AgendaGroup[] {
+  return groupAgenda(agendaEntries(options), options.today);
+}
+
+export function entriesByDay(entries: AgendaEntry[]): Map<string, AgendaEntry[]> {
+  const byDay = new Map<string, AgendaEntry[]>();
+  for (const e of entries) byDay.set(e.date, [...(byDay.get(e.date) ?? []), e]);
+  return byDay;
+}
+
+export type CalendarDay = { date: string; inMonth: boolean };
+
+const isoDay = (d: Date) => d.toISOString().slice(0, 10);
+
+/** Weeks (Sunday first) covering a month (1-12), padded with days of the neighbouring months. */
+export function monthGrid(year: number, month: number): CalendarDay[][] {
+  const first = new Date(Date.UTC(year, month - 1, 1));
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const leading = first.getUTCDay();
+  const weekCount = Math.ceil((leading + daysInMonth) / 7);
+  return Array.from({ length: weekCount }, (_, w) =>
+    Array.from({ length: 7 }, (_, d) => {
+      const date = new Date(Date.UTC(year, month - 1, 1 + w * 7 + d - leading));
+      return { date: isoDay(date), inMonth: date.getUTCMonth() === month - 1 };
+    }),
+  );
 }

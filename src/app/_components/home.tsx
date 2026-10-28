@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { deleteAccount, signOut, toggleSaved, useSession } from "@/lib/account";
-import { buildAgenda, type AgendaFilter } from "@/lib/agenda";
+import { agendaEntries, type AgendaFilter } from "@/lib/agenda";
 import { aliasKeys } from "@/lib/dedupe";
 import { areaById } from "@/lib/areas";
 import { regionOf, stateName } from "@/lib/brazil";
@@ -11,7 +11,8 @@ import { useProfile, useSaved } from "@/lib/local-store";
 import { useProfilePlace } from "@/lib/municipalities";
 import type { Opportunity, OpportunityType } from "@/lib/opportunity";
 import { ageOn, buildSections, effectiveInterests, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
-import { AgendaRow, CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
+import { AgendaCalendar } from "./agenda-calendar";
+import { CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
 import { DetailDrawer } from "./detail-drawer";
 import { TYPE_PLURAL, dateStub, shortDate } from "./format";
 import { PencilIcon, PinIcon } from "./icons";
@@ -170,7 +171,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   const agenda = useMemo(
     () =>
       tab === "agenda" && today
-        ? buildAgenda({ items, programs, profile: p, today, origin: place, filter: agendaFilter, savedKeys })
+        ? agendaEntries({ items, programs, profile: p, today, origin: place, filter: agendaFilter, savedKeys })
         : [],
     [tab, items, programs, p, today, place, agendaFilter, savedKeys],
   );
@@ -452,7 +453,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
             <section>
               <SectionHeader
                 title="Agenda"
-                count={agenda.reduce((n, g) => n + g.entries.length, 0)}
+                count={agenda.length}
                 hint={
                   p
                     ? place
@@ -474,24 +475,10 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                   </button>
                 ))}
               </div>
-              {agenda.length === 0 ? (
-                <Empty>
-                  {agendaFilter === "saved"
-                    ? "Nada salvo com data marcada. Salve um evento para ele aparecer aqui."
-                    : "Nada com data marcada para este filtro agora."}
-                </Empty>
-              ) : (
-                agenda.map((g) => (
-                  <section key={g.id} className="mb-6">
-                    <h3 className="mb-2 text-[12.5px] font-bold tracking-wider text-muted uppercase">{g.label}</h3>
-                    <ul className="overflow-hidden rounded-2xl border border-line bg-card">
-                      {g.entries.map((e) => (
-                        <AgendaRow key={e.key} entry={e} actions={actions} />
-                      ))}
-                    </ul>
-                  </section>
-                ))
+              {agendaFilter === "saved" && agenda.length === 0 && (
+                <p className="mb-4 text-[13.5px] text-muted">Nada salvo com data marcada. Salve um evento para ele aparecer aqui.</p>
               )}
+              {today && <AgendaCalendar entries={agenda} today={today} actions={actions} />}
             </section>
           ) : (
             <section>
