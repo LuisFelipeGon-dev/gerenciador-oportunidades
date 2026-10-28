@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { agendaEntries, buildAgenda, entriesByDay, groupAgenda, monthGrid, type AgendaGroup } from "./agenda";
+import { activeOn, agendaEntries, isLongOnline, buildAgenda, entriesByDay, groupAgenda, monthGrid, weekBars, type AgendaGroup } from "./agenda";
 import { opportunitySchema, type Opportunity } from "./opportunity";
 import type { Profile } from "./personalize";
 
@@ -181,5 +181,81 @@ describe("monthGrid", () => {
     expect(days(monthGrid(2028, 2)).filter((d) => d.inMonth)).toHaveLength(29);
     const december = monthGrid(2026, 12);
     expect(december.at(-1)!.at(-1)).toEqual({ date: "2027-01-02", inMonth: false });
+  });
+});
+
+describe("multi-day events", () => {
+  const span = (id: string, startsOn: string, endsOn: string, modality: Opportunity["modality"] = "online") =>
+    item({
+      id,
+      modality,
+      startsOn,
+      endsOn,
+      location:
+        modality === "online"
+          ? { raw: null, city: null, state: null, country: null, lat: null, lng: null }
+          : { raw: null, city: "Cuiabá", state: "MT", country: "BR", lat: -15.601, lng: -56.0974 },
+    });
+  const entriesOf = (items: Opportunity[]) => agendaEntries({ items, programs: [], profile, today: TODAY, origin: cuiaba });
+
+  it("keeps events that already started and have not ended, with their last day", () => {
+    const [e] = entriesOf([span("ongoing", "2026-10-10", "2026-11-05")]);
+    expect(e).toMatchObject({ kind: "event", date: "2026-10-10", endDate: "2026-11-05" });
+    expect(groupAgenda([e], TODAY)[0].label).toBe("Esta semana");
+  });
+
+  it("knows which entries are active on a day", () => {
+    const entries = entriesOf([span("long", "2026-11-03", "2026-11-05"), span("one", "2026-11-04", "2026-11-04")]);
+    expect(activeOn(entries, "2026-11-04").map((e) => e.o.sourceId)).toEqual(["long", "one"]);
+    expect(activeOn(entries, "2026-11-05").map((e) => e.o.sourceId)).toEqual(["long"]);
+    expect(activeOn(entries, "2026-11-06")).toEqual([]);
+  });
+
+  it("splits multi-day events into bars per week, in lanes that do not overlap", () => {
+    // November 2026 starts on a Sunday: the first week is Nov 1-7.
+    const week = monthGrid(2026, 11)[0];
+    const entries = entriesOf([
+      span("before", "2026-10-30", "2026-11-02"),
+      span("inside", "2026-11-03", "2026-11-05", "in_person"),
+      span("after", "2026-11-04", "2026-11-10"),
+      span("single", "2026-11-06", "2026-11-06"),
+    ]);
+    const bars = weekBars(week, entries).map((b) => ({ id: b.entry.o.sourceId, start: b.start, span: b.span, lane: b.lane, before: b.continuesBefore, after: b.continuesAfter }));
+    expect(bars).toEqual([
+      { id: "inside", start: 2, span: 3, lane: 0, before: false, after: false },
+      { id: "before", start: 0, span: 2, lane: 0, before: true, after: false },
+      { id: "after", start: 3, span: 4, lane: 1, before: false, after: true },
+    ]);
+  });
+});
+
+describe("isLongOnline", () => {
+  const entryOf = (startsOn: string, endsOn: string, modality: Opportunity["modality"]) =>
+    agendaEntries({
+      items: [
+        item({
+          id: "x",
+          modality,
+          startsOn,
+          endsOn,
+          location:
+            modality === "online"
+              ? { raw: null, city: null, state: null, country: null, lat: null, lng: null }
+              : { raw: null, city: "Cuiabá", state: "MT", country: "BR", lat: -15.601, lng: -56.0974 },
+        }),
+      ],
+      programs: [],
+      profile,
+      today: TODAY,
+      origin: cuiaba,
+    })[0];
+
+  it("is true for online submission periods longer than two weeks", () => {
+    expect(isLongOnline(entryOf("2026-06-24", "2026-11-15", "online"))).toBe(true);
+  });
+
+  it("is false for short online events and for in-person ones of any length", () => {
+    expect(isLongOnline(entryOf("2026-11-01", "2026-11-03", "online"))).toBe(false);
+    expect(isLongOnline(entryOf("2026-10-01", "2026-12-15", "in_person"))).toBe(false);
   });
 });

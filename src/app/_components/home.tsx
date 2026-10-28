@@ -478,7 +478,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               {agendaFilter === "saved" && agenda.length === 0 && (
                 <p className="mb-4 text-[13.5px] text-muted">Nada salvo com data marcada. Salve um evento para ele aparecer aqui.</p>
               )}
-              {today && <AgendaCalendar entries={agenda} today={today} actions={actions} />}
+              {today && <AgendaCalendar entries={agenda} today={today} profile={p} actions={actions} />}
             </section>
           ) : (
             <section>

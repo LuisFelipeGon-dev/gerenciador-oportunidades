@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { entriesByDay, groupAgenda, monthGrid, type AgendaEntry } from "@/lib/agenda";
-import { AgendaRow, type CardActions } from "./cards";
-import { TYPE_TONE, longDate } from "./format";
+import { activeOn, groupAgenda, isLongOnline, monthGrid, weekBars, type AgendaEntry, type CalendarDay } from "@/lib/agenda";
+import type { Profile } from "@/lib/personalize";
+import { AgendaRow, OpportunityCard, type CardActions } from "./cards";
+import { TYPE_TONE, longDate, shortDate, whatItIs } from "./format";
+import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 
 type View = "month" | "year" | "list";
 
@@ -13,90 +15,352 @@ const VIEWS: { id: View; label: string }[] = [
   { id: "list", label: "Lista" },
 ];
 
-const WEEKDAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
+const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+/** Bars shown per week; the rest of the long events count in the day's "+N". */
+const MAX_LANES = 3;
+const MAX_CHIPS = 2;
+
 const monthFormat = new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" });
 const monthShortFormat = new Intl.DateTimeFormat("pt-BR", { month: "short", timeZone: "UTC" });
+const weekdayFormat = new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "UTC" });
 
-function monthName(month: number): string {
-  const name = monthFormat.format(new Date(Date.UTC(2000, month - 1, 1)));
-  return name[0].toUpperCase() + name.slice(1);
+const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
+const monthName = (m: number) => capitalize(monthFormat.format(new Date(Date.UTC(2000, m - 1, 1))));
+const monthShort = (m: number) => monthShortFormat.format(new Date(Date.UTC(2000, m - 1, 1))).replace(".", "");
+const weekdayOf = (date: string) => capitalize(weekdayFormat.format(new Date(`${date}T00:00:00Z`)));
+
+function addDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
 }
-const monthShort = (month: number) => monthShortFormat.format(new Date(Date.UTC(2000, month - 1, 1))).replace(".", "");
 
-/** Chip and dot colors: deadlines in red, otherwise the color of the opportunity type. */
+const dayCount = (from: string, to: string) =>
+  Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
+
+/** Deadlines in red, otherwise the color of the opportunity type. */
 function tone(e: AgendaEntry): { chip: string; dot: string } {
-  if (e.kind === "deadline") return { chip: "bg-urgent-bg text-urgent", dot: "bg-urgent" };
+  if (e.kind === "deadline") return { chip: "bg-card text-urgent ring-1 ring-inset ring-urgent/40", dot: "bg-urgent" };
   const t = TYPE_TONE[e.o.type];
   return { chip: `${t.bg} ${t.text}`, dot: t.bar };
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="rounded-2xl border border-dashed border-line bg-card px-4 py-6 text-center text-[14px] text-muted">{children}</p>;
+  return <p className="rounded-2xl border border-dashed border-line bg-card px-4 py-8 text-center text-[14px] text-muted">{children}</p>;
 }
 
-function EntryList({ entries, actions }: { entries: AgendaEntry[]; actions: CardActions }) {
+const iconButton =
+  "grid size-9 place-items-center text-ink transition-colors hover:bg-ground focus-visible:relative focus-visible:z-10 disabled:opacity-40";
+
+function Stepper({ onPrev, onNext, onToday, prevLabel, nextLabel }: { onPrev: () => void; onNext: () => void; onToday?: () => void; prevLabel: string; nextLabel: string }) {
   return (
-    <ul className="overflow-hidden rounded-2xl border border-line bg-card">
-      {entries.map((e) => (
-        <AgendaRow key={e.key} entry={e} actions={actions} />
-      ))}
-    </ul>
+    <div className="flex items-center divide-x divide-line overflow-hidden rounded-xl border border-line bg-card">
+      <button type="button" aria-label={prevLabel} onClick={onPrev} className={iconButton}>
+        <ChevronLeftIcon className="size-4.5" />
+      </button>
+      {onToday && (
+        <button type="button" onClick={onToday} className="h-9 px-3 text-[13.5px] font-semibold transition-colors hover:bg-ground">
+          Hoje
+        </button>
+      )}
+      <button type="button" aria-label={nextLabel} onClick={onNext} className={iconButton}>
+        <ChevronRightIcon className="size-4.5" />
+      </button>
+    </div>
   );
 }
 
-function NavButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+const shell = "overflow-hidden rounded-3xl border border-line bg-card shadow-[0_1px_2px_rgba(12,42,102,0.05),0_16px_40px_-24px_rgba(12,42,102,0.25)]";
+
+/** One week of the month view: day numbers, bars for long events and chips for one-day ones. */
+function WeekRow({
+  week,
+  entries,
+  today,
+  onOpenDay,
+  actions,
+}: {
+  week: CalendarDay[];
+  entries: AgendaEntry[];
+  today: string;
+  onOpenDay: (date: string) => void;
+  actions: CardActions;
+}) {
+  const bars = weekBars(week, entries);
+  const shownBars = bars.filter((b) => b.lane < MAX_LANES);
+  const lanes = shownBars.length === 0 ? 0 : Math.max(...shownBars.map((b) => b.lane)) + 1;
+
   return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className="grid size-9 place-items-center rounded-lg border border-line bg-card text-[18px] font-bold hover:border-ink"
-    >
-      {children}
-    </button>
+    <div className="relative grid grid-cols-7 border-t border-line">
+      {week.map((day, col) => {
+        const active = activeOn(entries, day.date);
+        const singles = active.filter((e) => e.endDate === e.date);
+        const barsHere = shownBars.filter((b) => b.start <= col && col < b.start + b.span).length;
+        const chips = singles.slice(0, MAX_CHIPS);
+        const more = active.length - barsHere - chips.length;
+        const weekend = col === 0 || col === 6;
+        const past = day.date < today;
+        return (
+          <button
+            key={day.date}
+            type="button"
+            onClick={() => onOpenDay(day.date)}
+            aria-label={`${weekdayOf(day.date)}, ${longDate(day.date)}: ${active.length === 0 ? "nada marcado" : `${active.length} na agenda`}`}
+            className={`group flex min-h-[68px] min-w-0 flex-col items-stretch border-l border-line p-1 text-left transition-colors first:border-l-0 hover:bg-sky/15 focus-visible:z-10 focus-visible:outline-offset-[-2px] sm:min-h-[118px] sm:p-1.5 ${
+              !day.inMonth ? "bg-ground/70" : weekend ? "bg-ground/35" : ""
+            }`}
+          >
+            <span
+              className={`grid size-7 shrink-0 place-items-center self-start rounded-full text-[13px] font-bold tabular-nums transition-colors ${
+                day.date === today
+                  ? "bg-action text-white shadow-[0_2px_6px_rgba(29,78,216,0.35)]"
+                  : !day.inMonth
+                    ? "text-muted/50"
+                    : past
+                      ? "text-muted"
+                      : "group-hover:bg-card"
+              }`}
+            >
+              {Number(day.date.slice(8))}
+            </span>
+            {/* Room for the bars drawn over the week. */}
+            <span aria-hidden="true" className="block shrink-0 sm:hidden" style={{ height: lanes * 7 }} />
+            <span aria-hidden="true" className="hidden shrink-0 sm:block" style={{ height: lanes * 22 }} />
+            {chips.length > 0 && (
+              <span className="mt-1 flex flex-wrap gap-0.5 sm:hidden">
+                {singles.slice(0, 3).map((e) => (
+                  <span key={e.key} className={`size-1.5 rounded-full ${tone(e).dot}`} />
+                ))}
+              </span>
+            )}
+            <span className="mt-1 hidden min-w-0 flex-col gap-0.5 sm:flex">
+              {chips.map((e) => (
+                <span key={e.key} className={`truncate rounded-md px-1.5 py-0.5 text-[11.5px] leading-tight font-semibold ${tone(e).chip}`}>
+                  {e.o.title}
+                </span>
+              ))}
+              {more > 0 && <span className="px-1.5 text-[11.5px] font-semibold text-muted">+{more} mais</span>}
+            </span>
+          </button>
+        );
+      })}
+
+      {/* Bars for events of several days, drawn across the cells they cover. */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-[31px] grid grid-cols-7 gap-y-[3px] sm:top-[38px] sm:gap-y-1"
+        style={{ gridTemplateRows: `repeat(${lanes}, auto)` }}
+      >
+        {shownBars.map((b) => (
+          <button
+            key={b.entry.key}
+            type="button"
+            tabIndex={-1}
+            onClick={() => actions.onOpen(b.entry.o)}
+            title={`${b.entry.o.title} · ${shortDate(b.entry.date)} a ${shortDate(b.entry.endDate)}`}
+            style={{ gridColumn: `${b.start + 1} / span ${b.span}`, gridRow: b.lane + 1 }}
+            className={`h-1 truncate text-left text-[11.5px] leading-[18px] font-semibold transition-[filter] hover:brightness-95 sm:pointer-events-auto sm:h-[18px] sm:px-1.5 ${tone(b.entry).chip} ${
+              b.continuesBefore ? "rounded-l-none" : "ml-1 rounded-l-md"
+            } ${b.continuesAfter ? "rounded-r-none" : "mr-1 rounded-r-md"}`}
+          >
+            <span className="hidden sm:inline">
+              {(b.continuesBefore || (b.entry.o.startsOn ?? b.entry.date) < b.entry.date) && "← "}
+              {b.entry.o.title}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
-/** The Agenda tab: a month calendar, a whole-year overview and the plain list. */
-export function AgendaCalendar({ entries, today, actions }: { entries: AgendaEntry[]; today: string; actions: CardActions }) {
+const DAY_SECTIONS: { kind: AgendaEntry["kind"]; title: string }[] = [
+  { kind: "event", title: "Acontecendo neste dia" },
+  { kind: "deadline", title: "Inscrições que fecham" },
+  { kind: "opens", title: "Programas que costumam abrir" },
+];
+
+/** The page of one day: every entry in full, with what it is. */
+function DayPage({
+  date,
+  entries,
+  today,
+  profile,
+  actions,
+  onDate,
+  onBack,
+}: {
+  date: string;
+  entries: AgendaEntry[];
+  today: string;
+  profile: Profile | null;
+  actions: CardActions;
+  onDate: (date: string) => void;
+  onBack: () => void;
+}) {
+  const all = activeOn(entries, date);
+  const active = all.filter((e) => !isLongOnline(e));
+  const longOnline = all.filter(isLongOnline);
+  return (
+    <div key={date} className="animate-[rise-in_.35s_cubic-bezier(.16,1,.3,1)]">
+      <button type="button" onClick={onBack} className="mb-3 inline-flex items-center gap-1 rounded-lg py-1 pr-2 text-[14px] font-semibold text-action hover:underline">
+        <ChevronLeftIcon className="size-4" />
+        Voltar ao calendário
+      </button>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[14px] font-semibold text-muted">{date === today ? "Hoje" : weekdayOf(date)}</p>
+          <h3 className="text-[26px] leading-tight font-extrabold tracking-tight text-balance">{longDate(date)}</h3>
+          <p className="mt-1 text-[14px] text-muted">
+            {active.length === 0 ? "Nada marcado neste dia." : `${active.length} ${active.length === 1 ? "item" : "itens"} na sua agenda`}
+          </p>
+        </div>
+        <Stepper prevLabel="Dia anterior" nextLabel="Próximo dia" onPrev={() => onDate(addDays(date, -1))} onNext={() => onDate(addDays(date, 1))} />
+      </div>
+
+      {active.length === 0 ? (
+        <Empty>Nenhum evento, prazo ou abertura neste dia. Use as setas para ver os dias vizinhos.</Empty>
+      ) : (
+        DAY_SECTIONS.map(({ kind, title }) => {
+          const list = active.filter((e) => e.kind === kind);
+          if (list.length === 0) return null;
+          return (
+            <section key={kind} className="mb-8">
+              <h4 className="mb-3 text-[17px] font-extrabold tracking-tight">
+                {title} <span className="ml-1 text-[14px] font-semibold text-muted tabular-nums">{list.length}</span>
+              </h4>
+              <div className="grid gap-3">
+                {list.map((e) => (
+                  <OpportunityCard
+                    key={e.key}
+                    o={e.o}
+                    today={today}
+                    profile={profile}
+                    actions={actions}
+                    description={whatItIs(e.o)}
+                    why={
+                      e.endDate > e.date
+                        ? `Dura ${dayCount(e.date, e.endDate)} dias, de ${shortDate(e.date)} a ${shortDate(e.endDate)}: este é o ${dayCount(e.date, date)}º dia.`
+                        : e.distanceKm !== null
+                          ? `A ${Math.max(1, Math.round(e.distanceKm))} km de você.`
+                          : undefined
+                    }
+                  />
+                ))}
+              </div>
+            </section>
+          );
+        })
+      )}
+
+      {longOnline.length > 0 && (
+        <details className="group mt-2 rounded-2xl border border-line bg-card">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="block text-[15px] font-extrabold tracking-tight">
+                Hackathons online em andamento <span className="ml-1 text-[14px] font-semibold text-muted tabular-nums">{longOnline.length}</span>
+              </span>
+              <span className="block text-[13px] text-muted">Ficam abertos por semanas e não aparecem como barra no calendário. O prazo de cada um aparece no dia em que fecha.</span>
+            </span>
+            <ChevronRightIcon className="size-4.5 shrink-0 text-muted transition-transform group-open:rotate-90" />
+          </summary>
+          <ul className="border-t border-line">
+            {longOnline.map((e) => (
+              <AgendaRow key={e.key} entry={e} actions={actions} />
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
+  );
+}
+
+/** The Agenda tab: month calendar, whole-year overview, list, and the page of each day. */
+export function AgendaCalendar({
+  entries,
+  today,
+  profile,
+  actions,
+}: {
+  entries: AgendaEntry[];
+  today: string;
+  profile: Profile | null;
+  actions: CardActions;
+}) {
   const [view, setView] = useState<View>("month");
   const [year, setYear] = useState(Number(today.slice(0, 4)));
   const [month, setMonth] = useState(Number(today.slice(5, 7)));
-  const [selected, setSelected] = useState(today);
-  const byDay = useMemo(() => entriesByDay(entries), [entries]);
+  const [day, setDay] = useState<string | null>(null);
+
+  // What the grids draw: no months-long online events, and running events start today.
+  const calendarEntries = useMemo(
+    () => entries.filter((e) => !isLongOnline(e)).map((e) => (e.date < today ? { ...e, date: today } : e)),
+    [entries, today],
+  );
+
+  const countByMonth = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const e of calendarEntries) counts.set(e.date.slice(0, 7), (counts.get(e.date.slice(0, 7)) ?? 0) + 1);
+    return counts;
+  }, [calendarEntries]);
+  const countIn = (y: number, m: number) => countByMonth.get(`${y}-${String(m).padStart(2, "0")}`) ?? 0;
 
   function goToMonth(y: number, m: number) {
-    // Month arithmetic that wraps around the year.
+    // Wraps around the year in both directions.
     const d = new Date(Date.UTC(y, m - 1, 1));
     setYear(d.getUTCFullYear());
     setMonth(d.getUTCMonth() + 1);
   }
 
   function openDay(date: string) {
-    setSelected(date);
+    setDay(date);
     goToMonth(Number(date.slice(0, 4)), Number(date.slice(5, 7)));
-    setView("month");
   }
 
-  const countInMonth = (y: number, m: number) => {
-    const prefix = `${y}-${String(m).padStart(2, "0")}`;
-    return entries.filter((e) => e.date.startsWith(prefix)).length;
-  };
+  if (day) {
+    return <DayPage date={day} entries={entries} today={today} profile={profile} actions={actions} onDate={openDay} onBack={() => setDay(null)} />;
+  }
 
   return (
     <div>
-      <div className="mb-4 inline-flex rounded-lg border border-line bg-card p-0.5" role="group" aria-label="Visão da agenda">
-        {VIEWS.map((v) => (
-          <button
-            key={v.id}
-            type="button"
-            aria-pressed={view === v.id}
-            onClick={() => setView(v.id)}
-            className={`rounded-md px-3.5 py-1.5 text-[13.5px] font-semibold ${view === v.id ? "bg-ink text-white" : "hover:bg-ground"}`}
-          >
-            {v.label}
-          </button>
-        ))}
+      <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-3">
+        <h3 className="mr-auto text-[24px] leading-none font-extrabold tracking-tight">
+          {view === "month" ? (
+            <>
+              {monthName(month)} <span className="font-semibold text-muted">{year}</span>
+            </>
+          ) : view === "year" ? (
+            year
+          ) : (
+            "Próximas datas"
+          )}
+        </h3>
+        {view === "month" && (
+          <Stepper
+            prevLabel="Mês anterior"
+            nextLabel="Próximo mês"
+            onPrev={() => goToMonth(year, month - 1)}
+            onNext={() => goToMonth(year, month + 1)}
+            onToday={() => goToMonth(Number(today.slice(0, 4)), Number(today.slice(5, 7)))}
+          />
+        )}
+        {view === "year" && (
+          <Stepper prevLabel="Ano anterior" nextLabel="Próximo ano" onPrev={() => setYear(year - 1)} onNext={() => setYear(year + 1)} onToday={() => setYear(Number(today.slice(0, 4)))} />
+        )}
+        <div className="flex rounded-xl bg-line/60 p-1" role="group" aria-label="Visão da agenda">
+          {VIEWS.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              aria-pressed={view === v.id}
+              onClick={() => setView(v.id)}
+              className={`rounded-lg px-3.5 py-1.5 text-[13.5px] font-semibold transition-[background-color,box-shadow,color] ${
+                view === v.id ? "bg-card text-ink shadow-[0_1px_3px_rgba(12,42,102,0.15)]" : "text-muted hover:text-ink"
+              }`}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {view === "list" &&
@@ -105,181 +369,113 @@ export function AgendaCalendar({ entries, today, actions }: { entries: AgendaEnt
         ) : (
           groupAgenda(entries, today).map((g) => (
             <section key={g.id} className="mb-6">
-              <h3 className="mb-2 text-[12.5px] font-bold tracking-wider text-muted uppercase">{g.label}</h3>
-              <EntryList entries={g.entries} actions={actions} />
+              <h4 className="mb-2 text-[15px] font-extrabold tracking-tight">{g.label}</h4>
+              <ul className={shell}>
+                {g.entries.map((e) => (
+                  <AgendaRow key={e.key} entry={e} actions={actions} />
+                ))}
+              </ul>
             </section>
           ))
         ))}
 
       {view === "month" && (
         <>
-          <div className="mb-3 flex items-center gap-2">
-            <NavButton label="Mês anterior" onClick={() => goToMonth(year, month - 1)}>
-              ‹
-            </NavButton>
-            <h3 className="min-w-0 flex-1 text-center text-[17px] font-extrabold tracking-tight">
-              {monthName(month)} de {year}
-            </h3>
-            <NavButton label="Próximo mês" onClick={() => goToMonth(year, month + 1)}>
-              ›
-            </NavButton>
-            <button
-              type="button"
-              onClick={() => openDay(today)}
-              className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13.5px] font-semibold hover:border-ink"
-            >
-              Hoje
-            </button>
-          </div>
-
-          <div className="-mx-4 mb-3 flex gap-1 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label={`Meses de ${year}`}>
+          <div className="-mx-4 mb-3 flex gap-1 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden" role="group" aria-label={`Meses de ${year}`}>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
-              const count = countInMonth(year, m);
+              const count = countIn(year, m);
               return (
                 <button
                   key={m}
                   type="button"
                   aria-pressed={m === month}
                   onClick={() => goToMonth(year, m)}
-                  className={`shrink-0 rounded-full px-3 py-1 text-[13px] font-semibold ${
-                    m === month ? "bg-ink text-white" : count > 0 ? "bg-ground hover:bg-line" : "text-muted hover:bg-ground"
+                  className={`flex shrink-0 items-baseline gap-1 rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-colors ${
+                    m === month ? "bg-ink text-white" : count > 0 ? "text-ink hover:bg-card" : "text-muted/70 hover:bg-card"
                   }`}
                 >
                   {monthShort(m)}
-                  {count > 0 && <span className="ml-1 tabular-nums opacity-70">{count}</span>}
+                  {count > 0 && <span className={`text-[11px] tabular-nums ${m === month ? "text-white/70" : "text-muted"}`}>{count}</span>}
                 </button>
               );
             })}
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-line bg-card">
-            <div className="grid grid-cols-7 border-b border-line bg-ground text-center text-[12px] font-bold text-muted">
+          <div className={shell}>
+            <div className="grid grid-cols-7 bg-ground/60">
               {WEEKDAYS.map((d, i) => (
-                <span key={i} className="py-1.5">
-                  {d}
+                <span key={d} className={`py-2 text-center text-[11.5px] font-bold tracking-wide text-muted uppercase ${i === 0 || i === 6 ? "text-muted/70" : ""}`}>
+                  <span className="sm:hidden">{d[0]}</span>
+                  <span className="hidden sm:inline">{d}</span>
                 </span>
               ))}
             </div>
             {monthGrid(year, month).map((week) => (
-              <div key={week[0].date} className="grid grid-cols-7 border-b border-line last:border-b-0">
-                {week.map((day) => {
-                  const dayEntries = byDay.get(day.date) ?? [];
-                  const past = day.date < today;
-                  return (
-                    <button
-                      key={day.date}
-                      type="button"
-                      onClick={() => setSelected(day.date)}
-                      aria-pressed={selected === day.date}
-                      aria-label={`${longDate(day.date)}: ${dayEntries.length === 0 ? "nada marcado" : `${dayEntries.length} na agenda`}`}
-                      className={`flex min-h-14 min-w-0 flex-col items-stretch gap-1 border-r border-line p-1 text-left last:border-r-0 sm:min-h-24 sm:p-1.5 ${
-                        selected === day.date ? "bg-sky/25" : "hover:bg-ground/70"
-                      } ${day.inMonth ? "" : "bg-ground/50"}`}
-                    >
-                      <span
-                        className={`grid size-6 place-items-center self-start rounded-full text-[12.5px] font-bold tabular-nums ${
-                          day.date === today ? "bg-action text-white" : !day.inMonth || past ? "text-muted/60" : ""
-                        }`}
-                      >
-                        {Number(day.date.slice(8))}
-                      </span>
-                      {/* Phones: colored dots. Wider screens: the first titles. */}
-                      {dayEntries.length > 0 && (
-                        <span className="flex flex-wrap gap-0.5 sm:hidden">
-                          {dayEntries.slice(0, 3).map((e) => (
-                            <span key={e.key} className={`size-1.5 rounded-full ${tone(e).dot}`} />
-                          ))}
-                        </span>
-                      )}
-                      <span className="hidden min-w-0 flex-col gap-0.5 sm:flex">
-                        {dayEntries.slice(0, 2).map((e) => (
-                          <span key={e.key} className={`truncate rounded px-1 py-px text-[11px] leading-tight font-semibold ${tone(e).chip}`}>
-                            {e.o.title}
-                          </span>
-                        ))}
-                        {dayEntries.length > 2 && <span className="px-1 text-[11px] font-semibold text-muted">+{dayEntries.length - 2}</span>}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <WeekRow key={week[0].date} week={week} entries={calendarEntries} today={today} onOpenDay={openDay} actions={actions} />
             ))}
           </div>
-
-          <section className="mt-5" aria-live="polite">
-            <h3 className="mb-2 text-[12.5px] font-bold tracking-wider text-muted uppercase">
-              {selected === today ? `Hoje, ${longDate(selected)}` : longDate(selected)}
-            </h3>
-            {(byDay.get(selected) ?? []).length === 0 ? (
-              <Empty>Nada marcado neste dia. Os dias com pontos ou etiquetas têm eventos ou prazos.</Empty>
-            ) : (
-              <EntryList entries={byDay.get(selected)!} actions={actions} />
-            )}
-          </section>
+          <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-muted">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-5 rounded-sm bg-hack-bg ring-1 ring-hack/30" /> eventos de vários dias
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-5 rounded-sm bg-card ring-1 ring-urgent/50" /> inscrições fecham
+            </span>
+            <span>Toque num dia para ver tudo o que tem nele.</span>
+          </p>
         </>
       )}
 
       {view === "year" && (
-        <>
-          <div className="mb-3 flex items-center gap-2">
-            <NavButton label="Ano anterior" onClick={() => setYear(year - 1)}>
-              ‹
-            </NavButton>
-            <h3 className="flex-1 text-center text-[17px] font-extrabold tracking-tight">{year}</h3>
-            <NavButton label="Próximo ano" onClick={() => setYear(year + 1)}>
-              ›
-            </NavButton>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-              <section key={m} className="rounded-2xl border border-line bg-card p-2.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    goToMonth(year, m);
-                    setView("month");
-                  }}
-                  className="mb-1.5 flex w-full items-baseline justify-between text-left text-[14px] font-extrabold hover:underline"
-                >
-                  {monthName(m)}
-                  {countInMonth(year, m) > 0 && <span className="text-[12px] font-semibold text-muted tabular-nums">{countInMonth(year, m)}</span>}
-                </button>
-                <div className="grid grid-cols-7 gap-px text-center text-[10.5px] tabular-nums">
-                  {WEEKDAYS.map((d, i) => (
-                    <span key={i} className="font-bold text-muted">
-                      {d}
-                    </span>
-                  ))}
-                  {monthGrid(year, m)
-                    .flat()
-                    .map((day) =>
-                      day.inMonth ? (
-                        <button
-                          key={day.date}
-                          type="button"
-                          onClick={() => openDay(day.date)}
-                          aria-label={longDate(day.date)}
-                          className={`aspect-square rounded ${
-                            day.date === today
-                              ? "bg-action font-bold text-white"
-                              : byDay.has(day.date)
-                                ? `${tone(byDay.get(day.date)![0]).chip} font-bold`
-                                : day.date < today
-                                  ? "text-muted/50"
-                                  : "hover:bg-ground"
-                          }`}
-                        >
-                          {Number(day.date.slice(8))}
-                        </button>
-                      ) : (
-                        <span key={day.date} />
-                      ),
-                    )}
-                </div>
-              </section>
-            ))}
-          </div>
-        </>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+            <section key={m} className={`${shell} p-3`}>
+              <button
+                type="button"
+                onClick={() => {
+                  goToMonth(year, m);
+                  setView("month");
+                }}
+                className="mb-2 flex w-full items-baseline justify-between text-left text-[14.5px] font-extrabold tracking-tight hover:text-action"
+              >
+                {monthName(m)}
+                {countIn(year, m) > 0 && <span className="text-[12px] font-semibold text-muted tabular-nums">{countIn(year, m)}</span>}
+              </button>
+              <div className="grid grid-cols-7 gap-0.5 text-center text-[11px] tabular-nums">
+                {WEEKDAYS.map((d) => (
+                  <span key={d} className="pb-0.5 font-bold text-muted/70">
+                    {d[0]}
+                  </span>
+                ))}
+                {monthGrid(year, m)
+                  .flat()
+                  .map((cell) => {
+                    if (!cell.inMonth) return <span key={cell.date} />;
+                    const active = activeOn(calendarEntries, cell.date);
+                    return (
+                      <button
+                        key={cell.date}
+                        type="button"
+                        onClick={() => openDay(cell.date)}
+                        aria-label={`${longDate(cell.date)}: ${active.length === 0 ? "nada marcado" : `${active.length} na agenda`}`}
+                        className={`grid aspect-square place-items-center rounded-full transition-colors ${
+                          cell.date === today
+                            ? "bg-action font-bold text-white"
+                            : active.length > 0
+                              ? `${tone(active[0]).chip} font-bold`
+                              : cell.date < today
+                                ? "text-muted/50 hover:bg-ground"
+                                : "hover:bg-ground"
+                        }`}
+                      >
+                        {Number(cell.date.slice(8))}
+                      </button>
+                    );
+                  })}
+              </div>
+            </section>
+          ))}
+        </div>
       )}
     </div>
   );

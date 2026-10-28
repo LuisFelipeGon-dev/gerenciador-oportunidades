@@ -8,8 +8,10 @@ export type AgendaFilter = "all" | "near" | "online" | "saved";
 
 export type AgendaEntry = {
   key: string;
-  /** YYYY-MM-DD the entry is listed on. */
+  /** YYYY-MM-DD the entry is listed on (the first day, for events that span several). */
   date: string;
+  /** Last day: later than `date` only for events that last more than one day. */
+  endDate: string;
   /** event: it happens; deadline: registration closes; opens: a closed program usually reopens. */
   kind: "event" | "deadline" | "opens";
   o: Opportunity;
@@ -73,14 +75,16 @@ export function agendaEntries(options: AgendaOptions): AgendaEntry[] {
   };
 
   const entries: AgendaEntry[] = [];
-  const add = (o: Opportunity, kind: AgendaEntry["kind"], date: string, km: number | null) =>
-    entries.push({ key: `${kind}:${itemKey(o)}`, date, kind, o, distanceKm: km });
+  const add = (o: Opportunity, kind: AgendaEntry["kind"], date: string, km: number | null, endDate = date) =>
+    entries.push({ key: `${kind}:${itemKey(o)}`, date, endDate, kind, o, distanceKm: km });
 
   for (const o of items) {
     const km = distanceOf(o);
     if (!wanted(o) || !reachable(o, km)) continue;
     if (o.registrationDeadline && o.registrationDeadline >= today) add(o, "deadline", o.registrationDeadline, km);
-    if (o.startsOn && o.startsOn >= today) add(o, "event", o.startsOn, km);
+    // Events still running today count too: they started earlier but have days left.
+    const lastDay = o.endsOn && o.startsOn && o.endsOn > o.startsOn ? o.endsOn : o.startsOn;
+    if (o.startsOn && lastDay && lastDay >= today) add(o, "event", o.startsOn, km, lastDay);
   }
 
   for (const p of programs) {
@@ -106,7 +110,8 @@ export function agendaEntries(options: AgendaOptions): AgendaEntry[] {
 export function groupAgenda(entries: AgendaEntry[], today: string): AgendaGroup[] {
   const groups: AgendaGroup[] = [];
   for (const e of entries) {
-    const days = daysUntil(e.date, today);
+    // A running event is listed under today, not under the day it started.
+    const days = Math.max(0, daysUntil(e.date, today));
     const id = days < 7 ? "this-week" : days < 14 ? "next-week" : e.date.slice(0, 7);
     const label = id === "this-week" ? "Esta semana" : id === "next-week" ? "Próxima semana" : monthLabel(id, today);
     const last = groups.at(-1);
@@ -124,6 +129,64 @@ export function entriesByDay(entries: AgendaEntry[]): Map<string, AgendaEntry[]>
   const byDay = new Map<string, AgendaEntry[]>();
   for (const e of entries) byDay.set(e.date, [...(byDay.get(e.date) ?? []), e]);
   return byDay;
+}
+
+/** Online events open for more than this are submission periods, not days to block out. */
+const LONG_ONLINE_DAYS = 14;
+
+/**
+ * Online hackathons on Devpost often run for months. As bars they would cover the whole
+ * calendar, so the calendar leaves them out (their deadline still shows on its day).
+ */
+export function isLongOnline(e: AgendaEntry): boolean {
+  if (e.kind !== "event" || e.o.modality !== "online") return false;
+  // daysUntil(end, start) is the number of days from the first to the last day.
+  return daysUntil(e.endDate, e.date) + 1 > LONG_ONLINE_DAYS;
+}
+
+/** Entries happening on a day: single-day ones on it, and longer events that cover it. */
+export function activeOn(entries: AgendaEntry[], date: string): AgendaEntry[] {
+  return entries.filter((e) => e.date <= date && date <= e.endDate);
+}
+
+export type WeekBar = {
+  entry: AgendaEntry;
+  /** Column (0 = Sunday) where the bar starts in this week, and how many days it covers. */
+  start: number;
+  span: number;
+  /** Row inside the week, so bars never overlap. */
+  lane: number;
+  /** The event began before this week / goes on after it. */
+  continuesBefore: boolean;
+  continuesAfter: boolean;
+};
+
+/**
+ * Bars for the events of more than one day that cover any day of this week. In-person events
+ * get the top lanes, then earlier and longer ones.
+ */
+export function weekBars(week: CalendarDay[], entries: AgendaEntry[]): WeekBar[] {
+  const first = week[0].date;
+  const last = week[week.length - 1].date;
+  const long = entries
+    .filter((e) => e.endDate > e.date && e.date <= last && e.endDate >= first)
+    .sort(
+      (a, b) =>
+        Number(a.o.modality === "online") - Number(b.o.modality === "online") ||
+        a.date.localeCompare(b.date) ||
+        b.endDate.localeCompare(a.endDate),
+    );
+
+  const lanes: boolean[][] = [];
+  return long.map((entry) => {
+    const start = Math.max(0, week.findIndex((d) => d.date >= entry.date));
+    const lastIndex = week.findLastIndex((d) => d.date <= entry.endDate);
+    const span = lastIndex - start + 1;
+    let lane = lanes.findIndex((used) => used.slice(start, start + span).every((u) => !u));
+    if (lane < 0) lane = lanes.push(Array(7).fill(false)) - 1;
+    for (let i = start; i < start + span; i++) lanes[lane][i] = true;
+    return { entry, start, span, lane, continuesBefore: entry.date < first, continuesAfter: entry.endDate > last };
+  });
 }
 
 export type CalendarDay = { date: string; inMonth: boolean };

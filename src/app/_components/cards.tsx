@@ -108,12 +108,15 @@ export function OpportunityCard({
   profile,
   actions,
   why,
+  description,
 }: {
   o: Opportunity;
   today: string | null;
   profile: Profile | null;
   actions: CardActions;
   why?: string;
+  /** What this kind of opportunity is, shown on the Agenda's day page. */
+  description?: string;
 }) {
   const stub = dateStub(o, today);
   const topics = topicTags(o).slice(0, 3);
@@ -137,6 +140,7 @@ export function OpportunityCard({
           </button>
         </h3>
         {o.organizer && <p className="mt-0.5 text-[13.5px] text-muted">{o.organizer}</p>}
+        {description && <p className="mt-2 max-w-[65ch] text-[14px] leading-relaxed">{description}</p>}
         {o.benefits.length > 0 && (
           <p className="mt-2 inline-flex rounded-md bg-prize-bg px-2 py-1 text-[13.5px] font-bold text-prize">
             {o.benefits.join(" · ")}
