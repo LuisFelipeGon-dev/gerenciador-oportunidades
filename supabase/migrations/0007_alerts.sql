@@ -9,8 +9,8 @@ alter table public.profiles
 
 create unique index profiles_alerts_token_idx on public.profiles (alerts_token);
 
--- O token e a data do último envio são do sistema de envio (chave de serviço), não do navegador.
-revoke update (alerts_token, alerts_last_sent_at) on public.profiles from authenticated;
+-- O token e a data do último envio são gravados pelo script de envio (chave de serviço). O site
+-- não os altera; a RLS de dono já impede que alguém mexa no perfil de outra pessoa.
 
 -- "Parar de receber" pelo link do e-mail, sem login. Só desliga; não revela nada do perfil.
 create function public.unsubscribe_alerts(token uuid) returns boolean
