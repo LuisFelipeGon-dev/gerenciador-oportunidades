@@ -15,7 +15,7 @@ Sucesso: um estudante da UFMT vê, em "Para você" e na Agenda, os editais abert
 | Fonte | API do portal da UFMT, `https://api-portal.ufmt.br/v1/publications?branch=<id>&page=<n>` (a mesma que o site público usa). Uso autorizado pelo dono do projeto em 29/10/2026. |
 | Unidades | PROEG (17), PRAE (11), PROPESQ (13), PROCEV (10). PROPG (18) fica para depois. |
 | Extração | Por regras, sem IA e sem custo: texto do PDF com uma biblioteca local, datas e trechos por padrões. |
-| Universidade e câmpus | Novos campos opcionais no perfil; edital da UFMT só "serve" para quem é da UFMT e, quando o título cita o câmpus, desse câmpus. |
+| Universidade e câmpus | Novos campos **obrigatórios** no perfil. Edital da UFMT só aparece para quem é da UFMT e, quando o título cita o câmpus, desse câmpus; para os outros ele some. |
 | FAPEMAT | Fora desta etapa: o robots.txt bloqueia robôs. Entra depois por lista curada. |
 
 ## Coleta (`src/collectors/ufmt.ts`)
@@ -52,15 +52,17 @@ Biblioteca de PDF: `unpdf` (texto de PDF em Node, sem dependências nativas).
 
 - `Opportunity.eligibility` ganha `institutions: string[] | null` e `campuses: string[] | null` (default `null`), salvos no JSON de `eligibility` que já existe. Não há migração para isso.
 - `Opportunity.summary: string | null` (default `null`), coluna nova `summary text` em `opportunities` (migração 0008).
-- `Profile` ganha `institution: string` e `campus: string` (opcionais, vazios por padrão), colunas `institution text` e `campus text` em `profiles` (migração 0008).
+- `Profile` ganha `institution: string` e `campus: string`, colunas `institution text` e `campus text` em `profiles` (migração 0008). O formulário exige os dois; perfis salvos antes desta mudança são lidos com os dois vazios (default `""` no `profileSchema`), para ninguém perder o perfil.
 
 ## Perfil e "Posso participar?"
 
-- No formulário, depois de cidade e estado: "Universidade" (texto com sugestões: UFMT, UNEMAT, IFMT, UNIC, UNIVAG, UFR, outra) e, para UFMT, "Câmpus" (Cuiabá, Várzea Grande, Sinop, Araguaia). Os dois são opcionais.
-- `checksFor`:
-  - com `institutions`: perfil com a instituição na lista mostra ✓ "Para estudantes da UFMT"; perfil com outra instituição mostra ✗ (some de "Para você"); perfil sem instituição mostra "?" "Só para estudantes da UFMT".
-  - com `campuses`: perfil da UFMT de outro câmpus mostra ✗ "Só para o câmpus Cuiabá"; sem câmpus no perfil mostra "?".
-- Comparação de instituição sem acento e caixa ("ufmt" = "UFMT").
+- No formulário, depois de cidade e estado, dois campos obrigatórios: "Universidade" (texto com sugestões: UFMT, UNEMAT, IFMT, UNIC, UNIVAG, UFR) e "Câmpus" (para UFMT, sugestões Cuiabá, Várzea Grande, Sinop, Araguaia; para as outras, texto livre).
+- `checksFor` (e por consequência `isExcluded`, que já esconde o item em "Para você", nas abas, na Agenda e no e-mail):
+  - com `institutions`: perfil com a instituição na lista mostra ✓ "Para estudantes da UFMT"; perfil com outra instituição **ou sem instituição** recebe ✗ e o item some.
+  - com `campuses`: perfil de outro câmpus **ou sem câmpus** recebe ✗ "Só para o câmpus Cuiabá" e o item some.
+  - visitante sem perfil: o item aparece com "?" "Só para estudantes da UFMT".
+- Comparação de instituição e câmpus sem acento e caixa ("ufmt" = "UFMT", "cuiaba" = "Cuiabá").
+- Perfil salvo sem universidade ou câmpus: a página mostra no topo o aviso "Complete seu perfil: universidade e câmpus", que abre o formulário.
 
 ## Interface
 
@@ -73,7 +75,7 @@ Biblioteca de PDF: `unpdf` (texto de PDF em Node, sem dependências nativas).
 
 - `edital-text`: datas por extenso e numéricas, ano herdado, "até", texto sem período (null), resumo cortado, valor da bolsa, câmpus do título.
 - Coletor: resposta da API salva (`__fixtures__/ufmt-publications-proeg.json`) e o PDF do Edital 016/2026 (`__fixtures__/ufmt-edital-016-2026.pdf`). Filtro de títulos (docentes e resultados saem), mapeamento completo do Edital 016, PDF que falha.
-- `checksFor`: instituição igual, diferente e ausente; câmpus igual, diferente e ausente.
+- `checksFor`/`isExcluded`: instituição igual, diferente e ausente (ausente esconde); câmpus igual, diferente e ausente (ausente esconde); visitante sem perfil vê o item.
 - Perfil: ida e volta das colunas novas.
 
 ## Fora desta etapa
