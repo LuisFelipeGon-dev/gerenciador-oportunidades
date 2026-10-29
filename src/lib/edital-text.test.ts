@@ -67,8 +67,12 @@ describe("parseStipend", () => {
     expect(parseStipend("Auxílio de R$1.200,00 por mês")).toBe("R$ 1.200,00");
   });
 
+  it("reads the value of the real Edital 016, split across lines", () => {
+    expect(parseStipend(edital016)).toBe("R$ 700,00");
+  });
+
   it("returns null when there is no value", () => {
-    expect(parseStipend(edital016)).toBeNull();
+    expect(parseStipend("Bolsa conforme regras do programa, sem valor informado.")).toBeNull();
   });
 });
 
