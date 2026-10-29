@@ -62,6 +62,15 @@ describe("mapDevpostHackathon", () => {
     for (const b of o.benefits) expect(b).not.toMatch(/[<>]/);
   });
 
+  it("drops placeholder organizer names", () => {
+    // "Code for Humanity" comes with organization_name "nill".
+    expect(mapDevpostHackathon(byId(30740), VERIFIED_AT)!.organizer).toBeNull();
+    for (const placeholder of ["null", "N/A", "none", "-", "TBD"]) {
+      expect(mapDevpostHackathon({ ...byId(30740), organization_name: placeholder }, VERIFIED_AT)!.organizer).toBeNull();
+    }
+    expect(mapDevpostHackathon(byId(31474), VERIFIED_AT)!.organizer).toBe("CodeTheCure");
+  });
+
   it("skips invite-only hackathons", () => {
     expect(mapDevpostHackathon({ ...byId(30740), invite_only: true }, VERIFIED_AT)).toBeNull();
   });

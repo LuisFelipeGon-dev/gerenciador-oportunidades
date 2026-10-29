@@ -78,6 +78,14 @@ function stripTags(html: string): string {
   return html.replace(/<[^>]*>/g, "").trim();
 }
 
+// Organizers sometimes fill the name with a placeholder ("nill", "N/A"): show nothing instead.
+const PLACEHOLDER_ORGANIZER = /^(nill?|null|none|n\/?a|tbd|-+)$/i;
+
+function organizerName(name: string | null | undefined): string | null {
+  const value = name?.trim();
+  return value && !PLACEHOLDER_ORGANIZER.test(value) ? value : null;
+}
+
 const STATUS_BY_OPEN_STATE: Record<string, Opportunity["status"]> = {
   open: "open",
   upcoming: "upcoming",
@@ -98,7 +106,7 @@ export function mapDevpostHackathon(h: DevpostHackathon, verifiedAt: string): Op
   return opportunitySchema.parse({
     type: "hackathon",
     title: h.title.trim(),
-    organizer: h.organization_name?.trim() || null,
+    organizer: organizerName(h.organization_name),
     officialUrl: h.url,
     modality: isOnline ? "online" : "in_person",
     location: {

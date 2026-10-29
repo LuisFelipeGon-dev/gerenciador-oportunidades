@@ -239,14 +239,14 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
                 Vai para {alerts.email}. Dá para parar a qualquer momento, aqui ou pelo link no próprio e-mail.
               </p>
             </>
-          ) : (
+          ) : alerts === null ? (
             <p className="mt-1 text-[13.5px] text-muted">
               <Link href="/entrar" className="font-semibold text-action underline-offset-2 hover:underline">
                 Entre com seu e-mail
               </Link>{" "}
               para receber um resumo semanal com o que serve pra você.
             </p>
-          )}
+          ) : null}
         </fieldset>
       </div>
 

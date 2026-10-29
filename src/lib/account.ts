@@ -108,8 +108,11 @@ export async function saveProfile(profile: Profile | null) {
 
 // ---- weekly e-mail digest (migration 0007) -------------------------------------------------
 
-/** Whether the signed-in person gets the weekly e-mail, and to which address; null without an account. */
-export function useAlerts(): { enabled: boolean; email: string } | null {
+/**
+ * Whether the signed-in person gets the weekly e-mail, and to which address; null without an
+ * account, undefined while the session is still loading (so the UI does not flash "Entrar").
+ */
+export function useAlerts(): { enabled: boolean; email: string } | null | undefined {
   const current = useSession();
   const [loaded, setLoaded] = useState<{ userId: string; enabled: boolean } | null>(null);
   useEffect(() => {
@@ -128,6 +131,7 @@ export function useAlerts(): { enabled: boolean; email: string } | null {
       active = false;
     };
   }, [current]);
+  if (current === undefined) return undefined;
   if (!current?.user.email) return null;
   return { enabled: loaded?.userId === current.user.id && loaded.enabled, email: current.user.email };
 }
