@@ -1,5 +1,6 @@
 export type FetchText = (url: string) => Promise<string>;
 export type FetchJson = (url: string) => Promise<unknown>;
+export type FetchBytes = (url: string) => Promise<Uint8Array>;
 
 const DEFAULT_INTERVAL_MS = 1000;
 // Hosts whose robots.txt asks for a longer Crawl-delay.
@@ -36,6 +37,10 @@ async function politeFetch(url: string, accept: string): Promise<Response> {
 /** GET with at most one request per interval per host and an identifying User-Agent. */
 export const politeFetchJson: FetchJson = async (url) =>
   (await politeFetch(url, "application/json")).json();
+
+/** Same rules, for binary files such as PDFs. */
+export const politeFetchBytes: FetchBytes = async (url) =>
+  new Uint8Array(await (await politeFetch(url, "application/pdf,*/*;q=0.8")).arrayBuffer());
 
 export const politeFetchText: FetchText = async (url) =>
   (await politeFetch(url, "text/html,application/xml;q=0.9,*/*;q=0.8")).text();

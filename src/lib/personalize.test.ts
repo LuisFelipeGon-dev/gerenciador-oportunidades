@@ -14,7 +14,7 @@ function item(overrides: Partial<Opportunity> & { id: string }): Opportunity {
     startsOn: null,
     endsOn: null,
     registrationDeadline: null,
-    eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null },
+    eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null, institutions: null, campuses: null },
     cost: null,
     benefits: [],
     tags: [],
@@ -79,14 +79,14 @@ describe("checksFor", () => {
   });
 
   it("excludes what the person cannot join, and only that", () => {
-    const adultsOnly = item({ id: "18", eligibility: { countries: null, minAge: 18, studentsOnly: true, levels: null } });
+    const adultsOnly = item({ id: "18", eligibility: { countries: null, minAge: 18, studentsOnly: true, levels: null, institutions: null, campuses: null } });
     expect(isExcluded(adultsOnly, { ...profile, birthDate: "2009-11-01" }, TODAY)).toBe(true);
     expect(isExcluded(adultsOnly, profile, TODAY)).toBe(false);
 
-    const phdOnly = item({ id: "phd", eligibility: { countries: null, minAge: null, studentsOnly: true, levels: ["phd"] } });
+    const phdOnly = item({ id: "phd", eligibility: { countries: null, minAge: null, studentsOnly: true, levels: ["phd"], institutions: null, campuses: null } });
     expect(isExcluded(phdOnly, profile, TODAY)).toBe(true);
 
-    const usOnly = item({ id: "us", eligibility: { countries: ["US"], minAge: null, studentsOnly: null, levels: null } });
+    const usOnly = item({ id: "us", eligibility: { countries: ["US"], minAge: null, studentsOnly: null, levels: null, institutions: null, campuses: null } });
     expect(isExcluded(usOnly, profile, TODAY)).toBe(true);
 
     // Unknown is not a reason to hide.
@@ -94,7 +94,7 @@ describe("checksFor", () => {
   });
 
   it("uses the exact age, so a 16+ program accepts a 17-year-old", () => {
-    const sixteen = item({ id: "16", eligibility: { countries: null, minAge: 16, studentsOnly: null, levels: null } });
+    const sixteen = item({ id: "16", eligibility: { countries: null, minAge: 16, studentsOnly: null, levels: null, institutions: null, campuses: null } });
     expect(isExcluded(sixteen, { ...profile, birthDate: "2009-06-01" }, TODAY)).toBe(false);
     expect(isExcluded(sixteen, { ...profile, birthDate: "2011-06-01" }, TODAY)).toBe(true);
   });
@@ -200,7 +200,7 @@ describe("curated programs", () => {
       type,
       source: "curated",
       status: "closed",
-      eligibility: { countries: null, minAge: null, studentsOnly: null, levels },
+      eligibility: { countries: null, minAge: null, studentsOnly: null, levels, institutions: null, campuses: null },
     });
   const programs = [
     program("campus", "ambassador", ["undergraduate"]),

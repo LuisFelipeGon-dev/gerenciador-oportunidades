@@ -19,7 +19,7 @@ function item(sourceId: string, modality: Opportunity["modality"], location: Par
     startsOn: "2026-11-10",
     endsOn: "2026-11-10",
     registrationDeadline: null,
-    eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null },
+    eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null, institutions: null, campuses: null },
     cost: null,
     benefits: [],
     tags: [],

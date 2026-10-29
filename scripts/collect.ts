@@ -6,6 +6,7 @@ import { collectGdg } from "../src/collectors/gdg";
 import { addCoordinates, loadMunicipalities } from "../src/collectors/geocode";
 import { collectLuma } from "../src/collectors/luma";
 import { collectMlh } from "../src/collectors/mlh";
+import { collectUfmt } from "../src/collectors/ufmt";
 import type { Opportunity } from "../src/lib/opportunity";
 import { toRow } from "../src/lib/opportunity-row";
 
@@ -25,6 +26,8 @@ const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] =
   { name: "devevents", collect: collectDevEvents, requireResults: false },
   // Community calendars curated in data/luma-calendars.yaml; a quiet month has no events.
   { name: "luma", collect: collectLuma, requireResults: false },
+  // UFMT calls for students (PROEG, PRAE, PROPESQ, PROCEV); weeks without a new call are normal.
+  { name: "ufmt", collect: collectUfmt, requireResults: false },
   // Programs curated in data/programs.yaml.
   { name: "curated", collect: collectCurated, requireResults: true },
 ];

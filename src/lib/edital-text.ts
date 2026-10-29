@@ -6,6 +6,8 @@ const MONTHS: Record<string, number> = {
   janeiro: 1, fevereiro: 2, marco: 3, abril: 4, maio: 5, junho: 6,
   julho: 7, agosto: 8, setembro: 9, outubro: 10, novembro: 11, dezembro: 12,
 };
+/** "a", "à" or "até" between the two dates of a period. */
+const TO = "(?:a|à|at[eé])";
 const MONTH = "(janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)";
 /** How far after "inscri…" a date may be and still be the inscription period. */
 const WINDOW = 200;
@@ -18,7 +20,7 @@ const iso = (y: number, m: number, d: number) => `${y}-${String(m).padStart(2, "
 
 function periodIn(window: string): { start: string | null; end: string } | null {
   const written = new RegExp(
-    `(\\d{1,2})º? de ${MONTH}(?: de (\\d{4}))? (?:a|at[eé]) (?:o dia )?(\\d{1,2})º? de ${MONTH} de (\\d{4})`,
+    `(\\d{1,2})º? de ${MONTH}(?: de (\\d{4}))? ${TO} (?:o dia )?(\\d{1,2})º? de ${MONTH} de (\\d{4})`,
     "i",
   ).exec(window);
   if (written) {
@@ -30,7 +32,14 @@ function periodIn(window: string): { start: string | null; end: string } | null 
     return { start: iso(startYear, startMonth, Number(d1)), end: iso(endYear, month(m2), Number(d2)) };
   }
 
-  const numeric = /(\d{1,2})\/(\d{1,2})\/(\d{4}) (?:a|at[eé]) (\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(window);
+  // "De 13 a 24 de outubro de 2026": both days in the same month.
+  const sameMonth = new RegExp(`(\\d{1,2})º? ${TO} (\\d{1,2})º? de ${MONTH} de (\\d{4})`, "i").exec(window);
+  if (sameMonth) {
+    const [, d1, d2, m, y] = sameMonth;
+    return { start: iso(Number(y), month(m), Number(d1)), end: iso(Number(y), month(m), Number(d2)) };
+  }
+
+  const numeric = new RegExp(`(\\d{1,2})/(\\d{1,2})/(\\d{4}) ${TO} (\\d{1,2})/(\\d{1,2})/(\\d{4})`, "i").exec(window);
   if (numeric) {
     const [, d1, m1, y1, d2, m2, y2] = numeric.map(Number);
     return { start: iso(y1, m1, d1), end: iso(y2, m2, d2) };
@@ -58,11 +67,12 @@ export function parseInscriptionPeriod(text: string): { start: string | null; en
 /** What the edital is for: the clause after "torna público o presente Edital para". */
 export function parseSummary(text: string): string | null {
   const t = flat(text);
-  const opening = /torna(?:m)? p[uú]blic[oa] (?:o presente edital para|a abertura d[eoa]s?|o edital d[eoa]s?)\s*/i.exec(t);
+  // "o presente Edital para", or with a few words between ("o presente Edital de Abertura de Inscrição para").
+  const opening = /torna(?:m)? p[uú]blic[oa] (?:o presente edital(?: [^.,]{1,60}?)? para|a abertura d[eoa]s?|o edital d[eoa]s?)\s*/i.exec(t);
   if (!opening) return null;
   let clause = t.slice(opening.index + opening[0].length);
   // Up to the end of the sentence, or where the boilerplate begins.
-  clause = clause.split(/\.\s|, de acordo com|, conforme|:\s/i)[0].replace(/^(?:o|a|os|as)\s+/i, "").trim();
+  clause = clause.split(/\.\s|, de acordo com|, conforme|, considerando|:\s/i)[0].replace(/^(?:o|a|os|as)\s+/i, "").trim();
   if (!clause) return null;
   clause = clause[0].toUpperCase() + clause.slice(1);
   if (clause.length <= MAX_SUMMARY) return clause;

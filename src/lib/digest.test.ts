@@ -15,7 +15,7 @@ function item(overrides: Partial<Opportunity> & { id: string }): Opportunity {
     startsOn: null,
     endsOn: null,
     registrationDeadline: "2026-11-20",
-    eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null },
+    eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null, institutions: null, campuses: null },
     cost: null,
     benefits: [],
     tags: [],
@@ -80,7 +80,7 @@ describe("buildDigest: fresh", () => {
     const items = [
       item({ id: "ok" }),
       item({ id: "scholarship", type: "scholarship" }),
-      item({ id: "adults", eligibility: { countries: null, minAge: 30, studentsOnly: null, levels: null } }),
+      item({ id: "adults", eligibility: { countries: null, minAge: 30, studentsOnly: null, levels: null, institutions: null, campuses: null } }),
     ];
     expect(buildDigest({ ...base, items, addedAt: addedAtFor(items) }).fresh.map((d) => d.o.sourceId)).toEqual(["ok"]);
   });

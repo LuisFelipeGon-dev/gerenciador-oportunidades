@@ -36,7 +36,7 @@ describe("parsePrograms", () => {
 
   it("takes the type and accepts high school", () => {
     const [p] = parsePrograms(minimal.replace("  status:", "  type: competition\n  levels: [high_school]\n  status:"));
-    expect(mapProgram(p)).toMatchObject({ type: "competition", eligibility: { levels: ["high_school"] } });
+    expect(mapProgram(p)).toMatchObject({ type: "competition", eligibility: { levels: ["high_school"], institutions: null, campuses: null } });
   });
 
   it("rejects types that are not curated programs", () => {

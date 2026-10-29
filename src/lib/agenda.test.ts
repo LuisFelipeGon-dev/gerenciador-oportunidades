@@ -15,7 +15,7 @@ function item(overrides: Partial<Opportunity> & { id: string }): Opportunity {
     startsOn: null,
     endsOn: null,
     registrationDeadline: null,
-    eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null },
+    eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null, institutions: null, campuses: null },
     cost: null,
     benefits: [],
     tags: [],
@@ -102,7 +102,7 @@ describe("buildAgenda", () => {
       source: "curated",
       status: "closed",
       typicalOpenMonths: [2],
-      eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null },
+      eligibility: { countries: null, minAge: null, studentsOnly: null, levels: null, institutions: null, campuses: null },
     });
     const groups = buildAgenda({ items: [], programs: [obmep], profile, today: TODAY, origin: cuiaba });
     expect(groups).toEqual([{ id: "2027-02", label: "Fevereiro de 2027", entries: [expect.objectContaining({ kind: "opens", date: "2027-02-01" })] }]);

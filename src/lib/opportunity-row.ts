@@ -23,6 +23,7 @@ export type OpportunityRow = {
   scale: string | null;
   typical_open_months: number[];
   note: string | null;
+  summary: string | null;
   source: string;
   source_id: string;
   verified_at: string;
@@ -52,6 +53,7 @@ export function toRow(o: Opportunity): OpportunityRow {
     scale: o.scale,
     typical_open_months: o.typicalOpenMonths,
     note: o.note,
+    summary: o.summary,
     source: o.source,
     source_id: o.sourceId,
     verified_at: o.verifiedAt,
@@ -84,6 +86,7 @@ export function fromRow(r: OpportunityRow): Opportunity {
     scale: r.scale,
     typicalOpenMonths: r.typical_open_months,
     note: r.note,
+    summary: r.summary ?? null,
     source: r.source,
     sourceId: r.source_id,
     verifiedAt: r.verified_at,

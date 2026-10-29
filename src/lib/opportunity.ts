@@ -32,6 +32,9 @@ export const eligibilitySchema = z.object({
   minAge: z.number().int().positive().nullable(),
   studentsOnly: z.boolean().nullable(),
   levels: z.array(z.string()).nullable(),
+  // Only for students of these institutions / campuses (e.g. a UFMT call for the Cuiabá campus).
+  institutions: z.array(z.string()).nullable().default(null),
+  campuses: z.array(z.string()).nullable().default(null),
 });
 
 export const opportunitySchema = z
@@ -57,6 +60,8 @@ export const opportunitySchema = z
     typicalOpenMonths: z.array(z.number().int().min(1).max(12)).default([]),
     // Warning shown on the card, e.g. when a detail is not confirmed by the official page.
     note: z.string().min(1).nullable().default(null),
+    // What a call for proposals is for, read from its PDF (UFMT editais).
+    summary: z.string().min(1).nullable().default(null),
     source: z.string().min(1),
     sourceId: z.string().min(1),
     // Other sources of the same opportunity, filled by dedupe() on the site; not stored.

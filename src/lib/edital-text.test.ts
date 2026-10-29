@@ -17,6 +17,20 @@ describe("parseInscriptionPeriod", () => {
     });
   });
 
+  it("reads a period with the month only at the end (Edital 015/2026)", () => {
+    expect(parseInscriptionPeriod("Período de inscrição De 13 a 24 de outubro de 2026. Resultado preliminar")).toEqual({
+      start: "2026-10-13",
+      end: "2026-10-24",
+    });
+  });
+
+  it("reads \"à\" as the end of the period (Edital 014/2026)", () => {
+    expect(parseInscriptionPeriod("Período de Inscrições De 12 de outubro à 16 de outubro de 2026 Divulgação")).toEqual({
+      start: "2026-10-12",
+      end: "2026-10-16",
+    });
+  });
+
   it("reads numeric dates", () => {
     expect(parseInscriptionPeriod("Inscrições: 27/10/2026 a 03/11/2026")).toEqual({ start: "2026-10-27", end: "2026-11-03" });
   });
@@ -48,6 +62,14 @@ describe("parseSummary", () => {
     expect(summary.startsWith("Processo de Seleção de Estudantes bolsistas e voluntários para o GRUPO PET")).toBe(true);
     expect(summary).not.toContain("\n");
     expect(summary.length).toBeLessThanOrEqual(240);
+  });
+
+  it("allows words between \"Edital\" and \"para\" (Edital 014/2026)", () => {
+    expect(
+      parseSummary(
+        "torna público o presente Edital de Abertura de Inscrição para o Processo de Seleção de estudantes bolsistas para o Programa de Educação Tutorial (PET) MEDICINA, considerando o disposto na Lei",
+      ),
+    ).toBe("Processo de Seleção de estudantes bolsistas para o Programa de Educação Tutorial (PET) MEDICINA");
   });
 
   it("cuts long summaries with an ellipsis", () => {
