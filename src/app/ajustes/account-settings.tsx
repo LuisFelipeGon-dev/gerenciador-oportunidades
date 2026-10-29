@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { deleteAccount, useSession } from "@/lib/account";
+import { NewPasswordForm } from "../_components/new-password-form";
 
 /** Ajustes › Conta: who is signed in and the dangerous action, away from quick menus. */
 export function AccountSettings() {
@@ -28,6 +29,13 @@ export function AccountSettings() {
       <p className="mt-2 text-[15px]">
         Conectado como <span className="font-semibold">{session.user.email}</span>
       </p>
+      <div className="mt-5 rounded-2xl border border-line bg-card p-4">
+        <h3 className="text-[15px] font-bold">Senha</h3>
+        <p className="mt-1 mb-4 text-[14px] text-muted">
+          Crie uma senha para entrar sem esperar o código, ou troque a atual. O código por e-mail continua funcionando.
+        </p>
+        <NewPasswordForm submitLabel="Salvar senha" doneMessage="Senha salva. Já dá para entrar com o e-mail e a senha." />
+      </div>
       <div className="mt-5 rounded-2xl border border-line bg-card p-4">
         <h3 className="text-[15px] font-bold">Apagar minha conta</h3>
         <p className="mt-1 text-[14px] text-muted">Apaga a conta, o perfil e os salvos na hora. Não dá para desfazer.</p>

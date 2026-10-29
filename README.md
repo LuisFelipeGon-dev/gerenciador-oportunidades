@@ -86,11 +86,11 @@ O esquema está em `supabase/migrations/`. Para aplicar em um projeto novo, cole
 
 ## Login
 
-Login sem senha pelo Supabase Auth: link mágico e código de 6 dígitos no mesmo e-mail. A sessão fica no navegador, e o RLS garante que cada pessoa só lê e altera o próprio perfil e os próprios salvos. Sem conta, o perfil fica só no navegador.
+Login pelo Supabase Auth de dois jeitos: código de 6 dígitos (e link mágico) por e-mail, ou e-mail e senha. Quem sempre entrou pelo código cria uma senha em "Esqueci minha senha" ou em Ajustes › Conta; o link de senha nova abre `/entrar/nova-senha`. A sessão fica no navegador, e o RLS garante que cada pessoa só lê e altera o próprio perfil e os próprios salvos. Sem conta, o perfil fica só no navegador.
 
 Configuração no painel do Supabase:
 
-1. Authentication > URL Configuration: Site URL com o endereço da Vercel; em Redirect URLs, `https://<seu-site>/entrar` e `http://localhost:3000/entrar`.
+1. Authentication > URL Configuration: Site URL com o endereço da Vercel; em Redirect URLs, `https://<seu-site>/entrar`, `https://<seu-site>/entrar/nova-senha` e os mesmos com `http://localhost:3000`.
 2. Authentication > Emails > Magic Link: o modelo precisa incluir `{{ .Token }}` (o código) além do link.
 3. Para uso real, configure um SMTP próprio: o envio padrão do Supabase tem limite baixo de e-mails por hora.
 
