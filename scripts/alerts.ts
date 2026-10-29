@@ -80,6 +80,7 @@ async function main() {
       siteUrl: SITE_URL,
       unsubscribeUrl: `${SITE_URL}/alertas/cancelar?t=${row.alerts_token}`,
       email,
+      today,
     });
     recipients.push({ userId: row.id, email, ...mail });
   }

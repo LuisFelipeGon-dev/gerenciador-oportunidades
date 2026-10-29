@@ -39,6 +39,7 @@ const opts = {
   siteUrl: "https://site.example",
   unsubscribeUrl: "https://site.example/alertas/cancelar?t=abc",
   email: "ana@example.com",
+  today: "2026-11-18",
 };
 
 describe("digestSubject", () => {
@@ -97,5 +98,31 @@ describe("renderDigest", () => {
     expect(text).toContain("Várzea Grande, MT · a 8 km");
     expect(text).toContain("fecha em 20/11");
     expect(text).toContain("Online");
+  });
+});
+
+describe("renderDigest: Topa? layout", () => {
+  it("has the Topa? logo as a hosted PNG (Gmail does not show SVG)", () => {
+    const { html } = renderDigest(digest(1, 0), opts);
+    expect(html).toContain('src="https://site.example/brand/topa-wordmark-dark.png"');
+    expect(html).toContain('alt="Topa?"');
+  });
+
+  it("gives each item a button to its page and ends with a link to everything", () => {
+    const { html } = renderDigest({ fresh: [entry({ id: "123" })], moreFresh: 0, closing: [] }, opts);
+    expect(html).toContain("Ver no Topa?");
+    expect(html).toContain("Ver tudo no Topa?");
+  });
+
+  it("marks deadlines within 3 days as urgent", () => {
+    const soon = renderDigest({ fresh: [entry({ id: "a", registrationDeadline: "2026-11-20" })], moreFresh: 0, closing: [] }, opts);
+    const later = renderDigest({ fresh: [entry({ id: "b", registrationDeadline: "2026-11-28" })], moreFresh: 0, closing: [] }, opts);
+    expect(soon.html).toContain("data-urgent");
+    expect(later.html).not.toContain("data-urgent");
+  });
+
+  it("has a short preview line for the inbox", () => {
+    const { html } = renderDigest(digest(2, 1), opts);
+    expect(html).toContain("Separamos o que serve pra você nesta semana.");
   });
 });
