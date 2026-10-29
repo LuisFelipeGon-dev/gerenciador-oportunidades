@@ -19,6 +19,8 @@ const row: ProfileRow = {
   alerts_enabled_at: "2026-10-28T12:00:00Z",
   alerts_token: "6f1c0b8e-0000-4000-8000-000000000001",
   alerts_last_sent_at: null,
+  institution: "UFMT",
+  campus: "Cuiabá",
 };
 
 describe("profileFromRow", () => {
@@ -33,6 +35,8 @@ describe("profileFromRow", () => {
       birthDate: "2004-03-10",
       interests: ["hackathon"],
       radiusKm: 200,
+      institution: "UFMT",
+      campus: "Cuiabá",
     });
   });
 
@@ -49,5 +53,11 @@ describe("profileToRow", () => {
   it("round-trips through profileFromRow", () => {
     const profile = profileFromRow(row) as Profile;
     expect(profileFromRow({ ...row, ...profileToRow("user-1", profile) })).toEqual(profile);
+  });
+});
+
+describe("profiles saved before universidade e câmpus", () => {
+  it("are read with both empty", () => {
+    expect(profileFromRow({ ...row, institution: null, campus: null })).toMatchObject({ institution: "", campus: "" });
   });
 });

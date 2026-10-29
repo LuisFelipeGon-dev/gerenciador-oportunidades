@@ -55,6 +55,8 @@ const profile: Profile = {
   birthDate: "2004-03-10",
   interests: [],
   radiusKm: 100,
+  institution: "UFMT",
+  campus: "Cuiabá",
 };
 
 const TODAY = "2026-10-27";
@@ -221,5 +223,53 @@ describe("curated programs", () => {
 
   it("does not add competitions to the chosen interests", () => {
     expect(effectiveInterests({ ...profile, level: "high_school", interests: ["event"] })).toEqual(["event"]);
+  });
+});
+
+describe("UFMT calls: only for their institution and campus", () => {
+  const edital = item({
+    id: "pet",
+    type: "scholarship",
+    source: "ufmt",
+    modality: "in_person",
+    location: { raw: null, city: "Cuiabá", state: "MT", country: "BR", lat: null, lng: null },
+    eligibility: { countries: null, minAge: null, studentsOnly: true, levels: ["undergraduate"], institutions: ["UFMT"], campuses: ["Cuiabá"] },
+  });
+
+  it("shows it to a UFMT student of that campus", () => {
+    expect(isExcluded(edital, profile, TODAY)).toBe(false);
+    expect(checksFor(edital, profile, TODAY)).toEqual(
+      expect.arrayContaining([
+        { ok: true, label: "Para estudantes da UFMT" },
+        { ok: true, label: "Câmpus Cuiabá" },
+      ]),
+    );
+  });
+
+  it("compares without accents and case", () => {
+    expect(isExcluded(edital, { ...profile, institution: "ufmt", campus: "cuiaba" }, TODAY)).toBe(false);
+  });
+
+  it("hides it from other universities, other campuses and profiles without them", () => {
+    expect(isExcluded(edital, { ...profile, institution: "UNEMAT" }, TODAY)).toBe(true);
+    expect(isExcluded(edital, { ...profile, campus: "Sinop" }, TODAY)).toBe(true);
+    expect(isExcluded(edital, { ...profile, institution: "", campus: "" }, TODAY)).toBe(true);
+    expect(isExcluded(edital, { ...profile, campus: "" }, TODAY)).toBe(true);
+  });
+
+  it("shows it to visitors without a profile, saying who it is for", () => {
+    expect(isExcluded(edital, null, TODAY)).toBe(false);
+    expect(checksFor(edital, null, TODAY)).toEqual(expect.arrayContaining([{ ok: null, label: "Só para estudantes da UFMT" }]));
+  });
+
+  it("hides it from \"Para você\" for other universities", () => {
+    const s = buildSections([edital], [], { ...profile, institution: "UNEMAT" }, TODAY);
+    expect(s.nearby).toEqual([]);
+  });
+
+  it("offers scholarships by default to every area", () => {
+    for (const area of ["tech", "communication", "health", "law", "other"] as const) {
+      expect(effectiveInterests({ ...profile, area, interests: [] })).toContain("scholarship");
+    }
   });
 });

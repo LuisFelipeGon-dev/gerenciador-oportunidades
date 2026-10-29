@@ -41,6 +41,8 @@ const profile: Profile = {
   birthDate: "2004-03-10",
   interests: [],
   radiusKm: 100,
+  institution: "UFMT",
+  campus: "Cuiabá",
 };
 const cuiaba = { lat: -15.601, lng: -56.0974 };
 const TODAY = "2026-11-02";
@@ -79,10 +81,12 @@ describe("buildDigest: fresh", () => {
   it("leaves out types outside the person's interests and items they cannot join", () => {
     const items = [
       item({ id: "ok" }),
-      item({ id: "scholarship", type: "scholarship" }),
+      item({ id: "event", type: "event" }),
       item({ id: "adults", eligibility: { countries: null, minAge: 30, studentsOnly: null, levels: null, institutions: null, campuses: null } }),
     ];
-    expect(buildDigest({ ...base, items, addedAt: addedAtFor(items) }).fresh.map((d) => d.o.sourceId)).toEqual(["ok"]);
+    // Interests picked by hand (every type is a default of tech now).
+    const hackathonsOnly = { ...profile, interests: ["hackathon" as const] };
+    expect(buildDigest({ ...base, profile: hackathonsOnly, items, addedAt: addedAtFor(items) }).fresh.map((d) => d.o.sourceId)).toEqual(["ok"]);
   });
 
   it("keeps online items and in-person ones inside the radius, with the distance", () => {

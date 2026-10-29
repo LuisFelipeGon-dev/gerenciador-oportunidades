@@ -21,6 +21,8 @@ export type ProfileRow = {
   alerts_enabled_at: string | null;
   alerts_token: string;
   alerts_last_sent_at: string | null;
+  institution: string | null;
+  campus: string | null;
 };
 
 export function profileToRow(userId: string, p: Profile) {
@@ -35,6 +37,8 @@ export function profileToRow(userId: string, p: Profile) {
     birth_date: p.birthDate,
     interests: p.interests,
     radius_km: p.radiusKm,
+    institution: p.institution,
+    campus: p.campus,
   };
 }
 
@@ -50,6 +54,8 @@ export function profileFromRow(row: ProfileRow): Profile | null {
     birthDate: row.birth_date,
     interests: row.interests ?? [],
     radiusKm: row.radius_km ?? undefined,
+    institution: row.institution ?? "",
+    campus: row.campus ?? "",
   });
   return parsed.success ? (parsed.data as Profile) : null;
 }

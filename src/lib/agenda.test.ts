@@ -41,6 +41,8 @@ const profile: Profile = {
   birthDate: "2004-03-10",
   interests: [],
   radiusKm: 100,
+  institution: "UFMT",
+  campus: "Cuiabá",
 };
 const cuiaba = { lat: -15.601, lng: -56.0974 };
 const TODAY = "2026-10-28"; // a Wednesday

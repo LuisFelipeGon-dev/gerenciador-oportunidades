@@ -24,6 +24,9 @@ export const profileSchema = z.object({
   interests: z.array(z.enum(OPPORTUNITY_TYPES)),
   // Profiles saved before the radius existed get the default.
   radiusKm: z.number().int().min(1).max(5000).default(DEFAULT_RADIUS_KM),
+  // Required in the form; profiles saved before they existed are read with both empty.
+  institution: z.string().max(80).default(""),
+  campus: z.string().max(80).default(""),
 });
 
 const listeners = new Set<() => void>();

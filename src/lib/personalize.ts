@@ -19,7 +19,12 @@ export type Profile = {
   interests: OpportunityType[];
   /** "Perto de você" covers in-person items up to this distance from the city. */
   radiusKm: number;
+  /** University and campus ("UFMT", "Cuiabá"): calls of a university only show to its students. */
+  institution: string;
+  campus: string;
 };
+
+const fold = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
 
 export const RADIUS_OPTIONS = [50, 100, 200, 500] as const;
 export const DEFAULT_RADIUS_KM = 100;
@@ -66,7 +71,7 @@ export function itemKey(o: Pick<Opportunity, "source" | "sourceId">): string {
  */
 export function checksFor(o: Opportunity, profile: Profile | null, today: string): Check[] {
   const checks: Check[] = [];
-  const { countries, minAge, levels } = o.eligibility;
+  const { countries, minAge, levels, institutions, campuses } = o.eligibility;
 
   if (o.modality === "online") {
     checks.push({ ok: true, label: "Online" });
@@ -99,6 +104,20 @@ export function checksFor(o: Opportunity, profile: Profile | null, today: string
         ? { ok: false, label: "Não aceita o seu nível de estudo" }
         : { ok: true, label: profile ? "Aceita o seu nível de estudo" : "Para estudantes" },
     );
+  }
+
+  // A university's own calls: only its students (and campus) see them; an empty field hides them too.
+  if (institutions?.length) {
+    const who = institutions.join(", ");
+    if (!profile) checks.push({ ok: null, label: `Só para estudantes da ${who}` });
+    else if (institutions.some((i) => fold(i) === fold(profile.institution))) checks.push({ ok: true, label: `Para estudantes da ${who}` });
+    else checks.push({ ok: false, label: `Só para estudantes da ${who}` });
+  }
+  if (campuses?.length) {
+    const where = campuses.join(", ");
+    if (!profile) checks.push({ ok: null, label: `Só para o câmpus ${where}` });
+    else if (campuses.some((c) => fold(c) === fold(profile.campus))) checks.push({ ok: true, label: `Câmpus ${where}` });
+    else checks.push({ ok: false, label: `Só para o câmpus ${where}` });
   }
 
   return checks;

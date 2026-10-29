@@ -39,6 +39,10 @@ const COURSES = [
   "Sistemas de Informação", "Zootecnia",
 ];
 
+// Suggestions only: any university can be typed.
+const UNIVERSITIES = ["UFMT", "UNEMAT", "IFMT", "UFR", "UNIC", "UNIVAG", "UNIFASIPE", "UNIRONDON"];
+const UFMT_CAMPUSES = ["Cuiabá", "Várzea Grande", "Sinop", "Araguaia"];
+
 const field = "mt-1 w-full min-w-0 rounded-lg border border-line bg-card px-3 py-2.5 text-[15px] focus:border-action focus:outline-none";
 const choice = "flex min-w-0 items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-[14px] has-checked:border-action has-checked:bg-ground";
 
@@ -48,6 +52,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
   const [areaTouched, setAreaTouched] = useState(!!initial);
   const [state, setState] = useState<string>(initial?.state ?? "");
   const [city, setCity] = useState(initial?.city ?? "");
+  const [institution, setInstitution] = useState(initial?.institution ?? "");
   const municipalities = useMunicipalities(state);
   const cityUnknown = municipalities !== null && city.trim() !== "" && !findMunicipality(municipalities, city);
   const today = localToday();
@@ -62,8 +67,14 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
     const level = String(data.get("level") ?? "") as Level;
     const birthDate = String(data.get("birthDate") ?? "");
     const radiusKm = Number(data.get("radiusKm")) || DEFAULT_RADIUS_KM;
+    const institution = String(data.get("institution") ?? "").trim();
+    const campus = String(data.get("campus") ?? "").trim();
     if (!course || !city || !isUF(state) || !LEVEL_OPTIONS.some((l) => l.value === level)) {
       setError("Preencha curso, cidade, estado e nível de estudo.");
+      return;
+    }
+    if (!institution || !campus) {
+      setError("Preencha a universidade e o câmpus: os editais de cada universidade só aparecem para quem estuda lá.");
       return;
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate) || birthDate > today || ageOn(birthDate, today) > 100) {
@@ -80,6 +91,8 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
       birthDate,
       interests: data.getAll("interests").map(String) as OpportunityType[],
       radiusKm,
+      institution,
+      campus,
     });
     // Only on change: turning it on records the date of consent.
     const wantsAlerts = data.get("alerts") === "on";
@@ -186,6 +199,37 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
             Não achamos essa cidade em {state}. A página vai mostrar o que é perto pelo estado, sem distância.
           </p>
         )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block min-w-0 text-[13.5px] font-semibold">
+            Universidade
+            <input
+              name="institution"
+              list="universities"
+              required
+              value={institution}
+              onChange={(e) => setInstitution(e.target.value)}
+              maxLength={80}
+              autoComplete="organization"
+              className={field}
+            />
+            <datalist id="universities">
+              {UNIVERSITIES.map((u) => (
+                <option key={u} value={u} />
+              ))}
+            </datalist>
+          </label>
+          <label className="block min-w-0 text-[13.5px] font-semibold">
+            Câmpus
+            <input name="campus" list="campuses" required defaultValue={initial?.campus} maxLength={80} className={field} />
+            {/* UFMT campuses as suggestions; for other universities the name is typed freely. */}
+            <datalist id="campuses">
+              {(institution.trim().toUpperCase() === "UFMT" ? UFMT_CAMPUSES : []).map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
+          </label>
+        </div>
+        <p className="-mt-2 text-[12.5px] text-muted">Editais de uma universidade só aparecem para quem estuda nela (e no câmpus, quando o edital é de um só).</p>
         <label className="block min-w-0 text-[13.5px] font-semibold">
           Perto de você é até
           <select name="radiusKm" defaultValue={initial?.radiusKm ?? DEFAULT_RADIUS_KM} className={field}>
