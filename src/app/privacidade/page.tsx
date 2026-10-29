@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Política de privacidade · Oportunidades para estudantes",
+  title: "Política de privacidade",
 };
 
 // Keep PRIVACY_VERSION in src/lib/account.ts in sync with the date below when this text changes.

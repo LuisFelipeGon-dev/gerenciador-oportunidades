@@ -4,14 +4,16 @@
 export const THEMES = ["system", "light", "dark"] as const;
 export type ThemePreference = (typeof THEMES)[number];
 
-export const THEME_KEY = "oportunidades:tema:v1";
+export const THEME_KEY = "topa:tema:v1";
+/** Key used before the site was called Topa?; still read so nobody loses their choice. */
+const OLD_THEME_KEY = "oportunidades:tema:v1";
 
 /** Runs in <head> before the first paint, so a saved dark theme never flashes light. */
-export const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem(${JSON.stringify(THEME_KEY)});if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`;
+export const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem(${JSON.stringify(THEME_KEY)})||localStorage.getItem(${JSON.stringify(OLD_THEME_KEY)});if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`;
 
 export function readTheme(): ThemePreference {
   try {
-    const value = window.localStorage.getItem(THEME_KEY);
+    const value = window.localStorage.getItem(THEME_KEY) ?? window.localStorage.getItem(OLD_THEME_KEY);
     return value === "light" || value === "dark" ? value : "system";
   } catch {
     return "system";
@@ -23,6 +25,7 @@ export function applyTheme(theme: ThemePreference) {
   if (theme === "system") root.removeAttribute("data-theme");
   else root.setAttribute("data-theme", theme);
   try {
+    window.localStorage.removeItem(OLD_THEME_KEY);
     if (theme === "system") window.localStorage.removeItem(THEME_KEY);
     else window.localStorage.setItem(THEME_KEY, theme);
   } catch {

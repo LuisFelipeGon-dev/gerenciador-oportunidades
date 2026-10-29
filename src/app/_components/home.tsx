@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
-import { deleteAccount, signOut, toggleSaved, useSession } from "@/lib/account";
+import { toggleSaved, useSession } from "@/lib/account";
 import { agendaEntries, type AgendaFilter } from "@/lib/agenda";
 import { aliasKeys } from "@/lib/dedupe";
 import { areaById } from "@/lib/areas";
@@ -10,13 +10,15 @@ import { regionOf, stateName } from "@/lib/brazil";
 import { useProfile, useSaved } from "@/lib/local-store";
 import { useProfilePlace } from "@/lib/municipalities";
 import type { Opportunity, OpportunityType } from "@/lib/opportunity";
-import { ageOn, buildSections, effectiveInterests, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
+import { buildSections, effectiveInterests, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
 import { AgendaCalendar } from "./agenda-calendar";
+import { BrandLogo } from "./brand";
 import { CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
+import { DeadlineStrip } from "./deadline-strip";
 import { DetailDrawer } from "./detail-drawer";
-import { TYPE_PLURAL, dateStub, shortDate } from "./format";
-import { PencilIcon, PinIcon, SlidersIcon } from "./icons";
+import { TYPE_PLURAL } from "./format";
 import { ProfileForm } from "./profile-form";
+import { ProfileMenu } from "./profile-menu";
 
 type Tab = "for-you" | "hackathon" | "event" | "programs" | "agenda";
 const TABS: { id: Tab; label: string }[] = [
@@ -85,58 +87,6 @@ function Empty({ children }: { children: React.ReactNode }) {
 }
 
 const SUGGEST_URL = "https://github.com/LuisFelipeGon-dev/gerenciador-oportunidades/issues/new";
-
-function AccountBox({ email }: { email: string | null }) {
-  const [confirming, setConfirming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  if (!email) {
-    return (
-      <div className="rounded-2xl border border-line bg-card p-4">
-        <h2 className="text-[15px] font-extrabold">Sua conta</h2>
-        <p className="mt-1 text-[14px] text-muted">Entre para levar perfil e salvos para o celular e o computador.</p>
-        <Link href="/entrar" className="mt-3 block rounded-xl border border-line py-2.5 text-center text-[14px] font-bold hover:border-ink">
-          Entrar
-        </Link>
-      </div>
-    );
-  }
-  return (
-    <div className="rounded-2xl border border-line bg-card p-4">
-      <h2 className="text-[15px] font-extrabold">Sua conta</h2>
-      <p className="mt-1 truncate text-[14px] text-muted">{email}</p>
-      {!confirming ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button type="button" onClick={() => void signOut()} className="rounded-lg border border-line px-3 py-2 text-[13.5px] font-semibold hover:border-ink">
-            Sair
-          </button>
-          <button type="button" onClick={() => setConfirming(true)} className="rounded-lg px-3 py-2 text-[13.5px] font-semibold text-urgent hover:bg-urgent-bg">
-            Apagar minha conta
-          </button>
-        </div>
-      ) : (
-        <div className="mt-3 rounded-xl bg-urgent-bg p-3">
-          <p className="text-[13.5px] font-semibold text-urgent">Apagar conta, perfil e salvos? Não dá para desfazer.</p>
-          <div className="mt-2 flex gap-2">
-            <button
-              type="button"
-              onClick={async () => {
-                const failure = await deleteAccount();
-                if (failure) setError("Não deu certo agora. Tente de novo.");
-              }}
-              className="rounded-lg bg-urgent px-3 py-2 text-[13.5px] font-bold text-card"
-            >
-              Apagar tudo
-            </button>
-            <button type="button" onClick={() => setConfirming(false)} className="rounded-lg px-3 py-2 text-[13.5px] font-semibold">
-              Cancelar
-            </button>
-          </div>
-          {error && <p role="alert" className="mt-2 text-[13px] text-urgent">{error}</p>}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function distanceWhy(km: number, city: string): string {
   return km < 1 ? `Em ${city}, a sua cidade.` : `A ${Math.round(km)} km de ${city}.`;
@@ -214,13 +164,10 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   return (
     <>
       <div className="on-navy bg-navy text-white">
-        <div className="mx-auto max-w-[1180px] px-4 sm:px-5">
+        <div className="mx-auto max-w-[1040px] px-4 sm:px-5">
           <nav className="flex h-16 items-center gap-5" aria-label="Principal">
-            <Link href="/" onClick={() => setTab("for-you")} className="flex items-center gap-2 text-[19px] font-extrabold tracking-tight">
-              <span aria-hidden="true" className="relative inline-block size-[22px] rounded-md bg-sky">
-                <span className="absolute inset-1.5 rounded-full bg-navy" />
-              </span>
-              oportunidades
+            <Link href="/" onClick={() => setTab("for-you")} aria-label="Topa?, página inicial" className="shrink-0">
+              <BrandLogo />
             </Link>
             <div className="hidden gap-5 text-[14.5px] font-medium md:flex">
               {TABS.map((t) => (
@@ -235,32 +182,14 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                 </button>
               ))}
             </div>
-            <Link
-              href="/ajustes"
-              aria-label="Ajustes"
-              title="Ajustes"
-              className="ml-auto grid size-9 shrink-0 place-items-center rounded-full text-navy-text hover:bg-white/15 hover:text-white"
-            >
-              <SlidersIcon className="size-5" />
-            </Link>
             {session === null && (
-              <Link href="/entrar" className="shrink-0 rounded-full px-3 py-1.5 text-[14px] font-semibold text-white hover:bg-white/15">
+              <Link href="/entrar" className="ml-auto shrink-0 rounded-full px-3 py-1.5 text-[14px] font-semibold text-white hover:bg-white/15">
                 Entrar
               </Link>
             )}
-            <button
-              type="button"
-              onClick={() => setProfileOpen(true)}
-              className={`flex shrink-0 items-center gap-2 rounded-full bg-navy-2 p-1.5 text-[13.5px] hover:bg-white/15 sm:pr-3.5`}
-            >
-              <span className="grid size-[26px] place-items-center rounded-full bg-sky text-[11px] font-extrabold text-navy">
-                {p?.name ? p.name.slice(0, 2).toUpperCase() : <PencilIcon className="size-3.5" />}
-              </span>
-              {/* Phones only show the avatar: logo + "Entrar" + this pill must fit in 360px. */}
-              <span className="sr-only sm:not-sr-only sm:max-w-[16ch] sm:truncate">
-                {p ? `${p.course} · ${p.city}` : "Montar perfil"}
-              </span>
-            </button>
+            <div className={session === null ? "" : "ml-auto"}>
+              <ProfileMenu profile={p} onEditProfile={() => setProfileOpen(true)} />
+            </div>
           </nav>
 
           <div className="grid gap-6 pt-7 pb-7 lg:grid-cols-[1fr_auto] lg:items-end">
@@ -291,14 +220,14 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               )}
             </div>
             {hydrated && (
-              <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">
                 {[
                   { n: sections.closingSoon.length, l: "fecham nesta semana", c: "text-[#ff9b8f]" },
                   { n: sections.nearbyWithin, l: `presenciais ${nearbyWhere}`, c: "text-sky" },
                   { n: sections.online.length, l: "online pra você", c: "" },
                   { n: openPrograms, l: "programas abertos", c: "" },
                 ].map((s) => (
-                  <div key={s.l} className="flex flex-col-reverse rounded-xl bg-navy-2 px-3.5 py-3 sm:min-w-[120px]">
+                  <div key={s.l} className="flex flex-col-reverse rounded-xl bg-navy-2 px-3.5 py-3 sm:min-w-[120px] lg:min-w-[170px]">
                     <dt className="mt-1 text-[12.5px] text-navy-text">{s.l}</dt>
                     <dd className={`text-[26px] leading-none font-extrabold tracking-tight tabular-nums ${s.c}`}>{s.n}</dd>
                   </div>
@@ -323,12 +252,19 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
         </div>
       </div>
 
-      <div className="mx-auto grid w-full max-w-[1180px] gap-7 px-4 pt-6 pb-16 sm:px-5 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      <div className="mx-auto w-full max-w-[1040px] px-4 pt-6 pb-16 sm:px-5">
         <main className="min-w-0">
           {!hydrated ? (
             <p className="text-muted">Carregando oportunidades…</p>
           ) : tab === "for-you" ? (
             <>
+              <DeadlineStrip
+                title={saved.length > 0 ? "Prazos dos seus salvos" : "Próximos prazos"}
+                items={timeline}
+                today={today}
+                onOpen={openItem}
+                onSeeAgenda={() => setTab("agenda")}
+              />
               {saved.length > 0 && (
                 <section className="mb-9">
                   <SectionHeader title="Salvos" count={saved.length} hint={session ? "guardados na sua conta" : "guardados neste navegador"} />
@@ -536,86 +472,6 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
           )}
         </main>
 
-        <aside className="grid gap-4 lg:sticky lg:top-4">
-          {session !== undefined && <AccountBox email={session?.user.email ?? null} />}
-          <div className="rounded-2xl border border-line bg-card p-4">
-            <h2 className="mb-3 text-[15px] font-extrabold">Seu perfil</h2>
-            {p ? (
-              <>
-                <div className="mb-3 flex items-center gap-3">
-                  <span className="grid size-11 place-items-center rounded-full bg-sky font-extrabold text-navy">
-                    {(p.name || p.course).slice(0, 2).toUpperCase()}
-                  </span>
-                  <div>
-                    <p className="text-[15px] font-bold">{p.name || p.course}</p>
-                    <p className="flex items-center gap-1 text-[13px] text-muted">
-                      <PinIcon className="size-3.5" />
-                      {p.city}, {p.state}
-                    </p>
-                  </div>
-                </div>
-                <ul className="flex flex-wrap gap-1.5 text-[12.5px] font-semibold">
-                  {[
-                    p.course,
-                    { high_school: "Ensino médio", undergraduate: "Graduação", graduate: "Pós-graduação", phd: "Doutorado" }[p.level],
-                    `${ageOn(p.birthDate, today ?? localToday())} anos`,
-                    ...(interests ?? []).map((i) => TYPE_PLURAL[i]),
-                  ].map((t) => (
-                    <li key={t} className="rounded-md bg-ground px-2 py-1">
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p className="text-[14px] text-muted">
-                Diga seu curso, cidade e nível para a página separar o que serve pra você.
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() => setProfileOpen(true)}
-              className="mt-4 w-full rounded-xl bg-navy py-2.5 text-[14px] font-bold text-white hover:bg-navy-2"
-            >
-              {p ? "Editar perfil" : "Montar perfil"}
-            </button>
-          </div>
-
-          {hydrated && timeline.length > 0 && (
-            <div className="rounded-2xl border border-line bg-card p-4">
-              <h2 className="mb-2 text-[15px] font-extrabold">{saved.length > 0 ? "Prazos dos seus salvos" : "Próximos prazos"}</h2>
-              <ul>
-                {timeline.map((o) => {
-                  const stub = dateStub(o, today);
-                  return (
-                    <li key={itemKey(o)} className="border-t border-line first:border-t-0">
-                      <button
-                        type="button"
-                        onClick={() => openItem(o)}
-                        className="grid w-full grid-cols-[52px_1fr] items-center gap-2.5 py-2 text-left text-[13.5px] hover:underline"
-                      >
-                        <span
-                          className={`rounded-lg py-1 text-center text-[13px] font-extrabold tabular-nums ${stub.urgent ? "bg-urgent-bg text-urgent" : "bg-ground"}`}
-                        >
-                          {shortDate(keyDate(o)!)}
-                        </span>
-                        <span className="line-clamp-2">{o.title}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-              <button type="button" onClick={() => setTab("agenda")} className="mt-2 text-[13.5px] font-bold text-action hover:underline">
-                Ver agenda completa
-              </button>
-            </div>
-          )}
-
-          <p className="rounded-2xl border border-line bg-card p-4 text-[12.5px] leading-relaxed text-muted">
-            Coletado todo dia do Devpost, da MLH, dos GDGs brasileiros e de páginas oficiais conferidas à mão. O site nunca é a
-            fonte final: confira as regras na página oficial.
-          </p>
-        </aside>
       </div>
 
       {today && <DetailDrawer o={opened} today={today} profile={p} actions={actions} onClose={closeItem} />}

@@ -1,6 +1,6 @@
-# Oportunidades para estudantes
+# Topa?
 
-Site público que reúne oportunidades abertas para estudantes (hackathons, eventos, programas de embaixador, competições e olimpíadas, estágios e bolsas), com prazo, elegibilidade e link oficial. O plano completo está em [PLANO.md](PLANO.md).
+Eventos, hackathons, programas e bolsas pra estudantes. Site público que reúne oportunidades abertas para estudantes (hackathons, eventos, programas de embaixador, competições e olimpíadas, estágios e bolsas), com prazo, elegibilidade e link oficial. O plano completo está em [PLANO.md](PLANO.md). A identidade visual (nome, logos, cores) está em [identidade/](identidade/IDENTIDADE.md).
 
 Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e eventos dos GDGs brasileiros, ordenados pelo prazo ou, sem prazo, pela data de início.
 

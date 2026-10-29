@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
-/* Approved prototype: design/prototipo-v6.html */
+/* Topa? identity: identidade/tokens.json (surface = ground, surface-raised = card, border = line). */
 :root {
   --navy: #0c2a66;
   --navy-2: #16397f;
   --navy-text: #b8c8ec;
   --sky: #5cc8ff;
-  --ink: #17221f;
-  --muted: #5b6765;
-  --line: #dfe5e3;
-  --ground: #eef1f6;
+  --ink: #0b1b3d;
+  --muted: #4a5a7a;
+  --line: #d3dff0;
+  --ground: #f4f8fe;
   --card: #ffffff;
-  --action: #1d4fd8;
+  --action: #0970ad;
+  --sky-tint: #e3f4ff;
   --hack: #b83a25;
   --hack-bg: #fdebe7;
   --event: #0a7368;
@@ -53,13 +54,14 @@
   --navy-2: #1b3470;
   --navy-text: #b8c8ec;
   --sky: #5cc8ff;
-  --ink: #e7ecf5;
-  --muted: #9ba7bd;
-  --line: #26324a;
-  --ground: #0b1220;
-  --card: #131c2e;
-  --action: #7aa2ff;
-  --action-strong: #a8c1ff;
+  --ink: #eaf2ff;
+  --muted: #a9b9d6;
+  --line: #2a3f70;
+  --ground: #0b1730;
+  --card: #11224a;
+  --action: #5cc8ff;
+  --action-strong: #a8e2ff;
+  --sky-tint: #12306a;
   --hack: #ff8f7a;
   --hack-bg: #3a1f1b;
   --event: #4fd1c0;
@@ -94,13 +96,14 @@
     --navy-2: #1b3470;
     --navy-text: #b8c8ec;
     --sky: #5cc8ff;
-    --ink: #e7ecf5;
-    --muted: #9ba7bd;
-    --line: #26324a;
-    --ground: #0b1220;
-    --card: #131c2e;
-    --action: #7aa2ff;
-    --action-strong: #a8c1ff;
+    --ink: #eaf2ff;
+    --muted: #a9b9d6;
+    --line: #2a3f70;
+    --ground: #0b1730;
+    --card: #11224a;
+    --action: #5cc8ff;
+    --action-strong: #a8e2ff;
+    --sky-tint: #12306a;
     --hack: #ff8f7a;
     --hack-bg: #3a1f1b;
     --event: #4fd1c0;
@@ -132,6 +135,7 @@
 
 @theme inline {
   --color-action-strong: var(--action-strong);
+  --color-sky-tint: var(--sky-tint);
   --color-navy: var(--navy);
   --color-navy-2: var(--navy-2);
   --color-navy-text: var(--navy-text);

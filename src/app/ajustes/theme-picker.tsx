@@ -25,8 +25,8 @@ const OPTIONS: { id: ThemePreference; label: string; hint: string }[] = [
 
 /** A tiny drawing of the page in each theme. Colors are literal: it shows the other theme too. */
 function Preview({ theme }: { theme: ThemePreference }) {
-  const light = { ground: "#eef1f6", card: "#ffffff", line: "#dfe5e3", ink: "#17221f", accent: "#1d4fd8" };
-  const dark = { ground: "#0b1220", card: "#131c2e", line: "#26324a", ink: "#e7ecf5", accent: "#7aa2ff" };
+  const light = { ground: "#f4f8fe", card: "#ffffff", line: "#d3dff0", ink: "#0b1b3d", accent: "#0970ad" };
+  const dark = { ground: "#0b1730", card: "#11224a", line: "#2a3f70", ink: "#eaf2ff", accent: "#5cc8ff" };
   const half = (c: typeof light) => (
     <div className="flex h-full flex-col" style={{ background: c.ground }}>
       <div className="h-3 shrink-0" style={{ background: "#0c2a66" }} />
