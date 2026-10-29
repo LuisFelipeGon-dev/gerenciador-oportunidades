@@ -140,13 +140,14 @@ export function OpportunityCard({
           </button>
         </h3>
         {o.organizer && <p className="mt-0.5 text-[13.5px] text-muted">{o.organizer}</p>}
-        {description && <p className="mt-2 max-w-[65ch] text-[14px] leading-relaxed">{description}</p>}
+        {(description ?? o.summary) && <p className="mt-2 max-w-[65ch] text-[14px] leading-relaxed">{description ?? o.summary}</p>}
         {o.benefits.length > 0 && (
           <p className="mt-2 inline-flex rounded-md bg-prize-bg px-2 py-1 text-[13.5px] font-bold text-prize">
             {o.benefits.join(" · ")}
           </p>
         )}
         {topics.length > 0 && <p className="mt-2 text-[12.5px] text-muted">{topics.join(" · ")}</p>}
+        {o.note && <p className="mt-2 text-[12.5px] text-muted">{o.note}</p>}
         <div className="mt-2.5">
           <CheckList checks={checksFor(o, profile, today ?? "1970-01-01")} />
         </div>

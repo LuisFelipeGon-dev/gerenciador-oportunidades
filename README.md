@@ -12,6 +12,7 @@ Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e even
 | MLH | JSON embutido na página da temporada (`mlh.com/seasons/<ano>/events`) |
 | GDG | Sitemaps mensais de eventos e JSON-LD de cada página de evento. O robots.txt proíbe `/api/` e pede 2 s entre requisições. Só capítulos brasileiros, listados em `src/collectors/gdg-chapters-br.ts` |
 | dev.events | JSON-LD da página `dev.events/SA/BR` e link oficial na página de cada evento. Só presenciais e híbridos; o estado vem da cidade pela lista do IBGE. Eventos que apontam para o GDG ficam com o coletor do GDG |
+| Editais da UFMT | API do portal da UFMT (`api-portal.ufmt.br`, uso autorizado pelo dono do projeto) para PROEG, PRAE, PROPESQ e PROCEV: editais para estudantes dos últimos 60 dias. O PDF de cada um é lido por regras (`src/lib/edital-text.ts`): período de inscrição, resumo, valor da bolsa e câmpus. Sem prazo lido, o site mostra "veja no edital". Só aparecem para quem marcou UFMT (e o câmpus) no perfil |
 | Luma | Feed iCal público de cada calendário listado em `data/luma-calendars.yaml` (comunidades brasileiras). Só eventos futuros, no Brasil ou online; cidade pelas coordenadas do evento |
 | Programas recorrentes | Lista curada em `data/programs.yaml` (embaixadores, competições e olimpíadas, estágios e mentorias pagas, bolsas), conferida à mão na página oficial |
 

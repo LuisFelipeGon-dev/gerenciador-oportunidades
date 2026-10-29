@@ -130,9 +130,12 @@ export function DetailDrawer({
       {/* The whole drawer scrolls as one: a fixed header and footer left little room on phones. */}
       <div className="px-5 py-5 sm:px-6">
         <Section title="O que é">
-          <p className="max-w-[65ch] text-[15px] leading-relaxed">{whatItIs(o)}</p>
+          {/* A call's own summary (read from its PDF) beats the generic description of its type. */}
+          <p className="max-w-[65ch] text-[15px] leading-relaxed">{o.summary ?? whatItIs(o)}</p>
           <p className="mt-2 rounded-lg bg-ground px-3 py-2 text-[12.5px] text-muted">
-            Descrição geral deste tipo de oportunidade. O tema, as regras e os requisitos completos estão na página oficial.
+            {o.summary
+              ? "Resumo lido automaticamente do edital. Prazos, requisitos e documentos estão no PDF oficial."
+              : "Descrição geral deste tipo de oportunidade. O tema, as regras e os requisitos completos estão na página oficial."}
           </p>
         </Section>
 

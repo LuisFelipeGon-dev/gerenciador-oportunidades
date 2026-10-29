@@ -258,6 +258,21 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
             <p className="text-muted">Carregando oportunidades…</p>
           ) : tab === "for-you" ? (
             <>
+              {p && (!p.institution || !p.campus) && (
+                <section className="mb-7 flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-sky-tint px-4 py-3.5">
+                  <p className="min-w-0 flex-1 text-[14.5px]">
+                    <span className="font-bold">Complete seu perfil: universidade e câmpus.</span>{" "}
+                    <span className="text-muted">Com eles, os editais da sua universidade aparecem aqui.</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setProfileOpen(true)}
+                    className="shrink-0 rounded-xl bg-action px-4 py-2 text-[14px] font-bold text-card hover:bg-action-strong"
+                  >
+                    Completar perfil
+                  </button>
+                </section>
+              )}
               <DeadlineStrip
                 title={saved.length > 0 ? "Prazos dos seus salvos" : "Próximos prazos"}
                 items={timeline}
