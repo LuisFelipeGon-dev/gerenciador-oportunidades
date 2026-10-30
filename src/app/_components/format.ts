@@ -54,6 +54,7 @@ export const SOURCE_LABEL: Record<string, string> = {
   devevents: "dev.events",
   luma: "Luma",
   agendatech: "Agenda Tech Brasil",
+  sbc: "SBC",
   ufmt: "portal da UFMT",
   unemat: "site da UNEMAT",
   ifmt: "site do IFMT",

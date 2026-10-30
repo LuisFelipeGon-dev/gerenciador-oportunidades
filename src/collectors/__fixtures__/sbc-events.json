@@ -1,0 +1,750 @@
+{
+ "events": [
+  {
+   "id": 12996,
+   "url": "https://www.sbc.org.br/evento/xxvii-simposio-em-sistemas-computacionais-de-alto-desempenho-sscad-2026/",
+   "title": "XXVII Simpósio em Sistemas Computacionais de Alto Desempenho (SSCAD 2026)",
+   "website": "https://www.sbc.org.br/sscad2026",
+   "all_day": true,
+   "start_date": "2026-11-03 00:00:00",
+   "end_date": "2026-11-05 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 9476,
+    "venue": "Natal/RN"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 14036,
+   "url": "https://www.sbc.org.br/evento/x-escola-regional-de-computacao-aplicada-a-saude-ercas-2026/",
+   "title": "X Escola Regional de Computação Aplicada à Saúde (ERCAS 2026)",
+   "website": "https://www.sbc.org.br/ercas2026",
+   "all_day": true,
+   "start_date": "2026-11-03 00:00:00",
+   "end_date": "2026-11-04 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8334,
+    "venue": "Salvador/BA"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13955,
+   "url": "https://www.sbc.org.br/evento/31a-maratona-sbc-de-programacao-2026-final-brasileira-em-uberlandia/",
+   "title": "31ª Maratona SBC de Programação 2026 &#8211; Final Brasileira em Uberlândia",
+   "website": "https://maratonasbc.facom.ufu.br/",
+   "all_day": true,
+   "start_date": "2026-11-05 00:00:00",
+   "end_date": "2026-11-08 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 13082,
+    "venue": "Uberlândia/MG"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13384,
+   "url": "https://www.sbc.org.br/evento/29th-international-symposium-on-wireless-personal-multimedia-communications-wpmc-2026/",
+   "title": "29th International Symposium on Wireless Personal Multimedia Communications (WPMC 2026)",
+   "website": "https://wpmc.imd.ufrn.br/conference-program/wpmc-2026-conference-program/",
+   "all_day": true,
+   "start_date": "2026-11-08 00:00:00",
+   "end_date": "2026-11-11 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 9476,
+    "venue": "Natal/RN"
+   },
+   "categories": [
+    {
+     "name": "Apoiado",
+     "slug": "apoiado"
+    },
+    {
+     "name": "Internacional",
+     "slug": "internacional"
+    },
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    }
+   ]
+  },
+  {
+   "id": 13531,
+   "url": "https://www.sbc.org.br/evento/ii-escola-regional-de-aprendizado-de-maquina-e-inteligencia-artificial-da-regiao-sul-eramia-rs-2026/",
+   "title": "II Escola Regional de Aprendizado de Máquina e Inteligência Artificial da Região Sul (ERAMIA-RS 2026)",
+   "website": "https://www.sbc.org.br/eramiars2026",
+   "all_day": true,
+   "start_date": "2026-11-09 00:00:00",
+   "end_date": "2026-11-11 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8997,
+    "venue": "Porto Alegre/RS"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13923,
+   "url": "https://www.sbc.org.br/evento/xxvii-simposio-brasileiro-de-qualidade-de-software-sbqs-2026/",
+   "title": "XXVII Simpósio Brasileiro de Qualidade de Software (SBQS 2026)",
+   "website": "https://www.sbc.org.br/sbqs2026",
+   "all_day": true,
+   "start_date": "2026-11-10 00:00:00",
+   "end_date": "2026-11-13 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 13954,
+    "venue": "Maringá/PR"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13925,
+   "url": "https://www.sbc.org.br/evento/xv-escola-regional-de-informatica-de-mato-grosso-eri-mt-2026/",
+   "title": "XV Escola Regional de Informática de Mato Grosso (ERI-MT 2026)",
+   "website": "http://www.sbc.org.br/erimt2026",
+   "all_day": true,
+   "start_date": "2026-11-10 00:00:00",
+   "end_date": "2026-11-12 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 13926,
+    "venue": "Várzea Grande/MT"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13414,
+   "url": "https://www.sbc.org.br/evento/xiv-escola-regional-de-computacao-do-ceara-maranhao-e-piaui-ercemapi-2026/",
+   "title": "XIV Escola Regional de Computação do Ceará, Maranhão e Piauí (ERCEMAPI 2026)",
+   "website": "https://www.sbc.org.br/ercemapi2026",
+   "all_day": true,
+   "start_date": "2026-11-11 00:00:00",
+   "end_date": "2026-11-13 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 13415,
+    "venue": "Crato/CE"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13885,
+   "url": "https://www.sbc.org.br/evento/xiv-escola-regional-de-informatica-de-goias-eri-go-2026/",
+   "title": "XIV Escola Regional de Informática de Goiás (ERI-GO 2026)",
+   "website": "http://erigo.sbc.org.br/",
+   "all_day": true,
+   "start_date": "2026-11-18 00:00:00",
+   "end_date": "2026-11-19 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 13886,
+    "venue": "Jataí/GO"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13228,
+   "url": "https://www.sbc.org.br/evento/xviii-simposio-brasileiro-de-robotica-sbr-2026/",
+   "title": "XVIII Simpósio Brasileiro de Robótica (SBR 2026)",
+   "website": "https://www.sbc.org.br/sbr2026",
+   "all_day": true,
+   "start_date": "2026-11-23 00:00:00",
+   "end_date": "2026-11-26 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8285,
+    "venue": "João Pessoa/PB"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13084,
+   "url": "https://www.sbc.org.br/evento/xvi-symposium-on-computing-systems-engineering-sbesc-2026/",
+   "title": "XVI Symposium on Computing Systems Engineering (SBESC 2026)",
+   "website": "https://www.sbc.org.br/sbesc2026",
+   "all_day": true,
+   "start_date": "2026-11-24 00:00:00",
+   "end_date": "2026-11-27 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8334,
+    "venue": "Salvador/BA"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13177,
+   "url": "https://www.sbc.org.br/evento/15th-latin-american-symposium-on-dependable-and-secure-computing-ladc/",
+   "title": "15th Latin-American Symposium on Dependable and Secure Computing (LADC 2026)",
+   "website": "https://www.sbc.org.br/ladc2026",
+   "all_day": true,
+   "start_date": "2026-11-24 00:00:00",
+   "end_date": "2026-11-27 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8334,
+    "venue": "Salvador/BA"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13808,
+   "url": "https://www.sbc.org.br/evento/vi-escola-regional-de-alto-desempenho-norte-2-e-vi-escola-regional-de-aprendizado-de-maquina-e-inteligencia-artificial-norte-2-erad-e-eramia-no2-2026/",
+   "title": "VI Escola Regional de Alto Desempenho Norte 2 e VI Escola Regional de Aprendizado de Máquina e Inteligência Artificial Norte 2 (ERAD e ERAMIA-NO2 2026)",
+   "website": "https://www.sbc.org.br/erad-eramia-no2-2026",
+   "all_day": true,
+   "start_date": "2026-11-26 00:00:00",
+   "end_date": "2026-11-27 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 11101,
+    "venue": "Macapá/AP"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13743,
+   "url": "https://www.sbc.org.br/evento/xli-seminario-de-fisica-do-inatel-sefitel-2026-2/",
+   "title": "XLI Seminário de Física do Inatel (SEFITEL 2026-2)",
+   "website": "https://inatel.br/sefitel/",
+   "all_day": true,
+   "start_date": "2026-11-27 00:00:00",
+   "end_date": "2026-11-28 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 12486,
+    "venue": "Santa Rita do Sapucaí – MG"
+   },
+   "categories": [
+    {
+     "name": "Apoiado",
+     "slug": "apoiado"
+    },
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    }
+   ]
+  },
+  {
+   "id": 12323,
+   "url": "https://www.sbc.org.br/evento/xix-brazilian-symposium-on-bioinformatics-bsb-2026/",
+   "title": "XIX Brazilian Symposium on Bioinformatics (BSB 2026)",
+   "website": "https://www.sbc.org.br/bsb2026",
+   "all_day": true,
+   "start_date": "2026-11-30 00:00:00",
+   "end_date": "2026-12-02 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 12324,
+    "venue": "Ribeirão Preto/SP"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13846,
+   "url": "https://www.sbc.org.br/evento/19th-ieee-international-conference-on-utility-and-cloud-computing-ucc-2026/",
+   "title": "19th IEEE International Conference on Utility and Cloud Computing (UCC 2026)",
+   "website": "https://ucc-conference.org/",
+   "all_day": true,
+   "start_date": "2026-12-01 00:00:00",
+   "end_date": "2026-12-04 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8324,
+    "venue": "Florianópolis/SC"
+   },
+   "categories": [
+    {
+     "name": "Apoiado",
+     "slug": "apoiado"
+    },
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    }
+   ]
+  },
+  {
+   "id": 14083,
+   "url": "https://www.sbc.org.br/evento/xxix-simposio-brasileiro-de-metodos-formais-sbmf-2026/",
+   "title": "XXIX Simpósio Brasileiro de Métodos Formais (SBMF 2026)",
+   "website": "https://www.sbc.org.br/sbmf2026",
+   "all_day": true,
+   "start_date": "2026-12-01 00:00:00",
+   "end_date": "2026-12-04 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8307,
+    "venue": "Rio de Janeiro/RJ"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 14173,
+   "url": "https://www.sbc.org.br/evento/19th-ieee-acm-international-conference-on-utility-and-cloud-computing-ucc-2026-3th-ieee-acm-international-conference-on-big-data-computing-applications-and-technologies-bdcat-2026/",
+   "title": "19th IEEE/ACM International Conference on Utility and Cloud Computing (UCC 2026) | 3th IEEE/ACM International Conference on Big Data Computing, Applications and Technologies (BDCAT 2026)",
+   "website": "https://ucc-conference.org/",
+   "all_day": true,
+   "start_date": "2026-12-01 00:00:00",
+   "end_date": "2026-12-04 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8324,
+    "venue": "Florianópolis/SC"
+   },
+   "categories": [
+    {
+     "name": "Parceiro",
+     "slug": "parceiro"
+    },
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    }
+   ]
+  },
+  {
+   "id": 13716,
+   "url": "https://www.sbc.org.br/evento/xix-escola-do-supercomputador-santos-dumont-sdumont-2026/",
+   "title": "XIX Escola do Supercomputador Santos Dumont (SDumont 2026)",
+   "website": "https://verao.lncc.br/esdumont/",
+   "all_day": true,
+   "start_date": "2027-02-05 00:00:00",
+   "end_date": "2027-02-05 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 13717,
+    "venue": "Evento híbrido acontecendo no Laboratório Nacional de Computação Científica (LNCC) e online pelo Zoom transmitido pelo Youtube"
+   },
+   "categories": [
+    {
+     "name": "Apoiado",
+     "slug": "apoiado"
+    },
+    {
+     "name": "Híbrido",
+     "slug": "hibrido"
+    }
+   ]
+  },
+  {
+   "id": 13972,
+   "url": "https://www.sbc.org.br/evento/aprovacao-para-apoio-do-evento-xviii-computer-on-the-beach-2027/",
+   "title": "XVIII Computer on the Beach 2027",
+   "website": "https://www.computeonthebeach.com.br/",
+   "all_day": true,
+   "start_date": "2027-04-13 00:00:00",
+   "end_date": "2027-04-17 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 13977,
+    "venue": "Hotel Praia Brava &#8211; Praia Brava/SC"
+   },
+   "categories": [
+    {
+     "name": "Apoiado",
+     "slug": "apoiado"
+    },
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    }
+   ]
+  },
+  {
+   "id": 14181,
+   "url": "https://www.sbc.org.br/evento/xxii-escola-regional-de-banco-de-dados-erbd-2027/",
+   "title": "XXII Escola Regional de Banco de Dados (ERBD 2027)",
+   "website": "https://www.sbc.org.br/erbd2027",
+   "all_day": true,
+   "start_date": "2027-05-01 00:00:00",
+   "end_date": "2027-05-01 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 13815,
+    "venue": "Santa Maria/RS"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 14175,
+   "url": "https://www.sbc.org.br/evento/xxvii-escola-regional-de-alto-desempenho-da-regiao-sul-erad-rs-2027/",
+   "title": "XXVII Escola Regional de Alto Desempenho da Região Sul (ERAD-RS 2027)",
+   "website": "https://www.sbc.org.br/erdrs2027",
+   "all_day": true,
+   "start_date": "2027-05-12 00:00:00",
+   "end_date": "2027-05-14 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 14176,
+    "venue": "Joinville/SC"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 10875,
+   "url": "https://www.sbc.org.br/evento/xxi-simposio-brasileiro-de-sistemas-da-informacao-sbsi-2027/",
+   "title": "XXIII Simpósio Brasileiro de Sistemas da Informação (SBSI 2027)",
+   "website": "https://sbsi.sbc.org.br/2027",
+   "all_day": true,
+   "start_date": "2027-05-17 00:00:00",
+   "end_date": "2027-05-20 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 6672,
+    "venue": "Campo Grande/MS"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13378,
+   "url": "https://www.sbc.org.br/evento/xlv-simposio-brasileiro-de-redes-de-computadores-e-sistemas-distribuidos/",
+   "title": "XLV Simpósio Brasileiro de Redes de Computadores e Sistemas Distribuídos (SBRC 2027)",
+   "website": "https://sbrc.sbc.org.br/2027",
+   "all_day": true,
+   "start_date": "2027-05-17 00:00:00",
+   "end_date": "2027-05-21 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 10120,
+    "venue": "Foz do Iguaçu/PR"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13991,
+   "url": "https://www.sbc.org.br/evento/xlvii-congresso-da-sociedade-brasileira-de-computacao-csbc-2027/",
+   "title": "XLVII Congresso da Sociedade Brasileira de Computação (CSBC 2027)",
+   "website": "https://csbc.sbc.org.br/2027/",
+   "all_day": true,
+   "start_date": "2027-08-01 00:00:00",
+   "end_date": "2027-08-05 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8299,
+    "venue": "Manaus/AM"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 14178,
+   "url": "https://www.sbc.org.br/evento/xviii-congresso-brasileiro-de-software-teoria-e-pratica-cbsoft-2027/",
+   "title": "XVIII Congresso Brasileiro de Software: Teoria e Prática (CBSoft 2027)",
+   "website": "https://www.sbc.org.br/cbsoft2027",
+   "all_day": true,
+   "start_date": "2027-09-27 00:00:00",
+   "end_date": "2027-10-01 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 10045,
+    "venue": "Belo Horizonte/MG"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13380,
+   "url": "https://www.sbc.org.br/evento/xxvi-simposio-brasileiro-sobre-fatores-humanos-em-sistemas-computacionais-ihc-2027/",
+   "title": "XXVI Simpósio Brasileiro sobre Fatores Humanos em Sistemas Computacionais (IHC 2027)",
+   "website": "https://ihc.sbc.org.br/2027",
+   "all_day": true,
+   "start_date": "2027-10-18 00:00:00",
+   "end_date": "2027-10-22 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 10085,
+    "venue": "São Paulo/SP"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 14183,
+   "url": "https://www.sbc.org.br/evento/xlii-simposio-brasileiro-de-banco-de-dados-sbbd-2027/",
+   "title": "XLII Simpósio Brasileiro de Banco de Dados (SBBD 2027) / BRACIS, ENIAC e STIL",
+   "website": "https://www.sbc.org.br/sbbd2027",
+   "all_day": true,
+   "start_date": "2027-10-20 00:00:00",
+   "end_date": "2027-10-23 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8997,
+    "venue": "Porto Alegre/RS"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13093,
+   "url": "https://www.sbc.org.br/evento/xvi-congresso-brasileiro-de-informatica-na-educacao-cbie-2027/",
+   "title": "XVI Congresso Brasileiro de Informática na Educação (CBIE 2027)",
+   "website": "https://cbie.sbc.org.br/2027",
+   "all_day": true,
+   "start_date": "2027-11-08 00:00:00",
+   "end_date": "2027-11-12 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 10085,
+    "venue": "São Paulo/SP"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 13507,
+   "url": "https://www.sbc.org.br/evento/xxiv-simposio-brasileiro-de-sistemas-de-informacao-sbsi-2028/",
+   "title": "XXIV Simpósio Brasileiro de Sistemas de Informação (SBSI 2028)",
+   "website": "https://www.sbc.org.br/sbsi2028",
+   "all_day": true,
+   "start_date": "2028-05-22 00:00:00",
+   "end_date": "2028-05-25 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 11364,
+    "venue": "Marabá/PA"
+   },
+   "categories": [
+    {
+     "name": "Presencial",
+     "slug": "presencial"
+    },
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  },
+  {
+   "id": 14187,
+   "url": "https://www.sbc.org.br/evento/xliii-simposio-brasileiro-de-banco-de-dados-sbbd-2028/",
+   "title": "XLIII Simpósio Brasileiro de Banco de Dados (SBBD 2028)",
+   "website": "https://www.sbc.org.br/sbbd2028",
+   "all_day": true,
+   "start_date": "2028-10-16 00:00:00",
+   "end_date": "2028-10-19 23:59:59",
+   "timezone": "America/Sao_Paulo",
+   "venue": {
+    "id": 8285,
+    "venue": "João Pessoa/PB"
+   },
+   "categories": [
+    {
+     "name": "Realizado",
+     "slug": "realizado"
+    }
+   ]
+  }
+ ],
+ "total": 31,
+ "total_pages": 1
+}

@@ -6,7 +6,7 @@ import { itemKey } from "./personalize";
 // hackathon on Devpost and MLH). The site keeps one and lists the others under "Também em".
 
 /** When two items are the same, the first source in this list is kept (after deadline). */
-const SOURCE_PREFERENCE = ["curated", "gdg", "luma", "devpost", "agendatech", "devevents", "mlh"];
+const SOURCE_PREFERENCE = ["curated", "sbc", "gdg", "luma", "devpost", "agendatech", "devevents", "mlh"];
 
 /** Comparable title: no accents, case, punctuation or year. */
 export function normalizeTitle(title: string): string {

@@ -8,6 +8,7 @@ import { collectIfmt } from "../src/collectors/ifmt";
 import { addCoordinates, loadMunicipalities } from "../src/collectors/geocode";
 import { collectLuma } from "../src/collectors/luma";
 import { collectMlh } from "../src/collectors/mlh";
+import { collectSbc } from "../src/collectors/sbc";
 import { collectUfmt } from "../src/collectors/ufmt";
 import { collectUnemat } from "../src/collectors/unemat";
 import type { Opportunity } from "../src/lib/opportunity";
@@ -29,6 +30,8 @@ const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] =
   { name: "devevents", collect: collectDevEvents, requireResults: false },
   // Community list of tech events across Brazil; between seasons only a few are ahead.
   { name: "agendatech", collect: collectAgendaTech, requireResults: false },
+  // Events of the Sociedade Brasileira de Computação (symposiums, regional schools, Maratona).
+  { name: "sbc", collect: collectSbc, requireResults: false },
   // Community calendars curated in data/luma-calendars.yaml; a quiet month has no events.
   { name: "luma", collect: collectLuma, requireResults: false },
   // UFMT calls for students (PROEG, PRAE, PROPESQ, PROCEV); weeks without a new call are normal.
