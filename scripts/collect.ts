@@ -3,10 +3,12 @@ import { collectCurated } from "../src/collectors/curated";
 import { collectDevEvents } from "../src/collectors/devevents";
 import { collectDevpost } from "../src/collectors/devpost";
 import { collectGdg } from "../src/collectors/gdg";
+import { collectIfmt } from "../src/collectors/ifmt";
 import { addCoordinates, loadMunicipalities } from "../src/collectors/geocode";
 import { collectLuma } from "../src/collectors/luma";
 import { collectMlh } from "../src/collectors/mlh";
 import { collectUfmt } from "../src/collectors/ufmt";
+import { collectUnemat } from "../src/collectors/unemat";
 import type { Opportunity } from "../src/lib/opportunity";
 import { toRow } from "../src/lib/opportunity-row";
 
@@ -28,6 +30,10 @@ const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] =
   { name: "luma", collect: collectLuma, requireResults: false },
   // UFMT calls for students (PROEG, PRAE, PROPESQ, PROCEV); weeks without a new call are normal.
   { name: "ufmt", collect: collectUfmt, requireResults: false },
+  // UNEMAT calls for students, one search per student category of the site.
+  { name: "unemat", collect: collectUnemat, requireResults: false },
+  // IFMT calls whose audience includes students (high school, undergraduate, graduate).
+  { name: "ifmt", collect: collectIfmt, requireResults: false },
   // Programs curated in data/programs.yaml.
   { name: "curated", collect: collectCurated, requireResults: true },
 ];

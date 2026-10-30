@@ -1,6 +1,7 @@
 import { extractText, getDocumentProxy } from "unpdf";
 import { z } from "zod";
-import { campusFromTitle, parseInscriptionPeriod, parseStipend, parseSummary, type UfmtCampus } from "../lib/edital-text";
+import { parseInscriptionPeriod, parseStipend, parseSummary } from "../lib/edital-text";
+import { campusCity, campusFromText } from "../lib/institutions";
 import { opportunitySchema, type Opportunity } from "../lib/opportunity";
 import { politeFetchBytes, politeFetchJson, type FetchBytes, type FetchJson } from "./http";
 
@@ -60,14 +61,6 @@ export function cleanTitle(title: string): string {
     .trim();
 }
 
-/** City of each campus, for distances ("Araguaia" has its main unit in Barra do Garças). */
-const CAMPUS_CITY: Record<UfmtCampus, string> = {
-  Cuiabá: "Cuiabá",
-  "Várzea Grande": "Várzea Grande",
-  Sinop: "Sinop",
-  Araguaia: "Barra do Garças",
-};
-
 export function mapUfmtPublication(
   p: UfmtPublication,
   branch: { id: number; acronym: string },
@@ -81,7 +74,7 @@ export function mapUfmtPublication(
   if (period && period.end < today) return null;
 
   // The campus is in the title or, more often, in the heading of the PDF ("… - CAMPUS CUIABÁ").
-  const campus = campusFromTitle(p.title) ?? (pdfText ? campusFromTitle(pdfText.slice(0, HEADING_CHARS)) : null);
+  const campus = campusFromText("UFMT", p.title) ?? (pdfText ? campusFromText("UFMT", pdfText.slice(0, HEADING_CHARS)) : null);
   const stipend = pdfText ? parseStipend(pdfText) : null;
 
   return opportunitySchema.parse({
@@ -92,7 +85,7 @@ export function mapUfmtPublication(
     modality: "in_person",
     location: {
       raw: `UFMT, câmpus ${campus ?? "Cuiabá"}`,
-      city: CAMPUS_CITY[campus ?? "Cuiabá"],
+      city: campusCity("UFMT", campus ?? "Cuiabá"),
       state: "MT",
       country: "BR",
       lat: null,

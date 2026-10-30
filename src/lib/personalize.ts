@@ -1,6 +1,7 @@
 import { areaById, type AreaId } from "./areas";
 import { isUF, regionOf, type UF } from "./brazil";
 import { distanceKm, type Point } from "./geo";
+import { withArticle } from "./institutions";
 import type { Opportunity, OpportunityType } from "./opportunity";
 
 export const LEVELS = ["high_school", "undergraduate", "graduate", "phd"] as const;
@@ -19,7 +20,7 @@ export type Profile = {
   interests: OpportunityType[];
   /** "Perto de você" covers in-person items up to this distance from the city. */
   radiusKm: number;
-  /** University and campus ("UFMT", "Cuiabá"): calls of a university only show to its students. */
+  /** Institution and campus ("UFMT", "Cuiabá"): calls of an institution only show to its students. */
   institution: string;
   campus: string;
 };
@@ -108,10 +109,10 @@ export function checksFor(o: Opportunity, profile: Profile | null, today: string
 
   // A university's own calls: only its students (and campus) see them; an empty field hides them too.
   if (institutions?.length) {
-    const who = institutions.join(", ");
-    if (!profile) checks.push({ ok: null, label: `Só para estudantes da ${who}` });
-    else if (institutions.some((i) => fold(i) === fold(profile.institution))) checks.push({ ok: true, label: `Para estudantes da ${who}` });
-    else checks.push({ ok: false, label: `Só para estudantes da ${who}` });
+    const who = withArticle(institutions.join(", "));
+    if (!profile) checks.push({ ok: null, label: `Só para estudantes ${who}` });
+    else if (institutions.some((i) => fold(i) === fold(profile.institution))) checks.push({ ok: true, label: `Para estudantes ${who}` });
+    else checks.push({ ok: false, label: `Só para estudantes ${who}` });
   }
   if (campuses?.length) {
     const where = campuses.join(", ");

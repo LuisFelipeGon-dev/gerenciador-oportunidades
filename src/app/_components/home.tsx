@@ -261,8 +261,8 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               {p && (!p.institution || !p.campus) && (
                 <section className="mb-7 flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-sky-tint px-4 py-3.5">
                   <p className="min-w-0 flex-1 text-[14.5px]">
-                    <span className="font-bold">Complete seu perfil: universidade e câmpus.</span>{" "}
-                    <span className="text-muted">Com eles, os editais da sua universidade aparecem aqui.</span>
+                    <span className="font-bold">Complete seu perfil: instituição de ensino e câmpus.</span>{" "}
+                    <span className="text-muted">Com eles, os editais da sua instituição aparecem aqui.</span>
                   </p>
                   <button
                     type="button"

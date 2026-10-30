@@ -45,6 +45,20 @@ function periodIn(window: string): { start: string | null; end: string } | null 
     return { start: iso(y1, m1, d1), end: iso(y2, m2, d2) };
   }
 
+  // "30/10 a 30/11/2026": the start without its year.
+  const numericNoYear = new RegExp(`(\\d{1,2})/(\\d{1,2}) ${TO} (\\d{1,2})/(\\d{1,2})/(\\d{4})`, "i").exec(window);
+  if (numericNoYear) {
+    const [, d1, m1, d2, m2, y2] = numericNoYear.map(Number);
+    return { start: iso(m1 > m2 ? y2 - 1 : y2, m1, d1), end: iso(y2, m2, d2) };
+  }
+
+  // "28 a 30/09/2026": both days in the same month.
+  const numericSameMonth = new RegExp(`(\\d{1,2})º? ${TO} (\\d{1,2})/(\\d{1,2})/(\\d{4})`, "i").exec(window);
+  if (numericSameMonth) {
+    const [, d1, d2, m, y] = numericSameMonth.map(Number);
+    return { start: iso(y, m, d1), end: iso(y, m, d2) };
+  }
+
   const until = new RegExp(`at[eé] (?:o dia )?(\\d{1,2})º? de ${MONTH} de (\\d{4})`, "i").exec(window);
   if (until) return { start: null, end: iso(Number(until[3]), month(until[2]), Number(until[1])) };
 
@@ -74,30 +88,27 @@ export function parseSummary(text: string): string | null {
   // Up to the end of the sentence, or where the boilerplate begins.
   clause = clause.split(/\.\s|, de acordo com|, conforme|, considerando|:\s/i)[0].replace(/^(?:o|a|os|as)\s+/i, "").trim();
   if (!clause) return null;
-  clause = clause[0].toUpperCase() + clause.slice(1);
-  if (clause.length <= MAX_SUMMARY) return clause;
-  const cut = clause.slice(0, MAX_SUMMARY - 1);
+  return clip(clause[0].toUpperCase() + clause.slice(1));
+}
+
+/** At most MAX_SUMMARY characters, cut at a word with an ellipsis. */
+function clip(text: string): string {
+  if (text.length <= MAX_SUMMARY) return text;
+  const cut = text.slice(0, MAX_SUMMARY - 1);
   return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:\s]+$/, "")}…`;
+}
+
+/** The first sentence of a text (a post about a call), for when it has no "torna público". */
+export function firstSentence(text: string): string | null {
+  const t = flat(text).trim();
+  if (!t) return null;
+  // A period followed by a capital starts a new sentence, except after "Nº.", "Prof." and the like.
+  const end = /(?<!\b(?:n[º°o]|art|inc|profa?|cel|dra?|sra?))\.\s+(?=\p{Lu})/iu.exec(t);
+  return clip(end ? t.slice(0, end.index + 1) : t);
 }
 
 /** The first stipend value near "bolsa" or "auxílio", as "R$ 700,00". */
 export function parseStipend(text: string): string | null {
   const m = /(?:bolsa|aux[ií]lio).{0,80}?R\$\s?(\d{1,3}(?:\.\d{3})*,\d{2})/i.exec(flat(text));
   return m ? `R$ ${m[1]}` : null;
-}
-
-const CAMPUSES = [
-  { key: "cuiaba", name: "Cuiabá" },
-  { key: "varzea grande", name: "Várzea Grande" },
-  { key: "sinop", name: "Sinop" },
-  { key: "araguaia", name: "Araguaia" },
-] as const;
-
-export type UfmtCampus = (typeof CAMPUSES)[number]["name"];
-
-/** The UFMT campus a title is restricted to, when it names one ("CAMPUS CUIABÁ"). */
-export function campusFromTitle(title: string): UfmtCampus | null {
-  const t = stripAccents(title.toLowerCase());
-  if (!/campus/.test(t)) return null;
-  return CAMPUSES.find((c) => t.includes(c.key))?.name ?? null;
 }

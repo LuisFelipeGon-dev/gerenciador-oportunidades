@@ -1,11 +1,20 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { campusFromTitle, parseInscriptionPeriod, parseStipend, parseSummary } from "./edital-text";
+import { firstSentence, parseInscriptionPeriod, parseStipend, parseSummary } from "./edital-text";
 
 /** Text of UFMT's Edital 016/2026 (PROEG, PET Conexões de Saberes), as unpdf extracts it. */
 const edital016 = readFileSync(new URL("./__fixtures__/ufmt-edital-016-2026.txt", import.meta.url), "utf8");
 
 describe("parseInscriptionPeriod", () => {
+  it.each([
+    ["Inscrição: Período de 30/10 a 30/11/2026 Vagas: conforme o edital", { start: "2026-10-30", end: "2026-11-30" }],
+    ["Inscrições: 28 a 30/09/2026 Vagas: 6 bolsas", { start: "2026-09-28", end: "2026-09-30" }],
+    ["Período de inscrições: 13/10/2026 a 08/11/2026", { start: "2026-10-13", end: "2026-11-08" }],
+    ["Inscrições de 15/12 a 10/01/2027", { start: "2026-12-15", end: "2027-01-10" }],
+  ])("reads short numeric periods: %s", (text, period) => {
+    expect(parseInscriptionPeriod(text)).toEqual(period);
+  });
+
   it("reads the period of the real Edital 016", () => {
     expect(parseInscriptionPeriod(edital016)).toEqual({ start: "2026-10-27", end: "2026-11-03" });
   });
@@ -98,14 +107,27 @@ describe("parseStipend", () => {
   });
 });
 
-describe("campusFromTitle", () => {
-  it.each([
-    ["EDITAL 016/2026 SELEÇÃO DE ALUNOS - CAMPUS CUIABÁ", "Cuiabá"],
-    ["Edital de monitoria - Câmpus Universitário do Araguaia", "Araguaia"],
-    ["Seleção PET - Campus Sinop", "Sinop"],
-    ["Edital Câmpus Várzea Grande", "Várzea Grande"],
-    ["Edital 013/2026 - Seleção PET Indígena", null],
-  ])("%s -> %s", (title, campus) => {
-    expect(campusFromTitle(title)).toBe(campus);
+describe("firstSentence", () => {
+  it("stops at the end of the first sentence, not at abbreviations like Nº.", () => {
+    expect(firstSentence("Seleção de bolsistas do Edital Nº. 22/2026 para o câmpus. Inscrições pelo SUAP.")).toBe(
+      "Seleção de bolsistas do Edital Nº. 22/2026 para o câmpus.",
+    );
+  });
+
+  it("does not stop at titles like Prof. and Cel.", () => {
+    expect(firstSentence("Seleção do IFMT – Campus Cáceres – Prof. Olegário Baldo e Cel. Octayde. Inscrições pelo SUAP.")).toBe(
+      "Seleção do IFMT – Campus Cáceres – Prof. Olegário Baldo e Cel. Octayde.",
+    );
+  });
+
+  it("cuts long sentences at a word, with an ellipsis", () => {
+    const long = `Este processo seletivo ${"tem como objetivo selecionar estudantes ".repeat(10)}fim.`;
+    const s = firstSentence(long)!;
+    expect(s.length).toBeLessThanOrEqual(240);
+    expect(s.endsWith("…")).toBe(true);
+  });
+
+  it("is null for empty text", () => {
+    expect(firstSentence("  ")).toBeNull();
   });
 });

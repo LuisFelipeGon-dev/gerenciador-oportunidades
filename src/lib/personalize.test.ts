@@ -267,6 +267,18 @@ describe("UFMT calls: only for their institution and campus", () => {
     expect(s.nearby).toEqual([]);
   });
 
+  it("says \"do IFMT\" for the institute and matches any of its campuses", () => {
+    const ifmt = {
+      ...edital,
+      source: "ifmt",
+      eligibility: { ...edital.eligibility, levels: ["high_school"], institutions: ["IFMT"], campuses: ["Cuiabá - Octayde", "Várzea Grande"] },
+    };
+    const student = { ...profile, level: "high_school" as const, institution: "IFMT", campus: "Várzea Grande" };
+    expect(isExcluded(ifmt, student, TODAY)).toBe(false);
+    expect(checksFor(ifmt, student, TODAY)).toEqual(expect.arrayContaining([{ ok: true, label: "Para estudantes do IFMT" }]));
+    expect(checksFor(ifmt, null, TODAY)).toEqual(expect.arrayContaining([{ ok: null, label: "Só para estudantes do IFMT" }]));
+  });
+
   it("offers scholarships by default to every area", () => {
     for (const area of ["tech", "communication", "health", "law", "other"] as const) {
       expect(effectiveInterests({ ...profile, area, interests: [] })).toContain("scholarship");

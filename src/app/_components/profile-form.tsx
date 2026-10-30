@@ -6,6 +6,7 @@ import { saveProfile, setAlerts, useAlerts } from "@/lib/account";
 import { AREAS, areaById, areaForCourse, type AreaId } from "@/lib/areas";
 import { STATES, isUF } from "@/lib/brazil";
 import { findMunicipality } from "@/lib/geo";
+import { campusNames } from "@/lib/institutions";
 import { useMunicipalities } from "@/lib/municipalities";
 import type { OpportunityType } from "@/lib/opportunity";
 import { ageOn, DEFAULT_RADIUS_KM, localToday, RADIUS_OPTIONS, type Level, type Profile } from "@/lib/personalize";
@@ -40,8 +41,7 @@ const COURSES = [
 ];
 
 // Suggestions only: any university can be typed.
-const UNIVERSITIES = ["UFMT", "UNEMAT", "IFMT", "UFR", "UNIC", "UNIVAG", "UNIFASIPE", "UNIRONDON"];
-const UFMT_CAMPUSES = ["Cuiabá", "Várzea Grande", "Sinop", "Araguaia"];
+const INSTITUTIONS = ["UFMT", "UNEMAT", "IFMT", "UFR", "UNIC", "UNIVAG", "UNIFASIPE", "UNIRONDON"];
 
 const field = "mt-1 w-full min-w-0 rounded-lg border border-line bg-card px-3 py-2.5 text-[15px] focus:border-action focus:outline-none";
 const choice = "flex min-w-0 items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-[14px] has-checked:border-action has-checked:bg-ground";
@@ -74,7 +74,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
       return;
     }
     if (!institution || !campus) {
-      setError("Preencha a universidade e o câmpus: os editais de cada universidade só aparecem para quem estuda lá.");
+      setError("Preencha a instituição de ensino e o câmpus: os editais de cada instituição só aparecem para quem estuda lá.");
       return;
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate) || birthDate > today || ageOn(birthDate, today) > 100) {
@@ -201,7 +201,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
         )}
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block min-w-0 text-[13.5px] font-semibold">
-            Universidade
+            Instituição de ensino
             <input
               name="institution"
               list="universities"
@@ -213,7 +213,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
               className={field}
             />
             <datalist id="universities">
-              {UNIVERSITIES.map((u) => (
+              {INSTITUTIONS.map((u) => (
                 <option key={u} value={u} />
               ))}
             </datalist>
@@ -221,15 +221,15 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
           <label className="block min-w-0 text-[13.5px] font-semibold">
             Câmpus
             <input name="campus" list="campuses" required defaultValue={initial?.campus} maxLength={80} className={field} />
-            {/* UFMT campuses as suggestions; for other universities the name is typed freely. */}
+            {/* Campuses of the institutions the site collects as suggestions; others are typed freely. */}
             <datalist id="campuses">
-              {(institution.trim().toUpperCase() === "UFMT" ? UFMT_CAMPUSES : []).map((c) => (
+              {campusNames(institution).map((c) => (
                 <option key={c} value={c} />
               ))}
             </datalist>
           </label>
         </div>
-        <p className="-mt-2 text-[12.5px] text-muted">Editais de uma universidade só aparecem para quem estuda nela (e no câmpus, quando o edital é de um só).</p>
+        <p className="-mt-2 text-[12.5px] text-muted">Editais de uma instituição só aparecem para quem estuda nela (e no câmpus, quando o edital é de um só).</p>
         <label className="block min-w-0 text-[13.5px] font-semibold">
           Perto de você é até
           <select name="radiusKm" defaultValue={initial?.radiusKm ?? DEFAULT_RADIUS_KM} className={field}>
