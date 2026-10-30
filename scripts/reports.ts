@@ -6,7 +6,7 @@ import { formatReportIssue, type StoredReport } from "../src/lib/reports";
 // --report=<file>, writes them as Markdown for the daily workflow to post as a GitHub issue.
 // Reports are marked as announced right after the file is written.
 
-const SITE_URL = process.env.SITE_URL ?? "https://gerenciador-oportunidades.vercel.app";
+const SITE_URL = process.env.SITE_URL ?? "https://topa-estudantes.vercel.app";
 const BATCH = 100;
 
 function requireEnv(name: string): string {

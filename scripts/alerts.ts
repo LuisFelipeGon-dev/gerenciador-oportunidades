@@ -17,7 +17,7 @@ import { sendDigests, type Recipient } from "../src/lib/send-digests";
 //   npm run alerts -- --dry-run    write alerts-preview/<user>.html, send and record nothing
 //   npm run alerts -- --to=<email> send only to that address (a real test)
 
-const SITE_URL = process.env.SITE_URL ?? "https://gerenciador-oportunidades.vercel.app";
+const SITE_URL = process.env.SITE_URL ?? "https://topa-estudantes.vercel.app";
 const SEND_INTERVAL_MS = 1000;
 
 function requireEnv(name: string): string {
@@ -98,7 +98,7 @@ async function main() {
 
   const user = requireEnv("GMAIL_USER");
   const transport = nodemailer.createTransport({ service: "gmail", auth: { user, pass: requireEnv("GMAIL_APP_PASSWORD") } });
-  const from = `"Oportunidades para estudantes" <${user}>`;
+  const from = `"Topa?" <${user}>`;
   const { sent, failed } = await sendDigests(recipients, async (msg) => void (await transport.sendMail({ from, ...msg })), {
     delayMs: SEND_INTERVAL_MS,
   });
