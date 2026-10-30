@@ -1,0 +1,183 @@
+{
+ "eventos": [
+  {
+   "ano": 2026,
+   "arquivado": true,
+   "meses": [
+    {
+     "mes": "outubro",
+     "arquivado": false,
+     "eventos": [
+      {
+       "nome": "Siará Tech Summit 2026",
+       "data": [
+        "07"
+       ],
+       "url": "https://stssebrae.com.br",
+       "cidade": "Fortaleza",
+       "uf": "CE",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "Laboratório Hacker de Campinas",
+       "data": [
+        "07"
+       ],
+       "url": "https://eventos.lhc.net.br/event/lhc-convida-andre-chagas-tema-solucoes-abertas-para-problemas-locais-como-o-hardware-livre-pode-revolucionar-a-pesquisa-e-a-educacao",
+       "cidade": "Campinas",
+       "uf": "SP",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "Python Brasil 2026",
+       "data": [
+        "14"
+       ],
+       "url": "https://2026.pythonbrasil.org.br/",
+       "cidade": "Florianópolis",
+       "uf": "SC",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "PHP Peste 2026",
+       "data": [
+        "15",
+        "17"
+       ],
+       "url": "https://eventiza.com.br/evento/phpeste-2026",
+       "cidade": "São Luís",
+       "uf": "MA",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "DevFest Porto Alegre 2026",
+       "data": [
+        "31"
+       ],
+       "url": "https://devfestportoalegre.com.br",
+       "cidade": "Porto Alegre",
+       "uf": "RS",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "PHP Conference Brasil 2026",
+       "data": [
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24"
+       ],
+       "url": "https://phpconference.com.br/",
+       "cidade": "Maringá",
+       "uf": "PR",
+       "tipo": "híbrido"
+      }
+     ]
+    },
+    {
+     "mes": "novembro",
+     "arquivado": false,
+     "eventos": [
+      {
+       "nome": "PlatformCon São Paulo",
+       "data": [
+        "07"
+       ],
+       "url": "https://saopaulo.platformcon.com/pt/",
+       "cidade": "São Paulo",
+       "uf": "SP",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "MVP CONF REGIONAL FLORIANÓPOLIS",
+       "data": [
+        "07"
+       ],
+       "url": "https://mvpconf.com.br/regional/florianopolis/unisenai",
+       "cidade": "Florianópolis",
+       "uf": "SC",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "TDC Experience Recife | Rec'n'Play",
+       "data": [
+        "11",
+        "12"
+       ],
+       "url": "https://thedevconf.com/tdc/2026/index.html",
+       "cidade": "Recife",
+       "uf": "PE",
+       "tipo": "híbrido"
+      },
+      {
+       "nome": "Front in Floripa",
+       "data": [
+        "28"
+       ],
+       "url": "https://frontin.floripa.br/",
+       "cidade": "Florianópolis",
+       "uf": "SC",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "JSConf Brasil 2026",
+       "data": [
+        "28"
+       ],
+       "url": "https://jsconf.com.br/",
+       "cidade": "São Caetano Do Sul",
+       "uf": "SP",
+       "tipo": "presencial"
+      },
+      {
+       "nome": "GambiConf 2026",
+       "data": [
+        "28",
+        "29"
+       ],
+       "url": "https://gambiconf.dev/",
+       "cidade": "São Paulo",
+       "uf": "SP",
+       "tipo": "híbrido"
+      }
+     ]
+    },
+    {
+     "mes": "dezembro",
+     "arquivado": false,
+     "eventos": [
+      {
+       "nome": "TDCX PORTO ALEGRE",
+       "data": [
+        "09",
+        "10"
+       ],
+       "url": "https://thedevconf.com/tdc/2026/index.html",
+       "cidade": "Porto Alegre",
+       "uf": "RS",
+       "tipo": "híbrido"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "tba": [
+  {
+   "nome": "Select Experience",
+   "url": "https://codecon.dev/select",
+   "cidade": "São Paulo",
+   "uf": "SP",
+   "tipo": "presencial"
+  },
+  {
+   "nome": "Latinoware 2026",
+   "url": "https://latinoware.org/",
+   "cidade": "Foz Do Iguaçu",
+   "uf": "PR",
+   "tipo": "presencial"
+  }
+ ]
+}

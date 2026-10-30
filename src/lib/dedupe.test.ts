@@ -44,6 +44,12 @@ describe("dedupe", () => {
     expect(kept.alsoOn).toEqual([{ source: "devevents", sourceId: "devopsdays-recife", officialUrl: a.officialUrl }]);
   });
 
+  it("prefers Agenda Tech Brasil, which links the official site, over dev.events", () => {
+    const a = item("devevents", "gambiconf", { title: "GambiConf 2026" });
+    const b = item("agendatech", "2026-12-12-gambiconf-2026", { title: "GambiConf 2026" });
+    expect(dedupe([a, b])[0].source).toBe("agendatech");
+  });
+
   it("merges when one title contains the other", () => {
     const a = item("gdg", "devfest", { title: "DevFest Cerrado 2026: IA na prática" });
     const b = item("devevents", "devfest-cerrado", { title: "DevFest Cerrado" });

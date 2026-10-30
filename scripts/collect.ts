@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { collectAgendaTech } from "../src/collectors/agendatech";
 import { collectCurated } from "../src/collectors/curated";
 import { collectDevEvents } from "../src/collectors/devevents";
 import { collectDevpost } from "../src/collectors/devpost";
@@ -26,6 +27,8 @@ const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] =
   { name: "gdg", collect: collectGdg, requireResults: false },
   // Brazilian conferences; may legitimately come out empty when all of them are GDG events.
   { name: "devevents", collect: collectDevEvents, requireResults: false },
+  // Community list of tech events across Brazil; between seasons only a few are ahead.
+  { name: "agendatech", collect: collectAgendaTech, requireResults: false },
   // Community calendars curated in data/luma-calendars.yaml; a quiet month has no events.
   { name: "luma", collect: collectLuma, requireResults: false },
   // UFMT calls for students (PROEG, PRAE, PROPESQ, PROCEV); weeks without a new call are normal.

@@ -53,6 +53,10 @@ export const SOURCE_LABEL: Record<string, string> = {
   gdg: "GDG",
   devevents: "dev.events",
   luma: "Luma",
+  agendatech: "Agenda Tech Brasil",
+  ufmt: "portal da UFMT",
+  unemat: "site da UNEMAT",
+  ifmt: "site do IFMT",
   curated: "página oficial, conferida à mão",
 };
 
