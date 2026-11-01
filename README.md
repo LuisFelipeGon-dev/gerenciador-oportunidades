@@ -1,6 +1,6 @@
 # Topa?
 
-Eventos, hackathons, programas e bolsas pra estudantes. Site público que reúne oportunidades abertas para estudantes (hackathons, eventos, programas de embaixador, competições e olimpíadas, estágios e bolsas), com prazo, elegibilidade e link oficial. O plano completo está em [PLANO.md](PLANO.md). A identidade visual (nome, logos, cores) está em [identidade/](identidade/IDENTIDADE.md).
+Eventos, hackathons, programas e bolsas pra estudantes. Site público que reúne oportunidades abertas para estudantes (hackathons, eventos, programas de embaixador, competições e olimpíadas, estágios e bolsas), com prazo, elegibilidade e link oficial. O plano completo está em [PLANO.md](PLANO.md). O visual do site (cores, fontes, componentes e regras de animação) está em [docs/design/](docs/design/README.md).
 
 Estado atual (Fase 1, em andamento): lista hackathons do Devpost e da MLH e eventos dos GDGs brasileiros, ordenados pelo prazo ou, sem prazo, pela data de início.
 
@@ -27,6 +27,10 @@ O Sympla não é coletado: os termos de uso proíbem robôs e mineração de dad
 O mesmo evento pode vir de duas fontes. O site junta os itens com a mesma data de início, a mesma cidade (ou os dois online) e títulos iguais depois de tirar acentos, pontuação e o ano, ou um título contido no outro (`src/lib/dedupe.ts`). Fica um só, e o painel de detalhe mostra "também em" com o link da outra fonte.
 
 O botão "reportar erro" do painel grava na tabela `reports` (migração 0006) sem identificar quem enviou. Qualquer pessoa pode enviar e ninguém lê pelo site. A coleta diária (`npm run reports`) junta os reportes novos numa issue com a etiqueta `reporte`.
+
+## Aviso quando um programa abre
+
+Nos programas fechados, o botão "Me avise quando abrir" guarda o pedido (no navegador e, com conta, na tabela `program_watches`, migração 0010). A coleta diária roda `npm run program-alerts`, que manda um e-mail quando o programa passa a aceitar inscrições e marca o aviso como enviado. Usa os mesmos segredos do Gmail do resumo semanal. Detalhes em [docs/design/melhorias-2026-11.md](docs/design/melhorias-2026-11.md).
 
 ## Resumo semanal por e-mail
 
