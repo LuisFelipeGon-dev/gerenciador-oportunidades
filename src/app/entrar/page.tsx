@@ -16,10 +16,10 @@ export default function Page() {
         <p className="mt-2 text-[15px] text-muted">
           Com a conta, seu perfil e seus salvos acompanham você no celular e no computador.
         </p>
-        <div className="mt-6 rounded-2xl border border-line bg-card p-5 sm:p-6">
+        <div className="mt-6 rounded-lg border border-line bg-card p-5 sm:p-6">
           <LoginForm />
         </div>
-        <Link href="/" className="mt-5 inline-block text-[14px] font-semibold text-action">
+        <Link href="/" className="mt-5 inline-flex min-h-10 items-center text-[14px] font-semibold text-action hover:underline">
           Voltar sem entrar
         </Link>
       </main>

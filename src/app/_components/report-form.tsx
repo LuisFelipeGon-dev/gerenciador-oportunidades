@@ -81,13 +81,13 @@ export function ReportForm({ itemKey }: { itemKey: string }) {
   }
 
   return (
-    <form ref={formRef} onSubmit={submit} className="mt-3 rounded-xl border border-line p-3 text-ink">
+    <form ref={formRef} onSubmit={submit} noValidate className="mt-3 rounded-md border border-line p-3 text-ink">
       <fieldset>
         <legend className="text-[13.5px] font-bold">O que está errado?</legend>
         <div className="mt-2 grid gap-1.5">
           {REPORT_REASONS.map((r) => (
-            <label key={r.id} className="flex items-center gap-2 text-[13.5px]">
-              <input type="radio" name="reason" value={r.id} required className="accent-action" />
+            <label key={r.id} className="flex min-h-9 cursor-pointer items-center gap-2.5 text-[13.5px]">
+              <input type="radio" name="reason" value={r.id} className="check" />
               {r.label}
             </label>
           ))}
@@ -99,7 +99,7 @@ export function ReportForm({ itemKey }: { itemKey: string }) {
           name="message"
           maxLength={REPORT_MESSAGE_MAX}
           rows={3}
-          className="mt-1 w-full rounded-lg border border-line bg-card px-3 py-2 text-[14px] focus:border-action focus:outline-none"
+          className="mt-1 w-full rounded-md border border-line bg-card px-3 py-2 text-[14px] transition-[border-color,box-shadow] focus:border-action focus:shadow-[0_0_0_3px_var(--sky-tint)] focus:outline-none"
         />
       </label>
       <p className="mt-1 text-[12px] text-muted">Não pedimos nem guardamos seu nome ou e-mail.</p>
@@ -112,11 +112,11 @@ export function ReportForm({ itemKey }: { itemKey: string }) {
         <button
           type="submit"
           disabled={state === "sending"}
-          className="rounded-lg bg-action px-3.5 py-2 text-[13.5px] font-bold text-card hover:bg-action-strong disabled:opacity-60"
+          className="inline-flex h-10 items-center rounded-md bg-btn px-4 font-mono text-[13px] font-semibold tracking-tight text-on-btn hover:bg-btn-hover disabled:opacity-60"
         >
           {state === "sending" ? "Enviando…" : "Enviar"}
         </button>
-        <button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-line px-3.5 py-2 text-[13.5px] font-semibold hover:border-ink">
+        <button type="button" onClick={() => setOpen(false)} className="inline-flex h-10 items-center rounded-md border border-line px-4 font-mono text-[13px] font-semibold tracking-tight hover:border-ink">
           Cancelar
         </button>
       </div>

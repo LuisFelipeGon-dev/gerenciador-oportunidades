@@ -18,6 +18,7 @@ Fundo de ardósia (azul quase preto no escuro, azul-gelo no claro), um azul de s
 | Botão de tema | `src/app/_components/theme-toggle.tsx` |
 | Cartões, linhas, selo "Combina com você", faixa de prêmio, botões Salvar, Página oficial e "Me avise quando abrir" | `src/app/_components/cards.tsx` |
 | Painel e faixa de próximos prazos | `src/app/_components/deadline-panel.tsx` |
+| Campos de formulário: lista (`Select`), texto com sugestões (`Combobox`), data DD/MM/AAAA (`DateField`) e a classe `fieldClass` | `src/app/_components/fields.tsx` |
 | Conteúdo de uma oportunidade (gaveta da home e página própria) | `src/app/_components/detail-drawer.tsx` (`DetailContent`) |
 | Página própria e imagem de prévia | `src/app/o/[source]/[id]/` |
 | Ícone do site | `src/app/icon.svg` |
@@ -44,6 +45,11 @@ Sempre pelos tokens (classes Tailwind geradas em `@theme inline`): `bg-ground`, 
 - `reveal`: a seção sobe ao entrar na tela (animação ligada à rolagem, só em CSS).
 - `type-cursor`: cursor piscando depois do título do hero.
 - `matrix`: o `?` em pontos do hero (`MatrixMark`). Os pontos acendem em onda e crescem sob o mouse.
+- `check`: caixa de marcar e rádio desenhados pelo site (`<input type="checkbox" className="check">`).
+
+## Formulários
+
+Nada de controle nativo do navegador: `<select>`, `<datalist>` e `type="date"` mudam de cara em cada navegador e ignoram o tema. Use os componentes de `fields.tsx` e a classe `check`. Os formulários usam `noValidate` e conferem os campos no `submit`, para a mensagem de erro ser a do site (caixa `role="alert"` com `bg-urgent-bg`), não o balão do navegador. As listas abrem para cima quando falta espaço embaixo e Esc fecha só a lista, não a janela.
 
 ## Animação: regras que já causaram bug
 
