@@ -32,7 +32,7 @@ Números do hero em uma linha, texto do perfil escondido no celular (o botão do
 - Envio: `npm run program-alerts` (`scripts/program-alerts.ts`, lógica em `src/lib/program-alerts.ts` com testes). Um e-mail por pessoa quando o programa passa a `open`; `notified_at` impede repetição. Desligar e ligar de novo recria o aviso. `--dry-run` lista sem enviar.
 - Roda na coleta diária (`.github/workflows/collect.yml`, passo "Avisos de programas que abriram"), depois da coleta atualizar o status dos programas.
 
-**Falta fazer fora do código:** aplicar a migração 0010 no Supabase. Os segredos `GMAIL_USER` e `GMAIL_APP_PASSWORD` já existem (são os do resumo semanal).
+A migração 0010 já foi aplicada no Supabase de produção (novembro de 2026). Os segredos `GMAIL_USER` e `GMAIL_APP_PASSWORD` são os mesmos do resumo semanal.
 
 ### Página própria e imagem de prévia
 - Rota `src/app/o/[source]/[id]/`: página com o mesmo conteúdo da gaveta (`DetailContent`), metadados (`generateMetadata`) e imagem 1200×630 (`opengraph-image.tsx`) no visual do hero.
