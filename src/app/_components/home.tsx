@@ -132,13 +132,14 @@ function SectionHeader({ title, count, hint }: { title: string; count?: number; 
 
 function ShowMore({ total, shown, onMore }: { total: number; shown: number; onMore: () => void }) {
   if (shown >= total) return null;
+  const rest = total - shown;
   return (
     <button
       type="button"
       onClick={onMore}
       className="mt-2 inline-flex min-h-11 items-center font-mono text-[13px] font-semibold tracking-tight text-action underline underline-offset-4 hover:text-action-strong"
     >
-      Ver mais {Math.min(total - shown, 10)} de {total - shown}
+      {rest <= 10 ? `Ver mais ${rest}` : `Ver mais 10 de ${rest}`}
     </button>
   );
 }
