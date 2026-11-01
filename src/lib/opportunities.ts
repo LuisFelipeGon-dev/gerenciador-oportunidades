@@ -49,3 +49,24 @@ export async function getPrograms(): Promise<OpenOpportunities> {
   const items = (data as OpportunityRow[]).map(fromRow).sort((a, b) => rank[a.status] - rank[b.status]);
   return { configured: true, items };
 }
+
+export type OneOpportunity = { configured: false } | { configured: true; item: Opportunity | null };
+
+/** One opportunity by its key, for its own page (/o/[source]/[id]); closed ones still show. */
+export async function getOpportunity(source: string, sourceId: string): Promise<OneOpportunity> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("opportunities");
+
+  const supabase = createPublicClient();
+  if (!supabase) return { configured: false };
+
+  const { data, error } = await supabase
+    .from("opportunities")
+    .select("*")
+    .eq("source", source)
+    .eq("source_id", sourceId)
+    .maybeSingle<OpportunityRow>();
+  if (error) throw new Error(`Failed to load opportunity: ${error.message}`);
+  return { configured: true, item: data ? fromRow(data) : null };
+}

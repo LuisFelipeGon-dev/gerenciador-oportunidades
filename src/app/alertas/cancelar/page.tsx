@@ -12,7 +12,7 @@ export default function Page() {
     <div className="flex flex-1 flex-col">
       <SimpleHeader />
       <main className="mx-auto w-full max-w-[560px] px-4 py-10 sm:py-14">
-        <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Resumo por e-mail</h1>
+        <h1 className="font-mono text-[28px] leading-tight font-semibold tracking-[-0.05em]">Resumo por e-mail</h1>
         <Unsubscribe />
       </main>
     </div>

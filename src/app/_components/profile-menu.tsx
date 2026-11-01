@@ -14,7 +14,9 @@ const LEVEL_LABEL: Record<Profile["level"], string> = {
   phd: "Doutorado",
 };
 
-const initialsOf = (p: Profile) => (p.name || p.course).slice(0, 2).toUpperCase();
+/** The first name the person typed; the name is optional in the profile. */
+const shownName = (p: Profile) => p.name.trim().split(/\s+/)[0] || "Seu perfil";
+const initialOf = (p: Profile) => (p.name.trim() || p.course).charAt(0).toUpperCase();
 
 /**
  * The profile pill in the top bar and what opens from it: the profile, Ajustes and the account.
@@ -54,26 +56,27 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="flex items-center gap-2 rounded-full bg-navy-2 p-1.5 text-[13.5px] hover:bg-white/15 sm:pr-3.5"
+        aria-label={p ? (p.name.trim() ? `Seu perfil, ${shownName(p)}` : "Seu perfil") : "Montar seu perfil"}
+        className="flex min-h-10 items-center gap-2.5 rounded-md border border-line p-[3px] font-mono text-[13px] font-semibold tracking-tight transition-colors hover:border-line-strong hover:bg-card sm:pr-3.5"
       >
-        <span className="grid size-[26px] place-items-center rounded-full bg-sky text-[11px] font-extrabold text-navy">
-          {p ? initialsOf(p) : <PencilIcon className="size-3.5" />}
+        <span className="grid size-8 place-items-center rounded-[3px] bg-action text-[12px] font-bold text-card">
+          {p ? initialOf(p) : <PencilIcon className="size-3.5" />}
         </span>
         {/* Phones only show the avatar: logo + "Entrar" + this pill must fit in 360px. */}
-        <span className="sr-only sm:not-sr-only sm:max-w-[16ch] sm:truncate">{p ? `${p.course} · ${p.city}` : "Montar perfil"}</span>
+        <span className="sr-only sm:not-sr-only sm:max-w-[14ch] sm:truncate">{p ? shownName(p) : "Montar perfil"}</span>
       </button>
 
       {open && (
         <>
-          <div aria-hidden="true" onClick={() => setOpen(false)} className="fixed inset-0 z-40 bg-[rgba(9,20,48,0.45)] sm:hidden" />
+          <div aria-hidden="true" onClick={() => setOpen(false)} className="fixed inset-0 z-40 bg-[var(--scrim)] sm:hidden" />
           <div
             role="dialog"
             aria-label="Seu perfil e sua conta"
-            className="fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-3xl border border-line bg-card text-ink shadow-[0_-12px_40px_rgb(var(--shadow-rgb)/0.25)] animate-[rise-in_.25s_cubic-bezier(.16,1,.3,1)] sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:bottom-auto sm:mt-2 sm:w-[360px] sm:rounded-2xl sm:shadow-[0_20px_48px_-16px_rgb(var(--shadow-rgb)/0.35)]"
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-md border border-line-strong bg-card text-ink shadow-[0_-12px_40px_rgb(var(--shadow-rgb)/0.25)] animate-[rise-in_.25s_cubic-bezier(.16,1,.3,1)] sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:bottom-auto sm:mt-2 sm:w-[360px] sm:rounded-2xl sm:shadow-[0_20px_48px_-16px_rgb(var(--shadow-rgb)/0.35)]"
           >
             <div className="flex items-center justify-between px-5 pt-4 sm:hidden">
-              <span className="text-[15px] font-extrabold">Seu perfil</span>
-              <button type="button" onClick={() => setOpen(false)} aria-label="Fechar" className="grid size-9 place-items-center rounded-full hover:bg-ground">
+              <span className="font-mono text-[15px] font-semibold tracking-tight">Seu perfil</span>
+              <button type="button" onClick={() => setOpen(false)} aria-label="Fechar" className="grid size-10 place-items-center rounded-md border border-line hover:bg-ground">
                 <XIcon className="size-5" />
               </button>
             </div>
@@ -82,11 +85,11 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
               {p ? (
                 <>
                   <div className="flex items-center gap-3">
-                    <span className="grid size-12 shrink-0 place-items-center rounded-full bg-sky text-[15px] font-extrabold text-navy">
-                      {initialsOf(p)}
+                    <span className="grid size-12 shrink-0 place-items-center rounded-md bg-action font-mono text-[16px] font-semibold text-card">
+                      {initialOf(p)}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-[16px] font-bold">{p.name || p.course}</p>
+                      <p className="truncate font-mono text-[16px] font-semibold tracking-tight">{p.name || p.course}</p>
                       <p className="flex items-center gap-1 text-[13.5px] text-muted">
                         <PinIcon className="size-3.5 shrink-0" />
                         <span className="truncate">
@@ -110,9 +113,9 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
                     ))}
                   </dl>
                   {interests.length > 0 && (
-                    <ul className="mt-3 flex flex-wrap gap-1.5 text-[12.5px] font-semibold" aria-label="Interesses">
+                    <ul className="mt-3 flex flex-wrap gap-1.5 font-mono text-[12px] font-semibold tracking-tight" aria-label="Interesses">
                       {interests.map((i) => (
-                        <li key={i} className="rounded-full bg-sky-tint px-2.5 py-1">
+                        <li key={i} className="rounded-sm border border-line bg-sky-tint px-2 py-0.5">
                           {TYPE_PLURAL[i]}
                         </li>
                       ))}
@@ -121,19 +124,19 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
                   <button
                     type="button"
                     onClick={editProfile}
-                    className="mt-4 w-full rounded-xl bg-action py-2.5 text-[14.5px] font-bold text-card hover:bg-action-strong"
+                    className="mt-4 h-11 w-full rounded-md bg-btn font-mono text-[13.5px] font-semibold tracking-tight text-on-btn transition-colors hover:bg-btn-hover"
                   >
                     Editar perfil
                   </button>
                 </>
               ) : (
                 <>
-                  <p className="text-[16px] font-bold">Monte seu perfil</p>
+                  <p className="font-mono text-[16px] font-semibold tracking-tight">Monte seu perfil</p>
                   <p className="mt-1 text-[14px] text-muted">Curso, cidade e nível: a página passa a mostrar só o que serve pra você.</p>
                   <button
                     type="button"
                     onClick={editProfile}
-                    className="mt-4 w-full rounded-xl bg-action py-2.5 text-[14.5px] font-bold text-card hover:bg-action-strong"
+                    className="mt-4 h-11 w-full rounded-md bg-btn font-mono text-[13.5px] font-semibold tracking-tight text-on-btn transition-colors hover:bg-btn-hover"
                   >
                     Montar perfil
                   </button>
@@ -145,7 +148,7 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
               <Link
                 href="/ajustes"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14.5px] font-semibold hover:bg-ground"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-[14.5px] font-semibold hover:bg-ground"
               >
                 <SlidersIcon className="size-5 text-muted" />
                 Ajustes
@@ -165,7 +168,7 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
                       setOpen(false);
                       void signOut();
                     }}
-                    className="shrink-0 rounded-lg border border-line px-3.5 py-2 text-[14px] font-semibold hover:border-ink"
+                    className="shrink-0 rounded-md border border-line-strong px-3.5 py-2 font-mono text-[13px] font-semibold tracking-tight hover:border-action hover:bg-sky-tint"
                   >
                     Sair
                   </button>
@@ -173,7 +176,7 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
               ) : (
                 <div className="flex items-center gap-3">
                   <p className="min-w-0 flex-1 text-[13.5px] text-muted">Leve perfil e salvos para o celular e o computador.</p>
-                  <Link href="/entrar" className="shrink-0 rounded-lg border border-line px-3.5 py-2 text-[14px] font-semibold hover:border-ink">
+                  <Link href="/entrar" className="shrink-0 rounded-md border border-line-strong px-3.5 py-2 font-mono text-[13px] font-semibold tracking-tight hover:border-action hover:bg-sky-tint">
                     Entrar
                   </Link>
                 </div>

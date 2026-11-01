@@ -11,6 +11,7 @@
     "collect": "tsx --env-file-if-exists=.env.local scripts/collect.ts",
     "monitor": "tsx --env-file-if-exists=.env.local scripts/monitor.ts",
     "alerts": "tsx --env-file-if-exists=.env.local scripts/alerts.ts",
+    "program-alerts": "tsx --env-file-if-exists=.env.local scripts/program-alerts.ts",
     "reports": "tsx --env-file-if-exists=.env.local scripts/reports.ts",
     "typecheck": "tsc --noEmit"
   },

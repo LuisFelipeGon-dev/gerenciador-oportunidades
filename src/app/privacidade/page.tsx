@@ -12,10 +12,10 @@ export default function Page() {
       <Link href="/" className="text-[14px] font-semibold text-action">
         ← Voltar
       </Link>
-      <h1 className="mt-4 text-[28px] leading-tight font-extrabold tracking-tight">Política de privacidade</h1>
+      <h1 className="mt-4 font-mono text-[28px] leading-tight font-semibold tracking-[-0.05em]">Política de privacidade</h1>
       <p className="mt-1 text-[14px] text-muted">Versão de 28 de outubro de 2026</p>
 
-      <h2 className="mt-8 text-[18px] font-extrabold">O que guardamos</h2>
+      <h2 className="mt-8 font-mono text-[18px] font-semibold tracking-[-0.045em]">O que guardamos</h2>
       <p className="mt-2">Só o necessário para mostrar oportunidades que servem pra você:</p>
       <ul className="mt-2 list-disc space-y-1 pl-5">
         <li>e-mail, para entrar na conta;</li>
@@ -27,13 +27,13 @@ export default function Page() {
       </ul>
       <p className="mt-2">Não pedimos CPF, telefone nem endereço completo.</p>
 
-      <h2 className="mt-8 text-[18px] font-extrabold">Para que usamos</h2>
+      <h2 className="mt-8 font-mono text-[18px] font-semibold tracking-[-0.045em]">Para que usamos</h2>
       <p className="mt-2">
         Para montar a página com o que combina com o seu perfil e guardar seus salvos entre aparelhos. Não vendemos nem
         compartilhamos seus dados com terceiros para publicidade.
       </p>
 
-      <h2 className="mt-8 text-[18px] font-extrabold">Resumo por e-mail</h2>
+      <h2 className="mt-8 font-mono text-[18px] font-semibold tracking-[-0.045em]">Resumo por e-mail</h2>
       <p className="mt-2">
         Só se você marcar a opção no seu perfil (ela começa desligada), mandamos toda segunda um e-mail com oportunidades
         novas que combinam com o seu perfil e os prazos dos seus salvos que fecham na semana. O e-mail sai de uma conta do
@@ -41,19 +41,19 @@ export default function Page() {
         &quot;Parar de receber&quot; no fim de qualquer resumo.
       </p>
 
-      <h2 className="mt-8 text-[18px] font-extrabold">Onde ficam</h2>
+      <h2 className="mt-8 font-mono text-[18px] font-semibold tracking-[-0.045em]">Onde ficam</h2>
       <p className="mt-2">
         No banco de dados do Supabase, protegido para que cada pessoa só acesse o próprio perfil. Sem conta, o perfil fica
         apenas no seu navegador.
       </p>
 
-      <h2 className="mt-8 text-[18px] font-extrabold">Seus direitos (LGPD)</h2>
+      <h2 className="mt-8 font-mono text-[18px] font-semibold tracking-[-0.045em]">Seus direitos (LGPD)</h2>
       <p className="mt-2">
         Você pode ver e corrigir seus dados em &quot;Editar perfil&quot; e apagar a conta a qualquer momento em &quot;Apagar minha
         conta&quot;. Ao apagar, perfil e salvos são excluídos na hora.
       </p>
 
-      <h2 className="mt-8 text-[18px] font-extrabold">Sobre as oportunidades</h2>
+      <h2 className="mt-8 font-mono text-[18px] font-semibold tracking-[-0.045em]">Sobre as oportunidades</h2>
       <p className="mt-2">
         As informações vêm de páginas públicas e são conferidas com frequência, mas a fonte final é sempre a página oficial
         de cada oportunidade.

@@ -107,7 +107,7 @@ function Fields({ initial, onClose }: { initial: Profile | null; onClose: () => 
     <form onSubmit={submit} className="p-5 sm:p-6">
       <div className="flex items-start gap-3">
         <div>
-          <h2 id="profile-title" className="text-xl font-extrabold tracking-tight">
+          <h2 id="profile-title" className="font-mono text-xl font-semibold tracking-[-0.045em]">
             {initial ? "Editar seu perfil" : "Monte seu perfil"}
           </h2>
           <p className="mt-1 text-[14px] text-muted">Com ele, a página mostra o que serve pra você.</p>
@@ -336,7 +336,7 @@ export function ProfileForm({ open, initial, onClose }: { open: boolean; initial
       ref={ref}
       onClose={onClose}
       aria-labelledby="profile-title"
-      className="m-auto max-h-[92dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl bg-card p-0 text-ink shadow-[0_20px_60px_rgba(9,20,48,0.25)] backdrop:bg-[rgba(9,20,48,0.45)]"
+      className="m-auto max-h-[92dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl bg-card p-0 text-ink border border-line-strong shadow-[0_30px_80px_rgb(0_0_0/0.45)] open:animate-[sheet-in_.32s_cubic-bezier(.2,.8,.2,1)]"
     >
       {open && <Fields initial={initial} onClose={onClose} />}
     </dialog>

@@ -2,7 +2,7 @@
 
 import type { Session } from "@supabase/supabase-js";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { PROFILE_KEY, SAVED_KEY, readProfile, readSaved, writeLocal } from "./local-store";
+import { PROFILE_KEY, SAVED_KEY, WATCH_KEY, readProfile, readSaved, readWatching, writeLocal } from "./local-store";
 import type { Profile } from "./personalize";
 import { profileFromRow as fromRow, profileToRow as toRow, type ProfileRow } from "./profile-row";
 import { browserClient } from "./supabase/browser";
@@ -95,6 +95,17 @@ async function syncAfterSignIn(current: Session | null) {
     await supabase.from("saved_opportunities").insert(toUpload.map((item_key) => ({ user_id: userId, item_key })));
   }
   writeLocal(SAVED_KEY, [...new Set([...remoteKeys, ...localKeys])]);
+
+  // "Me avise quando abrir": the same union. Watches already notified stay off in this browser.
+  const { data: watchRows } = await supabase.from("program_watches").select("item_key, notified_at");
+  const rows = (watchRows ?? []) as { item_key: string; notified_at: string | null }[];
+  const remoteWatching = rows.filter((r) => r.notified_at === null).map((r) => r.item_key);
+  const known = rows.map((r) => r.item_key);
+  const watchUpload = readWatching().filter((k) => !known.includes(k));
+  if (watchUpload.length > 0) {
+    await supabase.from("program_watches").insert(watchUpload.map((item_key) => ({ user_id: userId, item_key })));
+  }
+  writeLocal(WATCH_KEY, [...new Set([...remoteWatching, ...watchUpload])]);
 }
 
 // ---- actions used by the UI -----------------------------------------------------------------
@@ -160,9 +171,22 @@ export async function toggleSaved(key: string) {
   }
 }
 
+/** Turns "Me avise quando abrir" on or off for a program. Without an account it stays in this browser. */
+export async function toggleWatch(key: string) {
+  const current = readWatching();
+  const removing = current.includes(key);
+  writeLocal(WATCH_KEY, removing ? current.filter((k) => k !== key) : [...current, key]);
+  const supabase = browserClient();
+  if (!supabase || !session) return;
+  // Delete first in both cases: turning it on again after a notice starts a fresh watch.
+  await supabase.from("program_watches").delete().eq("item_key", key);
+  if (!removing) await supabase.from("program_watches").insert({ user_id: session.user.id, item_key: key });
+}
+
 function clearLocal() {
   writeLocal(PROFILE_KEY, null);
   writeLocal(SAVED_KEY, null);
+  writeLocal(WATCH_KEY, null);
 }
 
 export async function signOut() {

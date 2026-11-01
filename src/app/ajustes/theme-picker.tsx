@@ -55,7 +55,7 @@ export function ThemePicker() {
 
   return (
     <fieldset>
-      <legend className="text-[17px] font-extrabold tracking-tight">Tema</legend>
+      <legend className="font-mono text-[17px] font-semibold tracking-[-0.045em]">Tema</legend>
       <p className="mt-1 text-[14px] text-muted">Vale só para este navegador.</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {OPTIONS.map((o) => (

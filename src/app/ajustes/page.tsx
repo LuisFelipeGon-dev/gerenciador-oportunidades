@@ -16,7 +16,7 @@ export default function Page() {
         <Link href="/" className="text-[14px] font-semibold text-action">
           ← Voltar
         </Link>
-        <h1 className="mt-4 text-[28px] leading-tight font-extrabold tracking-tight">Ajustes</h1>
+        <h1 className="mt-4 font-mono text-[28px] leading-tight font-semibold tracking-[-0.05em]">Ajustes</h1>
         <p className="mt-1 text-[15px] text-muted">Tema, idioma e sua conta.</p>
 
         <section className="mt-8">
@@ -24,13 +24,13 @@ export default function Page() {
         </section>
 
         <section className="mt-10 border-t border-line pt-8">
-          <h2 className="text-[17px] font-extrabold tracking-tight">Idioma</h2>
+          <h2 className="font-mono text-[17px] font-semibold tracking-[-0.045em]">Idioma</h2>
           <p className="mt-2 text-[15px]">Português (Brasil)</p>
           <p className="mt-1 text-[14px] text-muted">Por enquanto o site existe só em português.</p>
         </section>
 
         <section className="mt-10 border-t border-line pt-8">
-          <h2 className="text-[17px] font-extrabold tracking-tight">Conta</h2>
+          <h2 className="font-mono text-[17px] font-semibold tracking-[-0.045em]">Conta</h2>
           <AccountSettings />
         </section>
       </main>

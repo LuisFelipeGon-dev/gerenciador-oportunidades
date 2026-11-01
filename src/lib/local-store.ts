@@ -12,6 +12,8 @@ import { DEFAULT_RADIUS_KM, LEVELS, type Profile } from "./personalize";
 
 export const PROFILE_KEY = "oportunidades:perfil:v2";
 export const SAVED_KEY = "oportunidades:salvos:v1";
+/** Programs the person asked to be told about when they open ("Me avise quando abrir"). */
+export const WATCH_KEY = "topa:avisos:v1";
 
 export const profileSchema = z.object({
   name: z.string().max(60).default(""),
@@ -71,7 +73,7 @@ export function notify() {
 export function subscribeLocal(listener: () => void) {
   listeners.add(listener);
   const onStorage = (e: StorageEvent) => {
-    if (e.key === PROFILE_KEY || e.key === SAVED_KEY) listener();
+    if (e.key === PROFILE_KEY || e.key === SAVED_KEY || e.key === WATCH_KEY) listener();
   };
   window.addEventListener("storage", onStorage);
   return () => {
@@ -83,6 +85,7 @@ export function subscribeLocal(listener: () => void) {
 const EMPTY: string[] = [];
 export const readProfile = () => read(PROFILE_KEY, (raw) => profileSchema.parse(JSON.parse(raw)) as Profile, null);
 export const readSaved = () => read(SAVED_KEY, (raw) => z.array(z.string()).parse(JSON.parse(raw)), EMPTY);
+export const readWatching = () => read(WATCH_KEY, (raw) => z.array(z.string()).parse(JSON.parse(raw)), EMPTY);
 
 /** undefined while rendering on the server, before the browser storage can be read. */
 export function useProfile(): Profile | null | undefined {
@@ -91,4 +94,8 @@ export function useProfile(): Profile | null | undefined {
 
 export function useSaved(): string[] {
   return useSyncExternalStore(subscribeLocal, readSaved, () => EMPTY);
+}
+
+export function useWatching(): string[] {
+  return useSyncExternalStore(subscribeLocal, readWatching, () => EMPTY);
 }

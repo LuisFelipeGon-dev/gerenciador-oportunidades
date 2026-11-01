@@ -144,7 +144,7 @@ function WeekRow({
             type="button"
             onClick={() => onOpenDay(day.date)}
             aria-label={`${weekdayOf(day.date)}, ${longDate(day.date)}: ${active.length === 0 ? "nada marcado" : `${active.length} na agenda`}`}
-            className={`group flex min-h-[68px] min-w-0 flex-col items-stretch border-l border-line p-1 text-left transition-colors first:border-l-0 hover:bg-sky/15 focus-visible:z-10 focus-visible:outline-offset-[-2px] sm:min-h-[118px] sm:p-1.5 ${
+            className={`group flex min-h-[68px] min-w-0 flex-col items-stretch border-l border-line p-1 text-left transition-colors first:border-l-0 hover:bg-action/10 focus-visible:z-10 focus-visible:outline-offset-[-2px] sm:min-h-[118px] sm:p-1.5 ${
               !day.inMonth ? "bg-ground/70" : weekend ? "bg-ground/35" : ""
             }`}
           >
@@ -247,7 +247,7 @@ function DayPage({
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[14px] font-semibold text-muted">{date === today ? "Hoje" : weekdayOf(date)}</p>
-          <h3 className="text-[26px] leading-tight font-extrabold tracking-tight text-balance">{longDate(date)}</h3>
+          <h3 className="font-mono text-[24px] leading-tight font-semibold tracking-[-0.045em] text-balance">{longDate(date)}</h3>
           <p className="mt-1 text-[14px] text-muted">
             {active.length === 0 ? "Nada marcado neste dia." : `${active.length} ${active.length === 1 ? "item" : "itens"} na sua agenda`}
           </p>
@@ -263,10 +263,10 @@ function DayPage({
           if (list.length === 0) return null;
           return (
             <section key={kind} className="mb-8">
-              <h4 className="mb-3 text-[17px] font-extrabold tracking-tight">
+              <h4 className="mb-3 font-mono text-[16px] font-semibold tracking-[-0.045em]">
                 {title} <span className="ml-1 text-[14px] font-semibold text-muted tabular-nums">{list.length}</span>
               </h4>
-              <div className="grid gap-3">
+              <div className="stack">
                 {list.map((e) => (
                   <OpportunityCard
                     key={e.key}
@@ -409,7 +409,7 @@ export function AgendaCalendar({
         ) : (
           groupAgenda(entries, today).map((g) => (
             <section key={g.id} className="mb-6">
-              <h4 className="mb-2 text-[15px] font-extrabold tracking-tight">{g.label}</h4>
+              <h4 className="mb-2 font-mono text-[13px] font-semibold tracking-tight text-muted">{g.label}</h4>
               <ul className={shell}>
                 {g.entries.map((e) => (
                   <AgendaRow key={e.key} entry={e} actions={actions} />
