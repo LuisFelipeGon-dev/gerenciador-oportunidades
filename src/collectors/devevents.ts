@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { stateForCity, type MunicipalityTable } from "../lib/geo";
 import { opportunitySchema, type Opportunity } from "../lib/opportunity";
-import { loadMunicipalities } from "./geocode";
 import { politeFetchText, type FetchText } from "./http";
 
 // dev.events lists tech conferences by country. The Brazil page carries one schema.org Event
@@ -99,10 +98,10 @@ export function mapDevEvent(
 export async function collectDevEvents(options: {
   verifiedAt: string;
   fetchText?: FetchText;
-  municipalities?: MunicipalityTable;
+  municipalities: MunicipalityTable;
 }): Promise<{ opportunities: Opportunity[]; skipped: number }> {
   const fetchText = options.fetchText ?? politeFetchText;
-  const municipalities = options.municipalities ?? (await loadMunicipalities());
+  const { municipalities } = options;
 
   // Online events on this page are global paid courses, not local opportunities.
   const inPerson = parseListing(await fetchText(LISTING_URL)).filter(

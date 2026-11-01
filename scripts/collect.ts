@@ -1,48 +1,10 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { collectAgendaTech } from "../src/collectors/agendatech";
-import { collectCurated } from "../src/collectors/curated";
-import { collectDevEvents } from "../src/collectors/devevents";
-import { collectDevpost } from "../src/collectors/devpost";
-import { collectGdg } from "../src/collectors/gdg";
-import { collectIfmt } from "../src/collectors/ifmt";
-import { addCoordinates, loadMunicipalities } from "../src/collectors/geocode";
-import { collectLuma } from "../src/collectors/luma";
-import { collectMlh } from "../src/collectors/mlh";
-import { collectSbc } from "../src/collectors/sbc";
-import { collectUfmt } from "../src/collectors/ufmt";
-import { collectUnemat } from "../src/collectors/unemat";
-import type { Opportunity } from "../src/lib/opportunity";
-import { toRow } from "../src/lib/opportunity-row";
+import { createClient } from "@supabase/supabase-js";
+import { loadMunicipalities } from "../src/collectors/load-municipalities";
+import { readHealth, runSources, SOURCES } from "../src/collectors/run";
+import { sourcesToAlert } from "../src/lib/source-health";
 
-const BATCH_SIZE = 200;
-// After this many runs in a row without seeing an item, it is marked as closed.
-const MISSED_RUNS_TO_CLOSE = 2;
-
-type Collector = (options: { verifiedAt: string }) => Promise<{ opportunities: Opportunity[]; skipped: number }>;
-
-const SOURCES: { name: string; collect: Collector; requireResults: boolean }[] = [
-  { name: "devpost", collect: collectDevpost, requireResults: true },
-  // Between MLH seasons (around July) the list can legitimately be empty.
-  { name: "mlh", collect: collectMlh, requireResults: false },
-  // Few Brazilian GDG events may be scheduled in a given quarter.
-  { name: "gdg", collect: collectGdg, requireResults: false },
-  // Brazilian conferences; may legitimately come out empty when all of them are GDG events.
-  { name: "devevents", collect: collectDevEvents, requireResults: false },
-  // Community list of tech events across Brazil; between seasons only a few are ahead.
-  { name: "agendatech", collect: collectAgendaTech, requireResults: false },
-  // Events of the Sociedade Brasileira de Computação (symposiums, regional schools, Maratona).
-  { name: "sbc", collect: collectSbc, requireResults: false },
-  // Community calendars curated in data/luma-calendars.yaml; a quiet month has no events.
-  { name: "luma", collect: collectLuma, requireResults: false },
-  // UFMT calls for students (PROEG, PRAE, PROPESQ, PROCEV); weeks without a new call are normal.
-  { name: "ufmt", collect: collectUfmt, requireResults: false },
-  // UNEMAT calls for students, one search per student category of the site.
-  { name: "unemat", collect: collectUnemat, requireResults: false },
-  // IFMT calls whose audience includes students (high school, undergraduate, graduate).
-  { name: "ifmt", collect: collectIfmt, requireResults: false },
-  // Programs curated in data/programs.yaml.
-  { name: "curated", collect: collectCurated, requireResults: true },
-];
+// Daily GitHub job. Sources marked runsIn "brazil" are skipped here (the Vercel function in São
+// Paulo collects them) unless named with --only, e.g. from a computer in Brazil.
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -50,81 +12,33 @@ function requireEnv(name: string): string {
   return value;
 }
 
-async function save(supabase: SupabaseClient, source: string, opportunities: Opportunity[]) {
-  const rows = opportunities.map((o) => ({ ...toRow(o), missed_runs: 0 }));
-  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-    const { error } = await supabase
-      .from("opportunities")
-      .upsert(rows.slice(i, i + BATCH_SIZE), { onConflict: "source,source_id" });
-    if (error) throw new Error(`upsert failed: ${error.message}`);
-  }
-
-  // Items still open in the database that this run did not see.
-  const seen = new Set(opportunities.map((o) => o.sourceId));
-  const { data, error } = await supabase
-    .from("opportunities")
-    .select("source_id, missed_runs")
-    .eq("source", source)
-    .neq("status", "closed");
-  if (error) throw new Error(`select failed: ${error.message}`);
-  const missing = data.filter((r) => !seen.has(r.source_id));
-
-  let closed = 0;
-  for (const r of missing) {
-    const missedRuns = r.missed_runs + 1;
-    const close = missedRuns >= MISSED_RUNS_TO_CLOSE;
-    const { error: updateError } = await supabase
-      .from("opportunities")
-      .update(close ? { missed_runs: missedRuns, status: "closed" } : { missed_runs: missedRuns })
-      .eq("source", source)
-      .eq("source_id", r.source_id);
-    if (updateError) throw new Error(`update failed: ${updateError.message}`);
-    if (close) closed++;
-  }
-  return { saved: rows.length, missing: missing.length, closed };
-}
-
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
   const only = process.argv.find((a) => a.startsWith("--only="))?.slice("--only=".length).split(",");
-  const verifiedAt = new Date().toISOString();
   const supabase = dryRun
     ? null
     : createClient(requireEnv("NEXT_PUBLIC_SUPABASE_URL"), requireEnv("SUPABASE_SERVICE_ROLE_KEY"), {
         auth: { persistSession: false },
       });
 
-  const municipalities = await loadMunicipalities();
+  const sources = SOURCES.filter((s) => (only ? only.includes(s.name) : s.runsIn === "github"));
+  const { failures, healthRecorded } = await runSources(sources, {
+    supabase,
+    municipalities: await loadMunicipalities(),
+  });
+  if (failures.length > 0) console.error(`failed sources: ${failures.join(", ")}`);
+  if (!supabase) return;
 
-  const failures: string[] = [];
-  for (const source of SOURCES.filter((s) => !only || only.includes(s.name))) {
-    try {
-      // Each source is collected in full before touching the database: a failed or
-      // suspiciously empty run keeps that source's previous data.
-      const collected = await source.collect({ verifiedAt });
-      const { opportunities, unmatched } = addCoordinates(collected.opportunities, municipalities);
-      console.log(`${source.name}: ${opportunities.length} collected, ${collected.skipped} skipped`);
-      // Not an error: these items still show up, ordered by state instead of distance.
-      if (unmatched.length > 0) console.warn(`${source.name}: no coordinates for ${unmatched.join("; ")}`);
-      if (source.requireResults && opportunities.length === 0) {
-        throw new Error("returned no opportunities");
-      }
-
-      if (dryRun) {
-        console.log(JSON.stringify(opportunities.slice(0, 2), null, 2));
-        continue;
-      }
-      const { saved, missing, closed } = await save(supabase!, source.name, opportunities);
-      console.log(`${source.name}: saved ${saved}, missing ${missing}, closed ${closed}`);
-    } catch (err) {
-      failures.push(source.name);
-      console.error(`${source.name}: FAILED`, err);
-    }
+  // A site that blocks or times out for a day does not fail the run; a source that keeps failing,
+  // or that the São Paulo function stopped collecting, does, so GitHub emails.
+  if (!healthRecorded) {
+    console.error("source_health unavailable (migration 0011?): failing on this run's failures");
+    if (failures.length > 0) process.exit(1);
+    return;
   }
-
-  // One broken source does not block the others, but the run still fails so GitHub notifies.
-  if (failures.length > 0) {
-    console.error(`failed sources: ${failures.join(", ")}`);
+  const alerts = sourcesToAlert(await readHealth(supabase), SOURCES.map((s) => s.name), new Date());
+  if (alerts.length > 0) {
+    console.error(`sources that need attention:\n${alerts.join("\n")}`);
     process.exit(1);
   }
 }

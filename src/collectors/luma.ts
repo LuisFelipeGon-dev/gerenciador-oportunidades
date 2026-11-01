@@ -3,7 +3,6 @@ import { parse } from "yaml";
 import { z } from "zod";
 import { distanceKm, type MunicipalityTable, type Point } from "../lib/geo";
 import { opportunitySchema, type Opportunity } from "../lib/opportunity";
-import { loadMunicipalities } from "./geocode";
 import { politeFetchText, type FetchText } from "./http";
 
 // Luma has no public search, but each calendar publishes an iCal feed meant for subscribing
@@ -151,11 +150,11 @@ export async function collectLuma(options: {
   verifiedAt: string;
   fetchText?: FetchText;
   calendars?: LumaCalendar[];
-  municipalities?: MunicipalityTable;
+  municipalities: MunicipalityTable;
 }): Promise<{ opportunities: Opportunity[]; skipped: number }> {
   const fetchText = options.fetchText ?? politeFetchText;
   const calendars = options.calendars ?? (await loadCalendars());
-  const municipalities = options.municipalities ?? (await loadMunicipalities());
+  const { municipalities } = options;
 
   const opportunities: Opportunity[] = [];
   let skipped = 0;

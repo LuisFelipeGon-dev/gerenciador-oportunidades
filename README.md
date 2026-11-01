@@ -95,7 +95,7 @@ O esquema está em `supabase/migrations/`. Para aplicar em um projeto novo, cole
 
 ## Login
 
-Login pelo Supabase Auth de dois jeitos: código de 6 dígitos (e link mágico) por e-mail, ou e-mail e senha. Quem sempre entrou pelo código cria uma senha em "Esqueci minha senha" ou em Ajustes › Conta; o link de senha nova abre `/entrar/nova-senha`. A sessão fica no navegador, e o RLS garante que cada pessoa só lê e altera o próprio perfil e os próprios salvos. Sem conta, o perfil fica só no navegador.
+Login pelo Supabase Auth de dois jeitos: e-mail e senha (o que a tela mostra primeiro), ou código de 6 dígitos (e link mágico) por e-mail, no botão "Entrar com código por e-mail". Quem sempre entrou pelo código cria uma senha em "Esqueci minha senha" ou em Ajustes › Conta; o link de senha nova abre `/entrar/nova-senha`. A sessão fica no navegador, e o RLS garante que cada pessoa só lê e altera o próprio perfil e os próprios salvos. Sem conta, o perfil fica só no navegador.
 
 Configuração no painel do Supabase:
 
@@ -111,26 +111,35 @@ A conta pode ser apagada pela própria pessoa (função `delete_my_account`, mig
 src/app/            páginas
 src/lib/            esquema da oportunidade, conversão para o banco, leitura do Supabase
 src/collectors/     um arquivo por fonte, com teste e resposta salva em __fixtures__
-scripts/collect.ts  roda os coletores, completa as coordenadas e grava no Supabase
+scripts/collect.ts  roda os coletores do GitHub (lógica em src/collectors/run.ts) e grava no Supabase
 data/               programas curados e municípios com coordenadas
 supabase/           migrações SQL
 ```
 
 ## Coleta diária
 
-O workflow `.github/workflows/collect.yml` roda todo dia às 09:17 UTC (05:17 em Cuiabá), e também pode ser disparado à mão na aba Actions. Ele roda os testes e depois a coleta. Se algo falhar, o GitHub avisa por e-mail e o banco fica como estava. O site atualiza a lista em até uma hora.
+O workflow `.github/workflows/collect.yml` roda todo dia às 09:17 UTC (05:17 em Cuiabá), e também pode ser disparado à mão na aba Actions. Ele roda os testes e depois a coleta. Uma fonte que falha mantém os dados da véspera. O site atualiza a lista em até uma hora.
+
+Duas fontes recusam os servidores do GitHub, que ficam nos EUA: a UFMT só responde a endereços do Brasil, e o dev.events responde 403. Elas rodam na rota `/api/collect-br`, uma função da Vercel fixada em São Paulo (`gru1`) e chamada pelo cron do `vercel.json` às 08:00 UTC. A lista de fontes e onde cada uma roda (`runsIn`) fica em `src/collectors/run.ts`. Do seu computador, `npm run collect -- --only=ufmt,devevents` coleta as duas.
+
+Cada execução grava em `source_health` (migração 0011) quantas vezes seguidas a fonte falhou. A coleta do GitHub só termina com erro, e o GitHub só manda e-mail, quando uma fonte falha 3 vezes seguidas ou fica 48 horas sem ser coletada. O log diz qual e por quê.
 
 Segredos necessários no repositório (Settings > Secrets and variables > Actions):
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
+Variáveis necessárias na Vercel (Settings > Environment Variables, ambiente Production), para a rota de São Paulo:
+
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `CRON_SECRET`: um texto aleatório longo; a Vercel o envia ao chamar o cron e a rota recusa quem não tem.
+
 O GitHub desativa workflows agendados de repositórios públicos depois de 60 dias sem commits. Se isso acontecer, reative na aba Actions.
 
 ## Regras dos coletores
 
 - No máximo uma requisição por segundo por site, com User-Agent que identifica o robô.
-- Se a coleta falhar ou vier vazia, o script termina com erro e não altera o banco.
+- Se a coleta de uma fonte falhar ou vier vazia, os dados dela no banco ficam como estavam.
 - Só dados factuais (nome, datas, local, link). Nada de descrições inteiras ou imagens.
 
 ## Testes
