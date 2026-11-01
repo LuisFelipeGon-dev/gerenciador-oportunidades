@@ -272,6 +272,14 @@ body {
   .spot:hover {
     background-image: radial-gradient(340px circle at var(--mx, 50%) var(--my, 0%), var(--glow), transparent 70%);
   }
+  /* The hero's light is wider, as in the reference: a 560px halo and the grid lit in a 280px circle. */
+  .spot-lg::after {
+    mask-image: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), #000, transparent 72%);
+    transition: opacity 0.5s var(--ease-out-soft);
+  }
+  .spot-lg:hover {
+    background-image: radial-gradient(560px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 65%);
+  }
 
   /* Cards joined into one block, separated by hairlines. */
   .stack {
@@ -303,29 +311,44 @@ body {
     animation: none;
   }
 
-  /* The bitmap "?" of the hero: dots light up in a diagonal wave, the last one blinks. */
+  /*
+   * The bitmap "?" of the hero: dots light up in a diagonal wave, the last one blinks, and each dot
+   * swells under the pointer. Colors stay out of the keyframes: Safari does not resolve var() there
+   * for SVG fill and paints the dots black, which hid the "?" on the dark theme. "backwards" lets the
+   * hover transform take over once the entrance is done.
+   */
+  .matrix circle {
+    pointer-events: visiblePainted;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform 0.25s var(--ease-out-soft),
+      opacity 0.25s;
+  }
   .matrix .off {
     fill: var(--line-strong);
     opacity: 0.5;
-    animation: offin 0.7s ease both;
+    animation: offin 0.7s ease backwards;
     animation-delay: calc(80ms + var(--k) * 45ms);
   }
   .matrix .on {
     fill: var(--action);
-    transform-box: fill-box;
-    transform-origin: center;
-    animation:
-      lit 0.56s var(--ease-out-soft) both,
-      flash 0.9s ease-out both;
-    animation-delay: calc(250ms + var(--k) * 60ms), calc(250ms + var(--k) * 60ms);
+    animation: lit 0.56s var(--ease-out-soft) backwards;
+    animation-delay: calc(250ms + var(--k) * 60ms);
   }
   .matrix .cursor {
     fill: var(--signal);
-    transform-box: fill-box;
-    transform-origin: center;
     animation:
-      lit 0.56s var(--ease-out-soft) calc(550ms + var(--k) * 60ms) both,
+      lit 0.56s var(--ease-out-soft) calc(550ms + var(--k) * 60ms) backwards,
       blink 1.1s steps(1, end) 2.6s infinite;
+  }
+  .matrix .on:hover,
+  .matrix .cursor:hover {
+    transform: scale(1.3);
+  }
+  .matrix .off:hover {
+    opacity: 1;
+    transform: scale(2.6);
   }
   .matrix {
     filter: drop-shadow(0 0 26px var(--glow));
@@ -337,7 +360,7 @@ body {
   .logo-q .dot {
     fill: var(--signal);
   }
-  a:hover > .logo-q .dot {
+  a:hover .logo-q .dot {
     animation: blink 0.9s steps(1, end) infinite;
   }
 
@@ -440,14 +463,6 @@ body {
   100% {
     opacity: 1;
     transform: none;
-  }
-}
-@keyframes flash {
-  0% {
-    fill: #fff;
-  }
-  100% {
-    fill: var(--action);
   }
 }
 @keyframes offin {

@@ -14,7 +14,9 @@ const LEVEL_LABEL: Record<Profile["level"], string> = {
   phd: "Doutorado",
 };
 
-const initialsOf = (p: Profile) => (p.name || p.course).slice(0, 2).toUpperCase();
+/** The first name the person typed; the name is optional in the profile. */
+const shownName = (p: Profile) => p.name.trim().split(/\s+/)[0] || "Seu perfil";
+const initialOf = (p: Profile) => (p.name.trim() || p.course).charAt(0).toUpperCase();
 
 /**
  * The profile pill in the top bar and what opens from it: the profile, Ajustes and the account.
@@ -54,13 +56,14 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
+        aria-label={p ? (p.name.trim() ? `Seu perfil, ${shownName(p)}` : "Seu perfil") : "Montar seu perfil"}
         className="flex min-h-10 items-center gap-2.5 rounded-md border border-line p-[3px] font-mono text-[13px] font-semibold tracking-tight transition-colors hover:border-line-strong hover:bg-card sm:pr-3.5"
       >
         <span className="grid size-8 place-items-center rounded-[3px] bg-action text-[12px] font-bold text-card">
-          {p ? initialsOf(p) : <PencilIcon className="size-3.5" />}
+          {p ? initialOf(p) : <PencilIcon className="size-3.5" />}
         </span>
         {/* Phones only show the avatar: logo + "Entrar" + this pill must fit in 360px. */}
-        <span className="sr-only sm:not-sr-only sm:max-w-[16ch] sm:truncate">{p ? `${p.course} · ${p.city}` : "Montar perfil"}</span>
+        <span className="sr-only sm:not-sr-only sm:max-w-[14ch] sm:truncate">{p ? shownName(p) : "Montar perfil"}</span>
       </button>
 
       {open && (
@@ -83,7 +86,7 @@ export function ProfileMenu({ profile, onEditProfile }: { profile: Profile | nul
                 <>
                   <div className="flex items-center gap-3">
                     <span className="grid size-12 shrink-0 place-items-center rounded-md bg-action font-mono text-[16px] font-semibold text-card">
-                      {initialsOf(p)}
+                      {initialOf(p)}
                     </span>
                     <div className="min-w-0">
                       <p className="truncate font-mono text-[16px] font-semibold tracking-tight">{p.name || p.course}</p>

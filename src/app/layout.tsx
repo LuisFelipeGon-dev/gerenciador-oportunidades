@@ -15,6 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Absolute base for the preview images in shared links (/o/.../opengraph-image).
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://topa-estudantes.vercel.app"),
   title: {
     default: "Topa? Eventos, hackathons e programas pra estudantes",
     template: "%s | Topa?",

@@ -2,21 +2,22 @@
 
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { toggleSaved, useSession } from "@/lib/account";
+import { toggleSaved, toggleWatch, useSession } from "@/lib/account";
 import { agendaEntries, type AgendaFilter } from "@/lib/agenda";
 import { aliasKeys } from "@/lib/dedupe";
 import { areaById } from "@/lib/areas";
 import { regionOf, stateName } from "@/lib/brazil";
-import { useProfile, useSaved } from "@/lib/local-store";
+import { useProfile, useSaved, useWatching } from "@/lib/local-store";
 import { useProfilePlace } from "@/lib/municipalities";
 import type { Opportunity, OpportunityType } from "@/lib/opportunity";
-import { buildSections, effectiveInterests, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
+import { buildSections, checksFor, effectiveInterests, isExcluded, itemKey, keyDate, localToday, type Profile } from "@/lib/personalize";
+import { fitOf, matchesQuery } from "@/lib/search";
 import { AgendaCalendar } from "./agenda-calendar";
 import { BrandLogo, MatrixMark } from "./brand";
 import { CompactRow, OpportunityCard, ProgramCard, type CardActions } from "./cards";
-import { DeadlinePanel } from "./deadline-panel";
+import { DeadlinePanel, DeadlineStrip } from "./deadline-panel";
 import { DetailDrawer } from "./detail-drawer";
-import { TYPE_PLURAL } from "./format";
+import { MODALITY_LABEL, TYPE_LABEL, TYPE_PLURAL } from "./format";
 import { ProfileForm } from "./profile-form";
 import { ProfileMenu } from "./profile-menu";
 import { ThemeToggle } from "./theme-toggle";
@@ -168,6 +169,48 @@ const primaryButton =
 const ghostButton =
   "inline-flex h-11 items-center justify-center gap-2 rounded-md border border-line-strong px-[18px] font-mono text-[13px] font-semibold tracking-tight text-ink transition-colors hover:border-action hover:bg-sky-tint";
 
+function SearchIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="pointer-events-none absolute top-1/2 left-3.5 size-[18px] -translate-y-1/2 text-muted"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.2}
+      strokeLinecap="round"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" />
+    </svg>
+  );
+}
+
+/**
+ * What the server renders, before this browser's profile is read: the open items in date order.
+ * Without it, slow connections saw only "Carregando…" until the JavaScript arrived.
+ */
+function ServerList({ items, programs, actions }: { items: Opportunity[]; programs: Opportunity[]; actions: CardActions }) {
+  const open = programs.filter((o) => o.status === "open");
+  return (
+    <section>
+      <SectionHeader title="Abertas agora" count={items.length + open.length} hint="Do prazo mais próximo ao mais distante. Com o seu perfil, a página mostra primeiro o que serve pra você." />
+      <div className="stack">
+        {items.slice(0, 10).map((o) => (
+          <OpportunityCard key={itemKey(o)} o={o} today={null} profile={null} actions={actions} />
+        ))}
+      </div>
+      {open.length > 0 && (
+        <div className="stack mt-6">
+          {open.map((o) => (
+            <ProgramCard key={itemKey(o)} o={o} actions={actions} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 const SUGGEST_URL = "https://github.com/LuisFelipeGon-dev/gerenciador-oportunidades/issues/new";
 
 function distanceWhy(km: number, city: string): string {
@@ -180,6 +223,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   const p: Profile | null = profile ?? null;
   const place = useProfilePlace(p);
   const savedKeys = useSaved();
+  const watchingKeys = useWatching();
   const session = useSession();
   const hash = useSyncExternalStore(subscribeHash, readHash, () => "");
   const [tab, setTab] = useState<Tab>("for-you");
@@ -187,8 +231,12 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
   const [agendaFilter, setAgendaFilter] = useState<AgendaFilter>("all");
   const [profileOpen, setProfileOpen] = useState(false);
   const [limits, setLimits] = useState<Record<string, number>>({});
+  const [query, setQuery] = useState("");
+  const [fitOnly, setFitOnly] = useState(false);
+  const [tabEdges, setTabEdges] = useState({ left: false, right: false });
   const tabsRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const today = hydrated ? localToday() : null;
   const all = useMemo(() => [...items, ...programs], [items, programs]);
@@ -216,6 +264,8 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
     onOpen: openItem,
     onToggleSave: (o) => toggleSaved(itemKey(o)),
     isSaved: (o) => savedKeys.includes(itemKey(o)),
+    isWatching: (o) => watchingKeys.includes(itemKey(o)),
+    onToggleWatch: (o) => void toggleWatch(itemKey(o)),
   };
 
   const limit = (id: string, base: number) => limits[id] ?? base;
@@ -244,12 +294,57 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
     ? { "for-you": matching, hackathon: ofType("hackathon").length, event: ofType("event").length, programs: sections.programs.length }
     : {};
 
+  const filtering = query.trim() !== "" || fitOnly || modeFilter !== "all";
+  const passes = (o: Opportunity) =>
+    matchesQuery(o, query, `${TYPE_LABEL[o.type]} ${MODALITY_LABEL[o.modality]}`) &&
+    (modeFilter === "all" || (modeFilter === "online" ? o.modality === "online" : o.modality !== "online")) &&
+    (!fitOnly || !p || fitOf(checksFor(o, p, today ?? "1970-01-01")) !== "no");
+  const byDate = (a: Opportunity, b: Opportunity) => (keyDate(a) ?? "9999").localeCompare(keyDate(b) ?? "9999");
+
   const tabItems =
-    tab === "for-you" || tab === "agenda"
-      ? []
-      : (tab === "programs" ? sections.programs : ofType(tab))
-          .filter((o) => modeFilter === "all" || (modeFilter === "online" ? o.modality === "online" : o.modality !== "online"))
-          .sort((a, b) => (keyDate(a) ?? "9999").localeCompare(keyDate(b) ?? "9999"));
+    tab === "for-you" || tab === "agenda" ? [] : (tab === "programs" ? sections.programs : ofType(tab)).filter(passes).sort(byDate);
+  const results =
+    tab === "for-you" && filtering
+      ? [...items.filter((o) => !isExcluded(o, p, today ?? "1970-01-01")), ...sections.programs].filter(passes).sort(byDate)
+      : [];
+  const clearFilters = () => {
+    setQuery("");
+    setFitOnly(false);
+    setModeFilter("all");
+  };
+
+  // "/" or Ctrl+K (⌘K) jumps to the search from anywhere outside a text field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement;
+      const typing = el.closest?.("input, textarea, select, [contenteditable='true']");
+      const combo = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k";
+      if (!combo && (typing || e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey)) return;
+      if (document.querySelector("dialog[open]")) return;
+      e.preventDefault();
+      setTab((t) => (t === "agenda" ? "for-you" : t));
+      requestAnimationFrame(() => searchRef.current?.focus());
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  // On phones the tab row scrolls sideways; its edges fade where more tabs are hidden.
+  useEffect(() => {
+    const row = tabsRef.current;
+    if (!row) return;
+    const measure = () => {
+      const max = row.scrollWidth - row.clientWidth;
+      setTabEdges({ left: row.scrollLeft > 4, right: max - row.scrollLeft > 4 });
+    };
+    measure();
+    row.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      row.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+    };
+  }, [hydrated]);
 
   // The glowing line under the current tab slides to it; on phones the tab row also scrolls to it.
   useLayoutEffect(() => {
@@ -315,6 +410,13 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
             </Link>
             <div
               ref={tabsRef}
+              style={
+                tabEdges.left || tabEdges.right
+                  ? {
+                      maskImage: `linear-gradient(90deg, ${tabEdges.left ? "transparent, #000 40px" : "#000, #000"}, #000 calc(100% - ${tabEdges.right ? "48px" : "0px"}), ${tabEdges.right ? "transparent" : "#000"})`,
+                    }
+                  : undefined
+              }
               className="relative order-3 -mx-4 flex h-12 w-[calc(100%+2rem)] gap-0.5 overflow-x-auto px-4 [scrollbar-width:none] md:order-none md:mx-0 md:h-full md:w-auto md:min-w-0 md:flex-1 md:px-0 [&::-webkit-scrollbar]:hidden"
             >
               {TABS.map((t) => (
@@ -359,16 +461,16 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
         </div>
       </header>
 
-      <section className="grid-bg spot relative overflow-hidden border-b border-line" aria-label="Resumo">
+      <section className="grid-bg spot spot-lg relative overflow-hidden border-b border-line" aria-label="Resumo">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -top-[35%] -right-[6%] -z-10 size-[620px] max-w-full bg-[radial-gradient(closest-side,var(--glow),transparent)]"
         />
         <div className="hero-parallax relative mx-auto max-w-[1120px] px-4 sm:px-5">
-          <div className="flex flex-wrap items-end gap-x-12 gap-y-7 py-9 sm:gap-y-9 md:py-14">
+          <div className="flex flex-wrap items-end gap-x-12 gap-y-6 py-7 sm:gap-y-9 sm:py-9 md:py-14">
             <div className="min-w-0 basis-full">
               <HeroTitle text={heroText} accent={heroAccent} />
-              <p className="mt-4 max-w-[56ch] text-[15px] leading-[23px] text-muted sm:text-[16px] sm:leading-[25px]">
+              <p className={`mt-4 max-w-[56ch] text-[15px] leading-[23px] text-muted sm:block sm:text-[16px] sm:leading-[25px] ${p ? "hidden" : ""}`}>
                 {p
                   ? `Montado a partir do seu perfil: ${p.course} (${area!.label.toLowerCase()}), ${p.city} (${p.state}). Tudo leva à página oficial.`
                   : "Monte seu perfil em 30 segundos e a página passa a mostrar o que serve pra você: perto da sua cidade, no seu nível, no prazo."}
@@ -380,23 +482,21 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               )}
             </div>
             {hydrated && (
-              <dl className="grid w-full grid-cols-2 gap-y-5 animate-[rise_.6s_var(--ease-out-soft)_both] sm:flex sm:w-auto">
-                {stats.map((s, i) => (
+              <dl className="grid w-full grid-cols-4 animate-[rise_.6s_var(--ease-out-soft)_both] sm:flex sm:w-auto">
+                {stats.map((s) => (
                   <div
                     key={s.l}
-                    className={`flex min-w-0 flex-col-reverse justify-end border-line px-4 sm:min-w-[120px] sm:px-7 ${
-                      i % 2 === 0 ? "border-l-0 pl-0" : "border-l"
-                    } sm:border-l sm:first:border-l-0 sm:first:pl-0`}
+                    className="flex min-w-0 flex-col-reverse justify-end border-l border-line px-2.5 first:border-l-0 first:pl-0 sm:min-w-[120px] sm:px-7"
                   >
-                    <dt className="mt-1.5 max-w-[15ch] text-[12.5px] leading-[18px] text-muted">{s.l}</dt>
-                    <dd className={`font-mono text-[30px] leading-8 font-semibold tracking-[-0.04em] tabular-nums sm:text-[36px] sm:leading-[38px] ${s.warn ? "text-urgent" : ""}`}>
+                    <dt className="mt-1 max-w-[15ch] text-[11px] leading-[14px] text-muted sm:mt-1.5 sm:text-[12.5px] sm:leading-[18px]">{s.l}</dt>
+                    <dd className={`font-mono text-[24px] leading-7 font-semibold tracking-[-0.04em] tabular-nums sm:text-[36px] sm:leading-[38px] ${s.warn ? "text-urgent" : ""}`}>
                       <CountUp value={s.n} />
                     </dd>
                   </div>
                 ))}
               </dl>
             )}
-            <MatrixMark className="pointer-events-none absolute top-14 right-5 hidden h-[calc(100%-108px)] w-auto lg:block" />
+            <MatrixMark className="pointer-events-none absolute top-14 right-5 hidden h-[calc(100%-108px)] max-h-[380px] w-auto min-[900px]:block" />
           </div>
         </div>
       </section>
@@ -404,9 +504,104 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 px-4 pt-8 pb-20 sm:px-5 lg:flex-row lg:items-start lg:gap-10 lg:pt-12">
         <main id="conteudo" tabIndex={-1} className="order-2 min-w-0 flex-1 outline-none lg:order-1">
           {!hydrated ? (
-            <p className="font-mono text-[13px] text-muted">Carregando oportunidades…</p>
+            <ServerList items={items} programs={programs} actions={actions} />
+          ) : (
+            <>
+          {tab !== "agenda" && (
+            <div className="mb-10 flex flex-wrap items-center gap-2.5" role="search">
+              <div className="relative min-w-0 flex-[1_1_100%]">
+                <SearchIcon />
+                <label htmlFor="busca" className="sr-only">
+                  Buscar oportunidades
+                </label>
+                <input
+                  ref={searchRef}
+                  id="busca"
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setQuery("");
+                      e.currentTarget.blur();
+                    }
+                  }}
+                  placeholder="Buscar por nome, cidade ou tema"
+                  autoComplete="off"
+                  className="h-11 w-full rounded-md border border-line bg-card pr-3.5 pl-10 text-[14.5px] transition-[border-color,box-shadow] placeholder:text-muted hover:border-line-strong focus-visible:border-action focus-visible:shadow-[0_0_0_3px_var(--sky-tint)] focus-visible:outline-none sm:pr-12"
+                />
+                <span aria-hidden="true" className={`pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 gap-1 ${query ? "" : "sm:flex"}`}>
+                  <kbd className="rounded-[3px] border border-b-2 border-line bg-surface px-1.5 font-mono text-[11px] leading-[18px] text-muted">/</kbd>
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Filtros">
+                <Chip pressed={modeFilter === "in_person"} onClick={() => setModeFilter((m) => (m === "in_person" ? "all" : "in_person"))}>
+                  Presencial
+                </Chip>
+                <Chip pressed={modeFilter === "online"} onClick={() => setModeFilter((m) => (m === "online" ? "all" : "online"))}>
+                  Online
+                </Chip>
+                {p && (
+                  <Chip pressed={fitOnly} onClick={() => setFitOnly((v) => !v)}>
+                    Combina comigo
+                  </Chip>
+                )}
+              </div>
+              {filtering && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="ml-auto inline-flex min-h-11 items-center font-mono text-[12.5px] font-semibold tracking-tight text-action underline underline-offset-4"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+          )}
+          {tab === "for-you" && filtering ? (
+            <section aria-live="polite">
+              <SectionHeader
+                title="Resultados"
+                count={results.length}
+                hint={query.trim() ? `Para “${query.trim()}”, do prazo mais próximo ao mais distante.` : "Do prazo mais próximo ao mais distante."}
+              />
+              {results.length === 0 ? (
+                <Empty>
+                  Nada combina com essa busca.{" "}
+                  <button type="button" onClick={clearFilters} className="font-semibold text-action underline underline-offset-4">
+                    Limpar filtros
+                  </button>
+                </Empty>
+              ) : (
+                <>
+                  <div className="stack">
+                    {results.slice(0, limit("results", 12)).map((o) => (
+                      <OpportunityCard key={itemKey(o)} o={o} today={today} profile={p} actions={actions} />
+                    ))}
+                  </div>
+                  <ShowMore total={results.length} shown={limit("results", 12)} onMore={() => more("results", 12)} />
+                </>
+              )}
+            </section>
           ) : tab === "for-you" ? (
             <>
+              <DeadlineStrip
+                title={saved.length > 0 ? "Prazos dos seus salvos" : "Próximos prazos"}
+                items={timeline}
+                today={today}
+                onOpen={openItem}
+                onSeeAgenda={() => setTab("agenda")}
+              />
+              {profileIncomplete && (
+                <section className="mb-8 flex flex-wrap items-center gap-3 rounded-md border border-line-strong bg-sky-tint px-4 py-3 lg:hidden">
+                  <p className="min-w-0 flex-1 text-[13.5px] leading-5">
+                    <span className="font-semibold">Complete seu perfil:</span> <span className="text-muted">com instituição e câmpus, os editais dela aparecem aqui.</span>
+                  </p>
+                  <button type="button" onClick={() => setProfileOpen(true)} className={`${primaryButton} h-10 px-3.5`}>
+                    Completar
+                  </button>
+                </section>
+              )}
               {saved.length > 0 && (
                 <section className="reveal mb-12">
                   <SectionHeader title="Salvos" count={saved.length} hint={session ? "Guardados na sua conta." : "Guardados neste navegador."} />
@@ -576,23 +771,8 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
                 count={tabItems.length}
                 hint={tab === "programs" ? "Embaixadores, competições, estágios e bolsas que abrem todo ano." : "Da data mais próxima à mais distante."}
               />
-              {tab !== "programs" && (
-                <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Modalidade">
-                  {(
-                    [
-                      { id: "all", l: "Tudo" },
-                      { id: "online", l: "Online" },
-                      { id: "in_person", l: "Presencial" },
-                    ] as const
-                  ).map((f) => (
-                    <Chip key={f.id} pressed={modeFilter === f.id} onClick={() => setModeFilter(f.id)}>
-                      {f.l}
-                    </Chip>
-                  ))}
-                </div>
-              )}
               {tabItems.length === 0 ? (
-                <Empty>Nada aberto aqui agora.</Empty>
+                <Empty>{filtering ? "Nada aqui combina com a busca e os filtros." : "Nada aberto aqui agora."}</Empty>
               ) : tab === "programs" ? (
                 <div className="stack">
                   {tabItems.map((o) => (
@@ -611,14 +791,14 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
               )}
             </section>
           )}
+            </>
+          )}
         </main>
 
         {hydrated && (
           <aside
             aria-label="Prazos e perfil"
-            className={`order-1 flex-col gap-4 lg:sticky lg:top-24 lg:order-2 lg:flex lg:max-h-[calc(100dvh-112px)] lg:w-[320px] lg:shrink-0 lg:overflow-y-auto lg:[scrollbar-width:thin] ${
-              tab === "for-you" ? "flex" : "hidden"
-            }`}
+            className="hidden flex-col gap-4 lg:sticky lg:top-24 lg:order-2 lg:flex lg:max-h-[calc(100dvh-112px)] lg:w-[320px] lg:shrink-0 lg:overflow-y-auto lg:[scrollbar-width:thin]"
           >
             <DeadlinePanel
               title={saved.length > 0 ? "Prazos dos seus salvos" : "Próximos prazos"}
@@ -667,7 +847,7 @@ export function Home({ items, programs }: { items: Opportunity[]; programs: Oppo
         )}
       </div>
 
-      {today && <DetailDrawer o={opened} today={today} profile={p} actions={actions} onClose={closeItem} />}
+      {today && <DetailDrawer o={opened} today={today} profile={p} actions={actions} signedIn={!!session} onClose={closeItem} />}
       <ProfileForm open={profileOpen} initial={p} onClose={() => setProfileOpen(false)} />
     </>
   );

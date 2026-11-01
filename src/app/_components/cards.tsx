@@ -3,14 +3,37 @@
 import type { AgendaEntry } from "@/lib/agenda";
 import type { Opportunity } from "@/lib/opportunity";
 import { checksFor, keyDate, type Check, type Profile } from "@/lib/personalize";
+import { canWatch } from "@/lib/program-alerts";
+import { fitOf } from "@/lib/search";
 import { MODALITY_LABEL, TYPE_LABEL, TYPE_TONE, dateStub, monthNames, placeLine, topicTags, weekdayOf } from "./format";
-import { ArrowIcon, BookmarkIcon, CheckIcon, QuestionIcon, XIcon } from "./icons";
+import { ArrowIcon, BellIcon, BookmarkIcon, CheckIcon, QuestionIcon, XIcon } from "./icons";
 
 export type CardActions = {
   onOpen: (o: Opportunity) => void;
   onToggleSave: (o: Opportunity) => void;
   isSaved: (o: Opportunity) => boolean;
+  /** "Me avise quando abrir", for closed programs. */
+  isWatching?: (o: Opportunity) => boolean;
+  onToggleWatch?: (o: Opportunity) => void;
 };
+
+export function WatchButton({ o, actions, className = "" }: { o: Opportunity; actions: CardActions; className?: string }) {
+  if (!canWatch(o) || !actions.onToggleWatch || !actions.isWatching) return null;
+  const on = actions.isWatching(o);
+  return (
+    <button
+      type="button"
+      onClick={() => actions.onToggleWatch!(o)}
+      aria-pressed={on}
+      className={`relative z-10 inline-flex h-10 items-center gap-2 rounded-md border px-3 font-mono text-[12px] font-semibold tracking-tight transition-colors ${
+        on ? "border-action bg-sky-tint text-ink" : "border-line-strong text-ink-2 hover:border-action hover:bg-sky-tint hover:text-ink"
+      } ${className}`}
+    >
+      <BellIcon className={`size-[15px] ${on ? "animate-[pop_.32s_cubic-bezier(.2,.8,.2,1)] text-action" : ""}`} />
+      {on ? "Aviso ligado" : "Me avise quando abrir"}
+    </button>
+  );
+}
 
 const MONTH_ABBR = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
@@ -92,12 +115,6 @@ function Kicker({ o }: { o: Opportunity }) {
       ))}
     </p>
   );
-}
-
-function fitOf(checks: Check[]): "ok" | "no" | "unk" {
-  if (checks.some((c) => c.ok === false)) return "no";
-  if (checks.some((c) => c.ok === null)) return "unk";
-  return "ok";
 }
 
 const FIT = {
@@ -360,6 +377,7 @@ export function ProgramCard({ o, today, actions }: { o: Opportunity; today?: str
         {o.organizer && <p className="mt-1 text-[13px] leading-[19px] text-muted">{o.organizer}</p>}
         {o.benefits.length > 0 && <p className="mt-1 text-[13px] leading-[19px] text-ink-2">{o.benefits.join(" · ")}</p>}
         {o.note && <p className="mt-2 text-[12px] text-muted">{o.note}</p>}
+        <WatchButton o={o} actions={actions} className="mt-3" />
       </div>
     </article>
   );

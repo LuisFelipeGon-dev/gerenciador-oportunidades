@@ -4,21 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import { buildIcs, calendarEventFor, googleCalendarUrl } from "@/lib/calendar";
 import type { Opportunity } from "@/lib/opportunity";
 import { checksFor, itemKey, type Profile } from "@/lib/personalize";
-import { CheckList, FitBadge, ModeTag, OfficialLink, SaveButton, TypeTag, type CardActions } from "./cards";
+import Link from "next/link";
+import { canWatch, opportunityPath } from "@/lib/program-alerts";
+import { CheckList, FitBadge, ModeTag, OfficialLink, SaveButton, TypeTag, WatchButton, type CardActions } from "./cards";
 import { SOURCE_LABEL, dateStub, instantDate, longDate, placeLine, shortDate, topicTags, whatItIs } from "./format";
 import { CalendarIcon, ShareIcon, XIcon } from "./icons";
 import { ReportForm } from "./report-form";
 
+/** The item's own page: WhatsApp and Instagram show its title, deadline and preview image. */
 function shareUrlFor(o: Opportunity): string {
-  const url = new URL(window.location.href);
-  url.hash = `o=${itemKey(o)}`;
-  return url.toString();
+  return new URL(opportunityPath(o), window.location.origin).toString();
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, as: Heading = "h3", children }: { title: string; as?: "h2" | "h3"; children: React.ReactNode }) {
   return (
     <section className="mt-6 first:mt-0">
-      <h3 className="mb-2.5 font-mono text-[13px] leading-5 font-semibold tracking-tight">{title}</h3>
+      <Heading className="mb-2.5 font-mono text-[13px] leading-5 font-semibold tracking-tight">{title}</Heading>
       {children}
     </section>
   );
@@ -32,16 +33,18 @@ export function DetailDrawer({
   today,
   profile,
   actions,
+  signedIn,
   onClose,
 }: {
   o: Opportunity | null;
   today: string;
   profile: Profile | null;
   actions: CardActions;
+  /** Without an account a watch stays in this browser and no e-mail can be sent. */
+  signedIn: boolean;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const [shared, setShared] = useState(false);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -52,10 +55,48 @@ export function DetailDrawer({
 
   if (!o) return <dialog ref={ref} onClose={onClose} className="hidden" />;
 
+  return (
+    <dialog
+      ref={ref}
+      onClose={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      aria-labelledby="detail-title"
+      className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-dvh w-full max-w-[540px] overflow-y-auto overscroll-contain border-l border-line-strong bg-card p-0 text-ink shadow-[-20px_0_60px_rgb(0_0_0/0.35)] open:block open:animate-[drawer-in_.32s_cubic-bezier(.2,.8,.2,1)] max-sm:top-auto max-sm:bottom-0 max-sm:h-[92dvh] max-sm:max-w-none max-sm:rounded-t-md max-sm:border-t max-sm:border-l-0 max-sm:open:animate-[sheet-in_.32s_cubic-bezier(.2,.8,.2,1)]"
+    >
+      <DetailContent o={o} today={today} profile={profile} actions={actions} signedIn={signedIn} onClose={onClose} />
+    </dialog>
+  );
+}
+
+/**
+ * Everything about one opportunity: the drawer of the home page and the item's own page
+ * (/o/[source]/[id]) show the same content. today is null before the browser knows the date.
+ */
+export function DetailContent({
+  o,
+  today,
+  profile,
+  actions,
+  signedIn,
+  onClose,
+  titleAs: Title = "h2",
+}: {
+  o: Opportunity;
+  today: string | null;
+  profile: Profile | null;
+  actions: CardActions;
+  signedIn: boolean;
+  onClose?: () => void;
+  titleAs?: "h1" | "h2";
+}) {
+  const [shared, setShared] = useState(false);
+  const sectionAs = Title === "h1" ? "h2" : "h3";
   const stub = dateStub(o, today);
   const topics = topicTags(o);
-  const checks = checksFor(o, profile, today);
-  const event = typeof window === "undefined" ? null : calendarEventFor(o, shareUrlFor(o), today);
+  const checks = checksFor(o, profile, today ?? "1970-01-01");
+  const event = typeof window === "undefined" || !today ? null : calendarEventFor(o, shareUrlFor(o), today);
 
   function downloadIcs() {
     if (!event) return;
@@ -91,15 +132,7 @@ export function DetailDrawer({
   ];
 
   return (
-    <dialog
-      ref={ref}
-      onClose={onClose}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-      aria-labelledby="detail-title"
-      className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-dvh w-full max-w-[540px] overflow-y-auto overscroll-contain border-l border-line-strong bg-card p-0 text-ink shadow-[-20px_0_60px_rgb(0_0_0/0.35)] open:block open:animate-[drawer-in_.32s_cubic-bezier(.2,.8,.2,1)] max-sm:top-auto max-sm:bottom-0 max-sm:h-[92dvh] max-sm:max-w-none max-sm:rounded-t-md max-sm:border-t max-sm:border-l-0 max-sm:open:animate-[sheet-in_.32s_cubic-bezier(.2,.8,.2,1)]"
-    >
+    <>
       {/* The whole drawer scrolls as one: a fixed header and footer left little room on phones. */}
       <div className="grid-bg px-5 pt-6 pb-5 sm:px-8 sm:pt-7">
         <div className="flex items-start justify-between gap-4">
@@ -107,6 +140,7 @@ export function DetailDrawer({
             <TypeTag o={o} />
             <ModeTag o={o} />
           </div>
+          {onClose && (
           <button
             type="button"
             onClick={onClose}
@@ -115,10 +149,11 @@ export function DetailDrawer({
           >
             <XIcon className="size-[18px]" />
           </button>
+          )}
         </div>
-        <h2 id="detail-title" className="mt-3 font-mono text-[21px] leading-[27px] font-semibold tracking-[-0.045em] text-balance sm:text-[24px] sm:leading-[30px]">
+        <Title id="detail-title" className="mt-3 font-mono text-[21px] leading-[27px] font-semibold tracking-[-0.045em] text-balance sm:text-[24px] sm:leading-[30px]">
           {o.title}
-        </h2>
+        </Title>
 
         <dl className="mt-6 grid grid-cols-[90px_1fr] gap-x-4 gap-y-3 border-y border-line py-5 sm:grid-cols-[120px_1fr]">
           {facts.map((f) => (
@@ -134,7 +169,7 @@ export function DetailDrawer({
       </div>
 
       <div className="px-5 pb-6 sm:px-8">
-        <Section title="Posso participar?">
+        <Section as={sectionAs} title="Posso participar?">
           <div className="flex flex-col gap-2.5">
             {profile && <FitBadge checks={checks} />}
             <CheckList checks={checks} size="md" />
@@ -142,7 +177,7 @@ export function DetailDrawer({
           {!profile && <p className="mt-2 text-[13px] text-muted">Monte seu perfil para ver se você se encaixa.</p>}
         </Section>
 
-        <Section title="O que é">
+        <Section as={sectionAs} title="O que é">
           {/* A call's own summary (read from its PDF) beats the generic description of its type. */}
           <p className="max-w-[65ch] text-[15px] leading-relaxed text-ink-2">{o.summary ?? whatItIs(o)}</p>
           <p className="mt-2.5 rounded-sm border-l-2 border-line-strong bg-card-2 px-3 py-2 text-[12.5px] leading-[18px] text-muted">
@@ -153,7 +188,7 @@ export function DetailDrawer({
         </Section>
 
         {topics.length > 0 && (
-          <Section title="Temas">
+          <Section as={sectionAs} title="Temas">
             <ul className="flex flex-wrap gap-1.5">
               {topics.map((t) => (
                 <li key={t} className="rounded-sm border border-line bg-card-2 px-2.5 py-1 font-mono text-[12px] font-semibold tracking-tight">
@@ -165,7 +200,7 @@ export function DetailDrawer({
         )}
 
         {o.benefits.length > 1 && (
-          <Section title="O que você ganha">
+          <Section as={sectionAs} title="O que você ganha">
             <ul className="list-disc space-y-1 pl-5 text-[15px] marker:text-action">
               {o.benefits.map((b) => (
                 <li key={b}>{b}</li>
@@ -174,7 +209,7 @@ export function DetailDrawer({
           </Section>
         )}
 
-        <Section title="Datas">
+        <Section as={sectionAs} title="Datas">
           <ul className="space-y-1 text-[15px]">
             {o.registrationDeadline && <li>Inscrições até {longDate(o.registrationDeadline)}</li>}
             {o.startsOn && (
@@ -191,18 +226,18 @@ export function DetailDrawer({
         </Section>
 
         {o.modality !== "online" && o.location.raw && (
-          <Section title="Onde">
+          <Section as={sectionAs} title="Onde">
             <p className="text-[15px]">{o.location.raw.replace(/[\s,;·-]+$/, "")}</p>
           </Section>
         )}
 
         {o.note && (
-          <Section title="Atenção">
+          <Section as={sectionAs} title="Atenção">
             <p className="text-[15px]">{o.note}</p>
           </Section>
         )}
 
-        <Section title="Fonte">
+        <Section as={sectionAs} title="Fonte">
           <div className="text-[13px] text-muted">
             Verificado em {instantDate(o.verifiedAt)} · fonte: {SOURCE_LABEL[o.source] ?? o.source}
             {o.alsoOn.length > 0 && (
@@ -229,6 +264,20 @@ export function DetailDrawer({
           <OfficialLink o={o} className="h-12 flex-1 text-[14px]" />
           <SaveButton o={o} actions={actions} />
         </div>
+        {canWatch(o) && (
+          <div className="mt-2.5">
+            <WatchButton o={o} actions={actions} className="h-11 w-full justify-center" />
+            {actions.isWatching?.(o) && !signedIn && (
+              <p className="mt-2 text-[12.5px] leading-[18px] text-muted">
+                O aviso ficou guardado neste navegador.{" "}
+                <Link href="/entrar" className="font-semibold text-action underline underline-offset-2">
+                  Entre na sua conta
+                </Link>{" "}
+                para receber por e-mail quando abrir.
+              </p>
+            )}
+          </div>
+        )}
         <div className="mt-2.5 flex flex-wrap gap-2">
           {event && (
             <details className="relative">
@@ -259,6 +308,6 @@ export function DetailDrawer({
         </div>
         <p className="mt-3 text-[12px] leading-[17px] text-muted">A página oficial é sempre o destino: confira regras e prazos lá antes de se inscrever.</p>
       </footer>
-    </dialog>
+    </>
   );
 }
