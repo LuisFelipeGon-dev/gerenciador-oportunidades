@@ -32,7 +32,8 @@ jobs:
       # Se o formato de uma fonte mudar, os testes com respostas salvas falham antes de gravar.
       - run: npm test
 
-      # Falha (e o GitHub avisa por e-mail) se a coleta der erro ou vier vazia; o banco fica como estava.
+      # Falha (e o GitHub avisa por e-mail) quando uma fonte falha 3 dias seguidos ou para de ser
+      # coletada (tabela source_health); UFMT e dev.events rodam na Vercel em São Paulo.
       - run: npm run collect
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

@@ -1,10 +1,5 @@
-import { readFile } from "node:fs/promises";
 import { findMunicipality, type MunicipalityTable } from "../lib/geo";
 import type { Opportunity } from "../lib/opportunity";
-
-export async function loadMunicipalities(path = "data/municipios.json"): Promise<MunicipalityTable> {
-  return JSON.parse(await readFile(path, "utf8")) as MunicipalityTable;
-}
 
 /**
  * Gives in-person and hybrid items in Brazil the coordinates of their city, so the site can

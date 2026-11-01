@@ -231,6 +231,49 @@ body {
 }
 
 @layer components {
+  /* Checkbox and radio drawn by the site: the browser's own ignore the theme. */
+  .check {
+    appearance: none;
+    flex: none;
+    display: inline-grid;
+    place-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 4px;
+    background: var(--card);
+    cursor: pointer;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
+  }
+  .check[type="radio"] {
+    border-radius: 9999px;
+  }
+  .check::before {
+    content: "";
+    width: 0.625rem;
+    height: 0.625rem;
+    background: var(--card);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transition: transform 0.12s var(--ease-out-soft);
+  }
+  .check[type="radio"]::before {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    clip-path: none;
+  }
+  .check:checked {
+    border-color: var(--action);
+    background: var(--action);
+  }
+  .check:checked::before {
+    transform: scale(1);
+  }
+
   /* Fine grid that fades downwards: the hero's pattern, reused on cards and panels. */
   .grid-bg {
     position: relative;

@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
-import { loadMunicipalities } from "../src/collectors/geocode";
+import { loadMunicipalities } from "../src/collectors/load-municipalities";
 import { dedupe } from "../src/lib/dedupe";
 import { buildDigest, isEmptyDigest } from "../src/lib/digest";
 import { renderDigest } from "../src/lib/digest-email";
