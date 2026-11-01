@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { buildIcs, calendarEventFor, googleCalendarUrl } from "@/lib/calendar";
 import type { Opportunity } from "@/lib/opportunity";
 import { checksFor, itemKey, type Profile } from "@/lib/personalize";
-import { Avatar, CheckList, ModeTag, TypeTag, type CardActions } from "./cards";
+import { CheckList, FitBadge, ModeTag, OfficialLink, SaveButton, TypeTag, type CardActions } from "./cards";
 import { SOURCE_LABEL, dateStub, instantDate, longDate, placeLine, shortDate, topicTags, whatItIs } from "./format";
-import { ArrowIcon, BookmarkIcon, CalendarIcon, ShareIcon, XIcon } from "./icons";
+import { CalendarIcon, ShareIcon, XIcon } from "./icons";
 import { ReportForm } from "./report-form";
 
 function shareUrlFor(o: Opportunity): string {
@@ -18,11 +18,14 @@ function shareUrlFor(o: Opportunity): string {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-6 first:mt-0">
-      <h3 className="mb-2 text-[12.5px] font-bold tracking-wider text-muted uppercase">{title}</h3>
+      <h3 className="mb-2.5 font-mono text-[13px] leading-5 font-semibold tracking-tight">{title}</h3>
       {children}
     </section>
   );
 }
+
+const secondaryButton =
+  "inline-flex h-11 items-center gap-2 rounded-md border border-line-strong px-3.5 font-mono text-[12.5px] font-semibold tracking-tight text-ink transition-colors hover:border-action hover:bg-sky-tint";
 
 export function DetailDrawer({
   o,
@@ -51,7 +54,7 @@ export function DetailDrawer({
 
   const stub = dateStub(o, today);
   const topics = topicTags(o);
-  const saved = actions.isSaved(o);
+  const checks = checksFor(o, profile, today);
   const event = typeof window === "undefined" ? null : calendarEventFor(o, shareUrlFor(o), today);
 
   function downloadIcs() {
@@ -79,10 +82,12 @@ export function DetailDrawer({
     setShared(true);
   }
 
-  const keys = [
-    { label: stub.label, value: `${stub.date}${stub.hint ? ` · ${stub.hint}` : ""}` },
-    { label: "Onde", value: o.modality === "online" ? "Online" : placeLine(o) },
-    ...(o.benefits[0] ? [{ label: "Você ganha", value: o.benefits[0] }] : o.organizer ? [{ label: "Quem organiza", value: o.organizer }] : []),
+  const facts = [
+    { label: stub.label, value: stub.date, sub: stub.hint, urgent: stub.urgent },
+    { label: "Onde", value: o.modality === "online" ? "Online" : placeLine(o), sub: o.modality === "online" ? "De onde você estiver" : null, urgent: false },
+    ...(o.benefits[0] ? [{ label: "Você ganha", value: o.benefits[0], sub: null, urgent: false }] : []),
+    ...(o.organizer ? [{ label: "Quem organiza", value: o.organizer, sub: null, urgent: false }] : []),
+    ...(o.cost ? [{ label: "Custo", value: o.cost, sub: null, urgent: false }] : []),
   ];
 
   return (
@@ -93,46 +98,54 @@ export function DetailDrawer({
         if (e.target === e.currentTarget) onClose();
       }}
       aria-labelledby="detail-title"
-      className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-dvh w-full max-w-[560px] overflow-y-auto overscroll-contain bg-card p-0 text-ink shadow-[-12px_0_40px_rgba(9,20,48,0.18)] backdrop:bg-[rgba(9,20,48,0.45)] open:block open:animate-[drawer-in_.25s_cubic-bezier(.2,.8,.2,1)]"
+      className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-dvh w-full max-w-[540px] overflow-y-auto overscroll-contain border-l border-line-strong bg-card p-0 text-ink shadow-[-20px_0_60px_rgb(0_0_0/0.35)] open:block open:animate-[drawer-in_.32s_cubic-bezier(.2,.8,.2,1)] max-sm:top-auto max-sm:bottom-0 max-sm:h-[92dvh] max-sm:max-w-none max-sm:rounded-t-md max-sm:border-t max-sm:border-l-0 max-sm:open:animate-[sheet-in_.32s_cubic-bezier(.2,.8,.2,1)]"
     >
-      <header className="on-navy relative bg-navy px-5 pt-5 pb-5 text-white sm:px-6">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Fechar"
-          className="absolute top-3.5 right-3.5 grid size-9 place-items-center rounded-full bg-navy-2 hover:bg-white/20"
-        >
-          <XIcon className="size-5" />
-        </button>
-        <div className="flex items-center gap-3 pr-10">
-          <Avatar o={o} size="sm" />
-          <div className="flex flex-wrap gap-1.5">
-            <span className="rounded-md bg-card">
-              <TypeTag o={o} />
-            </span>
-            <ModeTag o={o} onNavy />
+      {/* The whole drawer scrolls as one: a fixed header and footer left little room on phones. */}
+      <div className="grid-bg px-5 pt-6 pb-5 sm:px-8 sm:pt-7">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+            <TypeTag o={o} />
+            <ModeTag o={o} />
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar"
+            className="-mt-1 grid size-11 shrink-0 place-items-center rounded-md border border-line text-ink transition-colors hover:border-line-strong hover:bg-card-2"
+          >
+            <XIcon className="size-[18px]" />
+          </button>
         </div>
-        <h2 id="detail-title" className="mt-3 pr-8 text-2xl leading-tight font-extrabold tracking-tight">
+        <h2 id="detail-title" className="mt-3 font-mono text-[21px] leading-[27px] font-semibold tracking-[-0.045em] text-balance sm:text-[24px] sm:leading-[30px]">
           {o.title}
         </h2>
-        {o.organizer && <p className="mt-1 text-sm text-navy-text">{o.organizer}</p>}
-        <dl className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {keys.map((k) => (
-            <div key={k.label} className="rounded-xl bg-navy-2 px-3 py-2.5">
-              <dt className="text-[11px] font-semibold tracking-wide text-navy-text uppercase">{k.label}</dt>
-              <dd className="mt-0.5 text-[15px] leading-snug font-bold">{k.value}</dd>
+
+        <dl className="mt-6 grid grid-cols-[90px_1fr] gap-x-4 gap-y-3 border-y border-line py-5 sm:grid-cols-[120px_1fr]">
+          {facts.map((f) => (
+            <div key={f.label} className="contents">
+              <dt className="text-[13px] leading-[22px] font-semibold text-muted">{f.label}</dt>
+              <dd className={`min-w-0 text-[15px] leading-[22px] font-semibold ${f.urgent ? "text-urgent" : ""}`}>
+                {f.value}
+                {f.sub && <small className={`block text-[13px] leading-[19px] font-normal ${f.urgent ? "" : "text-muted"}`}>{f.sub}</small>}
+              </dd>
             </div>
           ))}
         </dl>
-      </header>
+      </div>
 
-      {/* The whole drawer scrolls as one: a fixed header and footer left little room on phones. */}
-      <div className="px-5 py-5 sm:px-6">
+      <div className="px-5 pb-6 sm:px-8">
+        <Section title="Posso participar?">
+          <div className="flex flex-col gap-2.5">
+            {profile && <FitBadge checks={checks} />}
+            <CheckList checks={checks} size="md" />
+          </div>
+          {!profile && <p className="mt-2 text-[13px] text-muted">Monte seu perfil para ver se você se encaixa.</p>}
+        </Section>
+
         <Section title="O que é">
           {/* A call's own summary (read from its PDF) beats the generic description of its type. */}
-          <p className="max-w-[65ch] text-[15px] leading-relaxed">{o.summary ?? whatItIs(o)}</p>
-          <p className="mt-2 rounded-lg bg-ground px-3 py-2 text-[12.5px] text-muted">
+          <p className="max-w-[65ch] text-[15px] leading-relaxed text-ink-2">{o.summary ?? whatItIs(o)}</p>
+          <p className="mt-2.5 rounded-sm border-l-2 border-line-strong bg-card-2 px-3 py-2 text-[12.5px] leading-[18px] text-muted">
             {o.summary
               ? "Resumo lido automaticamente do edital. Prazos, requisitos e documentos estão no PDF oficial."
               : "Descrição geral deste tipo de oportunidade. O tema, as regras e os requisitos completos estão na página oficial."}
@@ -143,7 +156,7 @@ export function DetailDrawer({
           <Section title="Temas">
             <ul className="flex flex-wrap gap-1.5">
               {topics.map((t) => (
-                <li key={t} className="rounded-md bg-ground px-2.5 py-1 text-[13px] font-semibold">
+                <li key={t} className="rounded-sm border border-line bg-card-2 px-2.5 py-1 font-mono text-[12px] font-semibold tracking-tight">
                   {t}
                 </li>
               ))}
@@ -151,9 +164,9 @@ export function DetailDrawer({
           </Section>
         )}
 
-        {o.benefits.length > 0 && (
+        {o.benefits.length > 1 && (
           <Section title="O que você ganha">
-            <ul className="list-disc space-y-1 pl-5 text-[15px]">
+            <ul className="list-disc space-y-1 pl-5 text-[15px] marker:text-action">
               {o.benefits.map((b) => (
                 <li key={b}>{b}</li>
               ))}
@@ -161,22 +174,19 @@ export function DetailDrawer({
           </Section>
         )}
 
-        <Section title="Posso participar?">
-          <CheckList checks={checksFor(o, profile, today)} size="md" />
-          {!profile && <p className="mt-2 text-[13px] text-muted">Monte seu perfil para ver se você se encaixa.</p>}
-        </Section>
-
         <Section title="Datas">
           <ul className="space-y-1 text-[15px]">
             {o.registrationDeadline && <li>Inscrições até {longDate(o.registrationDeadline)}</li>}
             {o.startsOn && (
               <li>
-                {o.endsOn && o.endsOn !== o.startsOn
-                  ? `De ${shortDate(o.startsOn)} a ${longDate(o.endsOn)}`
-                  : `Em ${longDate(o.startsOn)}`}
+                {o.endsOn && o.endsOn !== o.startsOn ? `De ${shortDate(o.startsOn)} a ${longDate(o.endsOn)}` : `Em ${longDate(o.startsOn)}`}
               </li>
             )}
-            {!o.registrationDeadline && !o.startsOn && <li>{stub.label}: {stub.date}</li>}
+            {!o.registrationDeadline && !o.startsOn && (
+              <li>
+                {stub.label}: {stub.date}
+              </li>
+            )}
           </ul>
         </Section>
 
@@ -214,65 +224,40 @@ export function DetailDrawer({
         </Section>
       </div>
 
-      <footer className="border-t border-line px-5 py-4 sm:px-6">
-        <a
-          href={o.officialUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded-xl bg-action px-4 py-3 text-[15px] font-bold text-card hover:bg-action-strong"
-        >
-          Ver página oficial
-          <ArrowIcon className="size-4" />
-        </a>
+      <footer className="border-t border-line px-5 pt-4 pb-6 sm:px-8">
+        <div className="flex gap-2.5">
+          <OfficialLink o={o} className="h-12 flex-1 text-[14px]" />
+          <SaveButton o={o} actions={actions} />
+        </div>
         <div className="mt-2.5 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => actions.onToggleSave(o)}
-            aria-pressed={saved}
-            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[13.5px] font-semibold ${
-              saved ? "border-action bg-action text-card" : "border-line hover:border-ink"
-            }`}
-          >
-            <BookmarkIcon filled={saved} />
-            {saved ? "Salvo" : "Salvar"}
-          </button>
           {event && (
             <details className="relative">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-[13.5px] font-semibold hover:border-ink [&::-webkit-details-marker]:hidden">
+              <summary className={`${secondaryButton} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
                 <CalendarIcon />
                 Adicionar à agenda
               </summary>
-              <div className="absolute bottom-full left-0 z-10 mb-2 w-60 rounded-xl border border-line bg-card p-1.5 shadow-[0_8px_24px_rgba(9,20,48,0.16)]">
+              <div className="absolute bottom-full left-0 z-10 mb-2 w-64 rounded-md border border-line-strong bg-card p-1.5 shadow-[0_20px_50px_-12px_rgb(var(--shadow-rgb)/0.45)]">
                 <a
                   href={googleCalendarUrl(event)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-lg px-3 py-2 text-[14px] font-semibold hover:bg-ground"
+                  className="block rounded-sm px-3 py-2.5 text-[14px] font-semibold hover:bg-sky-tint"
                 >
                   Google Agenda
                 </a>
-                <button
-                  type="button"
-                  onClick={downloadIcs}
-                  className="block w-full rounded-lg px-3 py-2 text-left text-[14px] font-semibold hover:bg-ground"
-                >
+                <button type="button" onClick={downloadIcs} className="block w-full rounded-sm px-3 py-2.5 text-left text-[14px] font-semibold hover:bg-sky-tint">
                   iPhone, Outlook e outros (.ics)
                 </button>
-                <p className="px-3 pt-1 pb-1.5 text-[12px] text-muted">
-                  {event.title} · com lembrete 2 dias antes
-                </p>
+                <p className="px-3 pt-1 pb-1.5 text-[12px] text-muted">{event.title} · com lembrete 2 dias antes</p>
               </div>
             </details>
           )}
-          <button
-            type="button"
-            onClick={share}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-[13.5px] font-semibold hover:border-ink"
-          >
+          <button type="button" onClick={share} className={secondaryButton}>
             <ShareIcon />
             {shared ? "Aberto no WhatsApp" : "Compartilhar"}
           </button>
         </div>
+        <p className="mt-3 text-[12px] leading-[17px] text-muted">A página oficial é sempre o destino: confira regras e prazos lá antes de se inscrever.</p>
       </footer>
     </dialog>
   );

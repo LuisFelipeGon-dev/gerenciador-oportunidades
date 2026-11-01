@@ -1,33 +1,46 @@
 @import "tailwindcss";
 
-/* Topa? identity: identidade/tokens.json (surface = ground, surface-raised = card, border = line). */
+/*
+ * Topa? identity "Silício": dark slate, one blue signal, square edges, monospaced headings.
+ * ground = page, card = raised surface, card-2 = the date column, line = borders.
+ * action is the blue of links, focus and selected states; btn is the main button (neutral).
+ */
 :root {
-  --navy: #0c2a66;
-  --navy-2: #16397f;
-  --navy-text: #b8c8ec;
-  --sky: #5cc8ff;
-  --ink: #0b1b3d;
-  --muted: #4a5a7a;
-  --line: #d3dff0;
-  --ground: #f4f8fe;
+  --ground: #eef3fa;
+  --surface: #f3f6fc;
   --card: #ffffff;
-  --action: #0970ad;
-  --sky-tint: #e3f4ff;
+  --card-2: #f0f4fc;
+  --ink: #0c1330;
+  --ink-2: #26335c;
+  --muted: #52608a;
+  --line: #d8def0;
+  --line-strong: #a3b6d6;
+  --action: #0f62d6;
+  --action-strong: #0b4fb0;
+  --sky-tint: #e2eeff;
+  --signal: #00a98f;
+  --btn: #0c1330;
+  --btn-hover: #1b2650;
+  --on-btn: #ffffff;
   --hack: #b83a25;
   --hack-bg: #fdebe7;
   --event: #0a7368;
   --event-bg: #e2f5f2;
   --prog: #6d32d6;
   --prog-bg: #f1eafe;
-  --urgent: #c2372c;
-  --urgent-bg: #fdecea;
-  --open: #14804a;
-  --open-bg: #e5f5ec;
-  --prize: #126b41;
-  --prize-bg: #e4f5ec;
-  /* Hover of action buttons, and the RGB of every shadow. */
-  --action-strong: #0c2a66;
-  --shadow-rgb: 12 42 102;
+  --urgent: #c0262d;
+  --urgent-bg: #fdecec;
+  --open: #1d7a56;
+  --open-bg: #e3f4ec;
+  --prize: #7a4a00;
+  --prize-bg: #fff3d6;
+  --grid: rgba(15, 98, 214, 0.08);
+  --grid-hi: rgba(15, 98, 214, 0.26);
+  --glow: rgba(15, 98, 214, 0.14);
+  --scrim: rgba(12, 19, 48, 0.5);
+  --bar: rgba(238, 243, 250, 0.82);
+  --shadow-rgb: 12 19 48;
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
   /* Calendar: one color per event (blue, teal, purple, amber, pink, green). */
   --cal-0-bg: #e3ecff;
   --cal-0-fg: #1d48c2;
@@ -45,107 +58,128 @@
 }
 
 /*
- * Dark theme: chosen in /ajustes (data-theme on <html>, set before paint by the script in
- * layout.tsx) or, with "Automático", by the system setting. text-card is the inverse of ink:
- * white on dark fills in the light theme, dark on light fills in the dark one.
+ * Dark theme: chosen in /ajustes or the top bar (data-theme on <html>, set before paint by the
+ * script in layout.tsx) or, with "Automático", by the system setting.
  */
 :root[data-theme="dark"] {
-  --navy: #0f2557;
-  --navy-2: #1b3470;
-  --navy-text: #b8c8ec;
-  --sky: #5cc8ff;
-  --ink: #eaf2ff;
-  --muted: #a9b9d6;
-  --line: #2a3f70;
-  --ground: #0b1730;
-  --card: #11224a;
-  --action: #5cc8ff;
-  --action-strong: #a8e2ff;
-  --sky-tint: #12306a;
-  --hack: #ff8f7a;
-  --hack-bg: #3a1f1b;
-  --event: #4fd1c0;
-  --event-bg: #0f302d;
-  --prog: #b99bff;
-  --prog-bg: #291d47;
-  --urgent: #ff8076;
-  --urgent-bg: #3d1a19;
-  --open: #5fd394;
-  --open-bg: #12301f;
-  --prize: #7be3ad;
-  --prize-bg: #12301f;
+  --ground: #070f1d;
+  --surface: #0a1324;
+  --card: #101c33;
+  --card-2: #162540;
+  --ink: #e8f0ff;
+  --ink-2: #c4d4ee;
+  --muted: #8fa3c4;
+  --line: #1d2c47;
+  --line-strong: #33496d;
+  --action: #4ea1ff;
+  --action-strong: #86bfff;
+  --sky-tint: rgba(78, 161, 255, 0.14);
+  --signal: #35e8c8;
+  --btn: #e6f0ff;
+  --btn-hover: #ffffff;
+  --on-btn: #070f1d;
+  --hack: #ff9b85;
+  --hack-bg: rgba(255, 155, 133, 0.12);
+  --event: #35e8c8;
+  --event-bg: rgba(53, 232, 200, 0.12);
+  --prog: #b9a4ff;
+  --prog-bg: rgba(185, 164, 255, 0.13);
+  --urgent: #ff8080;
+  --urgent-bg: rgba(255, 128, 128, 0.12);
+  --open: #5db996;
+  --open-bg: rgba(93, 185, 150, 0.14);
+  --prize: #ffd479;
+  --prize-bg: rgba(255, 212, 121, 0.12);
+  --grid: rgba(96, 165, 255, 0.07);
+  --grid-hi: rgba(110, 178, 255, 0.3);
+  --glow: rgba(78, 161, 255, 0.22);
+  --scrim: rgba(3, 8, 18, 0.7);
+  --bar: rgba(7, 15, 29, 0.78);
   --shadow-rgb: 0 0 0;
-  --cal-0-bg: #1a2a52;
+  --cal-0-bg: #15284d;
   --cal-0-fg: #a9c1ff;
-  --cal-1-bg: #0f302d;
+  --cal-1-bg: #0d2c2c;
   --cal-1-fg: #5fd9c8;
-  --cal-2-bg: #291d47;
+  --cal-2-bg: #231b45;
   --cal-2-fg: #c4a8ff;
-  --cal-3-bg: #3a2a0d;
+  --cal-3-bg: #33270d;
   --cal-3-fg: #f5c56b;
-  --cal-4-bg: #3d1729;
+  --cal-4-bg: #361628;
   --cal-4-fg: #ff9cc6;
-  --cal-5-bg: #12301f;
+  --cal-5-bg: #102d1e;
   --cal-5-fg: #7fe0a4;
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --navy: #0f2557;
-    --navy-2: #1b3470;
-    --navy-text: #b8c8ec;
-    --sky: #5cc8ff;
-    --ink: #eaf2ff;
-    --muted: #a9b9d6;
-    --line: #2a3f70;
-    --ground: #0b1730;
-    --card: #11224a;
-    --action: #5cc8ff;
-    --action-strong: #a8e2ff;
-    --sky-tint: #12306a;
-    --hack: #ff8f7a;
-    --hack-bg: #3a1f1b;
-    --event: #4fd1c0;
-    --event-bg: #0f302d;
-    --prog: #b99bff;
-    --prog-bg: #291d47;
-    --urgent: #ff8076;
-    --urgent-bg: #3d1a19;
-    --open: #5fd394;
-    --open-bg: #12301f;
-    --prize: #7be3ad;
-    --prize-bg: #12301f;
+    --ground: #070f1d;
+    --surface: #0a1324;
+    --card: #101c33;
+    --card-2: #162540;
+    --ink: #e8f0ff;
+    --ink-2: #c4d4ee;
+    --muted: #8fa3c4;
+    --line: #1d2c47;
+    --line-strong: #33496d;
+    --action: #4ea1ff;
+    --action-strong: #86bfff;
+    --sky-tint: rgba(78, 161, 255, 0.14);
+    --signal: #35e8c8;
+    --btn: #e6f0ff;
+    --btn-hover: #ffffff;
+    --on-btn: #070f1d;
+    --hack: #ff9b85;
+    --hack-bg: rgba(255, 155, 133, 0.12);
+    --event: #35e8c8;
+    --event-bg: rgba(53, 232, 200, 0.12);
+    --prog: #b9a4ff;
+    --prog-bg: rgba(185, 164, 255, 0.13);
+    --urgent: #ff8080;
+    --urgent-bg: rgba(255, 128, 128, 0.12);
+    --open: #5db996;
+    --open-bg: rgba(93, 185, 150, 0.14);
+    --prize: #ffd479;
+    --prize-bg: rgba(255, 212, 121, 0.12);
+    --grid: rgba(96, 165, 255, 0.07);
+    --grid-hi: rgba(110, 178, 255, 0.3);
+    --glow: rgba(78, 161, 255, 0.22);
+    --scrim: rgba(3, 8, 18, 0.7);
+    --bar: rgba(7, 15, 29, 0.78);
     --shadow-rgb: 0 0 0;
-    --cal-0-bg: #1a2a52;
+    --cal-0-bg: #15284d;
     --cal-0-fg: #a9c1ff;
-    --cal-1-bg: #0f302d;
+    --cal-1-bg: #0d2c2c;
     --cal-1-fg: #5fd9c8;
-    --cal-2-bg: #291d47;
+    --cal-2-bg: #231b45;
     --cal-2-fg: #c4a8ff;
-    --cal-3-bg: #3a2a0d;
+    --cal-3-bg: #33270d;
     --cal-3-fg: #f5c56b;
-    --cal-4-bg: #3d1729;
+    --cal-4-bg: #361628;
     --cal-4-fg: #ff9cc6;
-    --cal-5-bg: #12301f;
+    --cal-5-bg: #102d1e;
     --cal-5-fg: #7fe0a4;
     color-scheme: dark;
   }
 }
 
 @theme inline {
-  --color-action-strong: var(--action-strong);
-  --color-sky-tint: var(--sky-tint);
-  --color-navy: var(--navy);
-  --color-navy-2: var(--navy-2);
-  --color-navy-text: var(--navy-text);
-  --color-sky: var(--sky);
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
   --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-ground: var(--ground);
-  --color-card: var(--card);
+  --color-line-strong: var(--line-strong);
   --color-action: var(--action);
+  --color-action-strong: var(--action-strong);
+  --color-sky-tint: var(--sky-tint);
+  --color-signal: var(--signal);
+  --color-btn: var(--btn);
+  --color-btn-hover: var(--btn-hover);
+  --color-on-btn: var(--on-btn);
   --color-hack: var(--hack);
   --color-hack-bg: var(--hack-bg);
   --color-event: var(--event);
@@ -158,18 +192,37 @@
   --color-open-bg: var(--open-bg);
   --color-prize: var(--prize);
   --color-prize-bg: var(--prize-bg);
-  --font-sans: var(--font-figtree);
+  --font-sans: var(--font-sora);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Square edges everywhere: every rounded-* utility becomes a near-sharp corner (rounded-full stays round). */
+@theme {
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 4px;
+  --radius-3xl: 6px;
+}
+
+html {
+  scroll-padding-top: 88px;
 }
 
 body {
   background: var(--ground);
   color: var(--ink);
-  font-feature-settings: "tnum";
+  font-size: 15.5px;
+  transition:
+    background-color 0.32s,
+    color 0.32s;
 }
 
 ::selection {
-  background: var(--sky);
-  color: var(--navy);
+  background: var(--action);
+  color: var(--on-btn);
 }
 
 :focus-visible {
@@ -177,19 +230,278 @@ body {
   outline-offset: 2px;
 }
 
-.on-navy :focus-visible {
-  outline-color: var(--sky);
+@layer components {
+  /* Fine grid that fades downwards: the hero's pattern, reused on cards and panels. */
+  .grid-bg {
+    position: relative;
+    isolation: isolate;
+  }
+  .grid-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: -1px -1px;
+    mask-image: linear-gradient(to bottom, #000 10%, transparent 95%);
+  }
+
+  /* Light that follows the pointer (--mx/--my set by usePointerSpot): a halo and the grid lit underneath. */
+  .spot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.22s;
+    background-image:
+      linear-gradient(var(--grid-hi) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-hi) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: -1px -1px;
+    mask-image: radial-gradient(190px circle at var(--mx, 50%) var(--my, 50%), #000, transparent 72%);
+  }
+  .spot:hover::after {
+    opacity: 1;
+  }
+  .spot:hover {
+    background-image: radial-gradient(340px circle at var(--mx, 50%) var(--my, 0%), var(--glow), transparent 70%);
+  }
+
+  /* Cards joined into one block, separated by hairlines. */
+  .stack {
+    display: grid;
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--line);
+  }
+  .stack > * {
+    background-color: var(--card);
+  }
+
+  /* Blinking cursor after the hero headline. */
+  .type-cursor::after {
+    content: "";
+    display: inline-block;
+    width: 0.075em;
+    min-width: 3px;
+    height: 0.95em;
+    margin-left: 0.12em;
+    vertical-align: -0.1em;
+    border-radius: 1px;
+    background: var(--signal);
+    animation: blink 1.06s steps(1, end) infinite;
+  }
+  .type-cursor.typing::after {
+    animation: none;
+  }
+
+  /* The bitmap "?" of the hero: dots light up in a diagonal wave, the last one blinks. */
+  .matrix .off {
+    fill: var(--line-strong);
+    opacity: 0.5;
+    animation: offin 0.7s ease both;
+    animation-delay: calc(80ms + var(--k) * 45ms);
+  }
+  .matrix .on {
+    fill: var(--action);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation:
+      lit 0.56s var(--ease-out-soft) both,
+      flash 0.9s ease-out both;
+    animation-delay: calc(250ms + var(--k) * 60ms), calc(250ms + var(--k) * 60ms);
+  }
+  .matrix .cursor {
+    fill: var(--signal);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation:
+      lit 0.56s var(--ease-out-soft) calc(550ms + var(--k) * 60ms) both,
+      blink 1.1s steps(1, end) 2.6s infinite;
+  }
+  .matrix {
+    filter: drop-shadow(0 0 26px var(--glow));
+  }
+
+  .logo-q rect {
+    fill: var(--action);
+  }
+  .logo-q .dot {
+    fill: var(--signal);
+  }
+  a:hover > .logo-q .dot {
+    animation: blink 0.9s steps(1, end) infinite;
+  }
+
+  /* Gradient rule under section titles. */
+  .sec-rule {
+    position: relative;
+  }
+  .sec-rule::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--action), var(--line-strong) 35%, var(--line));
+    transform-origin: 0 50%;
+  }
+
+  /* Progress of the page scroll, drawn as a thin glowing line at the very top. */
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 60;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(90deg, var(--action), var(--signal));
+    box-shadow: 0 0 12px var(--action);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+
+  .tab-indicator {
+    box-shadow: 0 0 14px 1px var(--action);
+    transition:
+      transform 0.32s var(--ease-out-soft),
+      width 0.32s var(--ease-out-soft);
+  }
 }
 
-@keyframes drawer-in {
+/* Scroll-linked motion where the browser supports it; elsewhere everything is simply visible. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+    .sec-rule::after {
+      animation: grow-x linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+    .scroll-progress {
+      animation: grow-x linear both;
+      animation-timeline: scroll(root);
+    }
+    .hero-parallax {
+      animation: hero-away linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 480px;
+    }
+  }
+}
+
+@keyframes rise {
   from {
-    transform: translateX(100%);
+    opacity: 0;
+    transform: translateY(18px);
   }
   to {
+    opacity: 1;
     transform: none;
   }
 }
-
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes hero-away {
+  to {
+    opacity: 0.15;
+    transform: translateY(56px);
+  }
+}
+@keyframes lit {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.45);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes flash {
+  0% {
+    fill: #fff;
+  }
+  100% {
+    fill: var(--action);
+  }
+}
+@keyframes offin {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 /* The day page of the Agenda settles in from just below. */
 @keyframes rise-in {
   from {
@@ -204,11 +516,21 @@ body {
   }
 }
 
+dialog::backdrop {
+  background: var(--scrim);
+  animation: fade-in 0.22s ease both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+  }
+  .type-cursor::after,
+  .matrix .cursor {
+    animation: none !important;
   }
 }
